@@ -1,0 +1,82 @@
+# ==============================================================================
+# 1. Dependências e Pacotes
+# ==============================================================================
+# Bloquear diretórios de pacotes em qualquer nível do monorepo
+node_modules/
+jspm_packages/
+.pnpm-store/
+
+# ==============================================================================
+# 2. Builds e Saídas de Compilação
+# ==============================================================================
+# Ignorar as pastas de artefatos gerados pelo build (ex: NestJS e TypeScript)
+dist/
+build/
+out/
+.nest/
+# Ignorar cache de compilação incremental do TypeScript
+*.tsbuildinfo
+
+# ==============================================================================
+# 3. Variáveis de Ambiente e Segurança
+# ==============================================================================
+# ⚠️ ATENÇÃO: NUNCA comite credenciais ou segredos reais
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+*.pem
+*.key
+*.cert
+# Permitir expressamente que arquivos de exemplo de configuração sejam comitados
+!.env.example
+
+# ==============================================================================
+# 4. Docker
+# ==============================================================================
+# Ignorar volumes locais criados acidentalmente via bind mounts de bancos de dados
+/postgres_data/
+/rabbitmq_data/
+/docker-data/
+/.docker/
+/db-data/
+
+# ==============================================================================
+# 5. Prisma ORM
+# ==============================================================================
+# Ignorar bancos de dados SQLite gerados localmente e arquivos temporários de transação
+*.db
+*.db-journal
+# NOTA: Arquivos de schema do Prisma (*.prisma) e diretórios de migrations NÃO
+# estão sendo ignorados aqui e DEVEM ser rastreados no controle de versão.
+
+# ==============================================================================
+# 6. Logs e Diagnósticos
+# ==============================================================================
+# Bloquear arquivos de log de gerenciadores de pacotes e da aplicação
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==============================================================================
+# 7. Configurações de IDEs e OS
+# ==============================================================================
+# Diretórios e arquivos específicos do VS Code e IntelliJ/WebStorm
+.vscode/
+# Se houver configurações compartilhadas de workspace recomendadas para a equipe
+# descomente as linhas abaixo para rastreá-las:
+#!.vscode/settings.json
+#!.vscode/extensions.json
+.idea/
+
+# Arquivos gerados por Sistemas Operacionais (Windows/macOS)
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+Thumbs.db
+ehthumbs.db

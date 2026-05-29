@@ -30,28 +30,28 @@ export class AuthService {
           email: dto.email,
           password: hashedPassword,
           settings: initialSettings,
-          // Condicionalmente preenche 'client' ou 'provider' com base no tipo
-          ...(dto.type === AccountType.CLIENT && {
-            client: {
+          // Condicionalmente preenche 'student' ou 'professor' com base no tipo
+          ...(dto.type === AccountType.STUDENT && {
+            student: {
               create: {
-                cpf: dto.cpf,
-                planType: dto.planType,
+                ra: dto.ra!,
+                periodo: dto.periodo!,
               },
             },
           }),
-          ...(dto.type === AccountType.PROVIDER && {
-            provider: {
+          ...(dto.type === AccountType.PROFESSOR && {
+            professor: {
               create: {
-                cnpj: dto.cnpj,
-                bio: dto.bio || null,
+                matricula: dto.matricula!,
+                titulacao: dto.titulacao!,
               },
             },
           }),
         },
         // Retorna o subdocumento incluído para confirmarmos a criação completa
         include: {
-          client: true,
-          provider: true,
+          student: true,
+          professor: true,
         },
       });
 
@@ -60,9 +60,9 @@ export class AuthService {
       const { password, ...result } = user;
       return result;
     } catch (error) {
-      // Em casos de violação de Unique Key (ex: CPF ou CNPJ duplicado) que o prisma levanta (P2002)
+      // Em casos de violação de Unique Key (ex: RA ou Matrícula duplicados) que o prisma levanta (P2002)
       if (error.code === 'P2002') {
-         throw new ConflictException('Dados únicos já registrados (CPF ou CNPJ).');
+         throw new ConflictException('Dados únicos já registrados (RA ou Matrícula).');
       }
       throw new InternalServerErrorException('Erro interno ao registrar usuário');
     }

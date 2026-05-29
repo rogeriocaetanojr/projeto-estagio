@@ -17,32 +17,58 @@ datasource db {
 // ----------------------------------------------------------------------------
 
 model User {
-  id       String    @id @default(uuid())
-  email    String    @unique
-  password String
-  settings Json      @default("{}")
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  settings  Json       @default("{}")
   
   // Relacionamentos 1:1 para tabelas filhas (Herança)
-  client   Client?
-  provider Provider?
+  student   Student?
+  professor Professor?
+
+  // Relacionamentos da comunidade acadêmica
+  posts     Post[]
 }
 
-model Client {
+model Student {
+  id      String @id @default(uuid())
+  ra      String @unique
+  periodo Int
+  
+  // Relacionamento com a tabela pai
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String @unique
+}
+
+model Professor {
+  id        String @id @default(uuid())
+  matricula String @unique
+  titulacao String
+  
+  // Relacionamento com a tabela pai
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String @unique
+}
+
+model Post {
+  id          String       @id @default(uuid())
+  title       String
+  content     String
+  
+  // Relacionamento com User
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+
+  // Relacionamento com Attachment
+  attachments Attachment[]
+}
+
+model Attachment {
   id       String @id @default(uuid())
-  cpf      String @unique
-  planType String
-  
-  // Relacionamento com a tabela pai
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   String @unique
-}
+  fileName String
+  fileUrl  String
 
-model Provider {
-  id     String  @id @default(uuid())
-  cnpj   String  @unique
-  bio    String?
-  
-  // Relacionamento com a tabela pai
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String  @unique
+  // Relacionamento com Post
+  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId   String
 }

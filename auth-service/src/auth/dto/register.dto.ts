@@ -1,16 +1,16 @@
 import {
   IsEmail,
   IsEnum,
+  IsInt,
   IsNotEmpty,
-  IsOptional,
   IsString,
   MinLength,
   ValidateIf,
 } from 'class-validator';
 
 export enum AccountType {
-  CLIENT = 'client',
-  PROVIDER = 'provider',
+  STUDENT = 'student',
+  PROFESSOR = 'professor',
 }
 
 export class RegisterDto {
@@ -22,33 +22,33 @@ export class RegisterDto {
   password: string;
 
   @IsEnum(AccountType, {
-    message: 'O tipo de conta deve ser client ou provider',
+    message: 'O tipo de conta deve ser student ou professor',
   })
   type: AccountType;
 
   // --------------------------------------------------------------------------
-  // Campos específicos do CLIENT
+  // Campos específicos do STUDENT
   // --------------------------------------------------------------------------
-  @ValidateIf((o) => o.type === AccountType.CLIENT)
+  @ValidateIf((o) => o.type === AccountType.STUDENT)
   @IsString()
-  @IsNotEmpty({ message: 'O CPF é obrigatório para clientes' })
-  cpf?: string;
+  @IsNotEmpty({ message: 'O RA é obrigatório para estudantes' })
+  ra?: string;
 
-  @ValidateIf((o) => o.type === AccountType.CLIENT)
-  @IsString()
-  @IsNotEmpty({ message: 'O plano é obrigatório para clientes' })
-  planType?: string;
+  @ValidateIf((o) => o.type === AccountType.STUDENT)
+  @IsInt({ message: 'O período deve ser um número inteiro' })
+  @IsNotEmpty({ message: 'O período é obrigatório para estudantes' })
+  periodo?: number;
 
   // --------------------------------------------------------------------------
-  // Campos específicos do PROVIDER
+  // Campos específicos do PROFESSOR
   // --------------------------------------------------------------------------
-  @ValidateIf((o) => o.type === AccountType.PROVIDER)
+  @ValidateIf((o) => o.type === AccountType.PROFESSOR)
   @IsString()
-  @IsNotEmpty({ message: 'O CNPJ é obrigatório para provedores' })
-  cnpj?: string;
+  @IsNotEmpty({ message: 'A matrícula é obrigatória para professores' })
+  matricula?: string;
 
-  @ValidateIf((o) => o.type === AccountType.PROVIDER)
-  @IsOptional()
+  @ValidateIf((o) => o.type === AccountType.PROFESSOR)
   @IsString()
-  bio?: string;
+  @IsNotEmpty({ message: 'A titulação é obrigatória para professores' })
+  titulacao?: string;
 }

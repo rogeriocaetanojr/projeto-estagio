@@ -1,11 +1,15 @@
-import { Injectable, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, ConflictException, InternalServerErrorException, Inject } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, AccountType } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject('MESSAGE_BROKER') private readonly client: ClientProxy,
+  ) {}
 
   async register(dto: RegisterDto) {
     // 1. Verifica se o usuário já existe pelo e-mail
@@ -58,6 +62,14 @@ export class AuthService {
       // Remove a senha do objeto de retorno para maior segurança
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
+
+      // Emite o evento de usuário registrado para o RabbitMQ
+      this.client.emit('user_registered', {
+        id: result.id,
+        email: result.email,
+        profileType: dto.type,
+      });
+
       return result;
     } catch (error) {
       // Em casos de violação de Unique Key (ex: RA ou Matrícula duplicados) que o prisma levanta (P2002)

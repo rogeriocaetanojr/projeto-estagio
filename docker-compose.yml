@@ -17,7 +17,7 @@ services:
     networks:
       - microservices_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d microservices_db"]
+      test: [ "CMD-SHELL", "pg_isready -U root -d microservices_db" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,17 +28,57 @@ services:
     container_name: rabbitmq_microservices
     restart: unless-stopped
     ports:
-      - "5672:5672"      # Porta de comunicação AMQP
-      - "15672:15672"    # Porta do painel de gerenciamento HTTP (Management Plugin)
+      - "5672:5672" # Porta de comunicação AMQP
+      - "15672:15672" # Porta do painel de gerenciamento HTTP
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - microservices_network
     healthcheck:
-      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics -q ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # Microsserviço de Autenticação e Usuários
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth_service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DATABASE_URL=postgresql://root:rootpassword@postgres:5432/microservices_db?schema=auth
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - microservices_network
+
+  # Microsserviço de Comunidade (Postagens e Anexos)
+  community-service:
+    build:
+      context: ./community-service
+      dockerfile: Dockerfile
+    container_name: community_service
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - DATABASE_URL=postgresql://root:rootpassword@postgres:5432/microservices_db?schema=community
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - microservices_network
 
 networks:
   # Rede bridge dedicada para comunicação segura entre microsserviços

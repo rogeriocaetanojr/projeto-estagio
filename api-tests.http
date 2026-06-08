@@ -1,0 +1,27 @@
+### Configurações Globais
+@baseUrl = http://localhost:3001
+@contentType = application/json
+
+### 1. Criar Novo Usuário - Estudante (Dispara evento para a Comunidade)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "rogerio.restclientt@unisenai.com",
+  "password": "senhaSegura123",
+  "type": "student",
+  "ra": "12345336",
+  "periodo": 1
+}
+
+### 2. Criar Novo Usuário - Professor (Dispara evento para a Comunidade)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "professor.restclient@unisenai.com",
+  "password": "senhaSegura123",
+  "type": "professor",
+  "matricula": "987654",
+  "titulacao": "Mestrado"
+}

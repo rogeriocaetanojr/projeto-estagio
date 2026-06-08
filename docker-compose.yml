@@ -48,6 +48,7 @@ services:
     container_name: auth_service
     ports:
       - "3001:3001"
+      - "5555:5555"
     environment:
       - PORT=3001
       - DATABASE_URL=postgresql://root:rootpassword@postgres:5432/microservices_db?schema=auth

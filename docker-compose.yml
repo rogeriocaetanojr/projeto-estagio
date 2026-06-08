@@ -69,6 +69,9 @@ services:
     container_name: community_service
     ports:
       - "3002:3002"
+    volumes:
+      - ./community-service:/usr/src/app
+      - /usr/src/app/node_modules
     environment:
       - PORT=3002
       - DATABASE_URL=postgresql://root:rootpassword@postgres:5432/microservices_db?schema=community

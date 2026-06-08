@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserMirrorModule } from './user-mirror/user-mirror.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { UserMirrorModule } from './user-mirror/user-mirror.module';
     }),
     PrismaModule,
     UserMirrorModule,
+    PostsModule,
   ],
   controllers: [],
   providers: [],

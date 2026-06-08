@@ -7,10 +7,10 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "rogerio.restclientt@unisenai.com",
+  "email": "rogerio2.restclientt@unisenai.com",
   "password": "senhaSegura123",
   "type": "student",
-  "ra": "12345336",
+  "ra": "123453336",
   "periodo": 1
 }
 
@@ -19,9 +19,13 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "professor.restclient@unisenai.com",
+  "email": "professor2.restclient@unisenai.com",
   "password": "senhaSegura123",
   "type": "professor",
-  "matricula": "987654",
+  "matricula": "9876542",
   "titulacao": "Mestrado"
 }
+
+### 3. Obter posts do Community Service (Feed simulado)
+GET http://localhost:3002/posts
+Content-Type: application/json

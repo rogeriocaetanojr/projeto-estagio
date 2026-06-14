@@ -7,10 +7,10 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "rogerio2.restclientt@unisenai.com",
-  "password": "senhaSegura123",
+  "email": "teste.usuario777@unisenai.com",
+  "password": "senhaSeguura12344",
   "type": "student",
-  "ra": "123453336",
+  "ra": "12345334444444443444446",
   "periodo": 1
 }
 
@@ -37,7 +37,7 @@ Content-Type: application/json
 {
   "title": "Minha publicação real no banco de dados",
   "content": "Este é o conteúdo do post que está sendo salvo fisicamente na comunidade usando o PrismaService.",
-  "authorId": "ca5b1a23-ab4a-4edb-bf64-868921676de6"
+  "authorId": "d49ce0be-38d2-4ac5-b94f-d53ea6fba306"
 }
 
 ### 5. Criar Post com Autor Inválido (Cenário de Erro 404 - Fase 2)
@@ -48,4 +48,4 @@ Content-Type: application/json
   "title": "Post que deve falhar",
   "content": "Este post não deve ser salvo porque o authorId não existe no banco.",
   "authorId": "00000000-0000-0000-0000-000000000000"
-}
+}

@@ -2,20 +2,24 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: 'MESSAGE_BROKER',
-        transport: Transport.RMQ,
-        options: {
-          urls: [process.env.RABBITMQ_URL || 'amqp://root:rootpassword@rabbitmq:5672'],
-          queue: 'events_queue',
-          queueOptions: {
-            durable: true
+        inject: [ConfigService],
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('RABBITMQ_URL') || 'amqp://guest:guest@localhost:5672'],
+            queue: 'events_queue',
+            queueOptions: {
+              durable: true
+            },
           },
-        },
+        }),
       },
     ]),
   ],

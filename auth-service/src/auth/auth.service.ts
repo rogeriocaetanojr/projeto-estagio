@@ -1,11 +1,14 @@
-import { Injectable, ConflictException, InternalServerErrorException, Inject } from '@nestjs/common';
+import { Injectable, ConflictException, InternalServerErrorException, Inject, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, AccountType } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { ClientProxy } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     @Inject('MESSAGE_BROKER') private readonly client: ClientProxy,
@@ -64,11 +67,15 @@ export class AuthService {
       const { password, ...result } = user;
 
       // Emite o evento de usuário registrado para o RabbitMQ
-      this.client.emit('user_registered', {
-        id: result.id,
-        email: result.email,
-        profileType: dto.type,
-      });
+      this.logger.log(`Emitindo evento 'user_registered' para RabbitMQ...`);
+      await lastValueFrom(
+        this.client.emit('user_registered', {
+          id: result.id,
+          email: result.email,
+          profileType: dto.type,
+        }),
+      );
+      this.logger.log(`Evento emitido com sucesso!`);
 
       return result;
     } catch (error) {
@@ -76,6 +83,7 @@ export class AuthService {
       if (error.code === 'P2002') {
          throw new ConflictException('Dados únicos já registrados (RA ou Matrícula).');
       }
+      this.logger.error(`Erro no registro:`, error);
       throw new InternalServerErrorException('Erro interno ao registrar usuário');
     }
   }

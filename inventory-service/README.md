@@ -71,3 +71,103 @@ Para garantir o desacoplamento físico e manter as referências necessárias par
 2. Modele a tabela contendo apenas os campos estritamente necessários para as regras de negócio deste módulo (como o `id` e o `profileType`), definindo o `id` originário do evento como chave primária local.
 3. Implemente um consumidor de mensagens para escutar o evento `user_registered` e executar operações de persistência local (inserção/atualização) com os dados recebidos.
 4. Utilize a chave primária da tabela espelho como chave estrangeira em tabelas locais associadas à gestão de insumos.
+
+---
+
+## 5. Guia Rápido de Integração (Exemplo com NestJS)
+
+Caso a equipe opte por utilizar o **NestJS** para este microsserviço, a infraestrutura global já conta com o padrão **Pub/Sub** e **Dead Letter Queues (DLQ)** para resiliência. 
+
+Para "mastigar" a integração, copiem exatamente a estrutura abaixo para conectar o serviço e consumir a fila de forma segura:
+
+### A. Configuração da Topologia no `main.ts`
+
+No seu `src/main.ts`, configurem a conexão manual com o RabbitMQ criando a fila exclusiva do Inventário e sua respectiva fila de quarentena (DLQ):
+
+```typescript
+import { connect } from 'amqp-connection-manager';
+// ... outras importações
+
+// Dentro do bootstrap():
+const rabbitmqUrl = process.env.RABBITMQ_URL || 'amqp://guest:guest@localhost:5672';
+
+// 1. Configura as filas exclusivas do Inventory
+const connection = connect([rabbitmqUrl]);
+const channelWrapper = connection.createChannel({
+  setup: (channel: any) => {
+    return Promise.all([
+      // Vincula à Exchange global (Não alterar o nome 'user.events')
+      channel.assertExchange('user.events', 'fanout', { durable: true }),
+      
+      // Filas e Exchanges de ERRO exclusivas do Inventory
+      channel.assertExchange('user.events.dlx', 'fanout', { durable: true }),
+      channel.assertQueue('inventory_service_queue_dlq', { durable: true }),
+      channel.bindQueue('inventory_service_queue_dlq', 'user.events.dlx', ''),
+
+      // Fila principal do Inventory (Com redirecionamento de erros para a DLX)
+      channel.assertQueue('inventory_service_queue', { 
+        durable: true,
+        deadLetterExchange: 'user.events.dlx' 
+      }),
+      channel.bindQueue('inventory_service_queue', 'user.events', ''),
+    ]);
+  }
+});
+await channelWrapper.waitForConnect();
+
+// 2. Conecta o microserviço indicando a fila correta e desabilitando o auto-ack
+app.connectMicroservice<MicroserviceOptions>({
+  transport: Transport.RMQ,
+  options: {
+    urls: [rabbitmqUrl],
+    queue: 'inventory_service_queue',
+    noAck: false, // OBRIGATÓRIO: Permite controle manual de sucesso/falha (DLQ)
+    queueOptions: {
+      durable: true,
+      arguments: {
+        'x-dead-letter-exchange': 'user.events.dlx'
+      }
+    },
+  },
+});
+```
+
+### B. O Consumidor Perfeito (`controller.ts`)
+
+No Controller, interceptem o evento e insiram a regra de negócio do módulo:
+
+```typescript
+import { Controller, Logger } from '@nestjs/common';
+import { EventPattern, Payload, Ctx, RmqContext } from '@nestjs/microservices';
+
+@Controller()
+export class InventoryConsumerController {
+  private readonly logger = new Logger(InventoryConsumerController.name);
+
+  @EventPattern('user_registered')
+  async handleUserRegistered(@Payload() data: any, @Ctx() context: RmqContext) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    try {
+      this.logger.log(`Novo usuário detectado! Dados: ${JSON.stringify(data)}`);
+
+      // ==========================================
+      // LÓGICA DE NEGÓCIO E PERSISTÊNCIA AQUI
+      // Exemplo:
+      // await this.prisma.userMirror.create(...);
+      // await this.prisma.inventory.create(...);
+      // ==========================================
+
+      // Sucesso: Confirma o processamento para o RabbitMQ apagar a mensagem
+      channel.ack(originalMsg);
+
+    } catch (error) {
+      this.logger.error(`Falha interna. Desviando mensagem para a DLQ...`);
+      
+      // Falha: Rejeita a mensagem sem requeue, ativando o roteamento para a DLQ
+      channel.nack(originalMsg, false, false); 
+    }
+  }
+}
+```

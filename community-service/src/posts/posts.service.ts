@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { GetPostsDto } from './dto/get-posts.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -29,8 +30,17 @@ export class PostsService {
     });
   }
 
-  findAll() {
+  findAll(query: GetPostsDto) {
+    const { profileType } = query;
+
     return this.prisma.post.findMany({
+      where: {
+        ...(profileType && {
+          author: {
+            profileType,
+          },
+        }),
+      },
       include: {
         author: true,
       },

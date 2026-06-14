@@ -7,10 +7,10 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "usuario.exchange55777@unisenai.com",
+  "email": "usuario.exxchange55777@unisenai.com",
   "password": "senhaSeguura12344",
   "type": "student",
-  "ra": "19854466",
+  "ra": "1985446556",
   "periodo": 1
 }
 
@@ -49,3 +49,34 @@ Content-Type: application/json
   "content": "Este post não deve ser salvo porque o authorId não existe no banco.",
   "authorId": "00000000-0000-0000-0000-000000000000"
 }
+
+### ==========================================
+### REGRAS DE NEGÓCIO DO FEED (FILTROS)
+### ==========================================
+
+### 1. Criar Nova Publicação
+# Lembrete: Substitua o 'authorId' abaixo pelo ID do usuário que apareceu no 
+# log do terminal do community-service ("Usuário mirror persistido com sucesso...")
+POST http://localhost:3002/posts
+Content-Type: application/json
+
+{
+  "title": "Aviso de Prova de Engenharia de Software",
+  "content": "A prova será na próxima semana e cobrirá microsserviços e RabbitMQ.",
+  "authorId": "c76671b0-7947-40b6-9cc4-62133bb88979"
+}
+
+### 2. Buscar Posts Filtrando Apenas Estudantes (Feed Alunos)
+GET http://localhost:3002/posts?profileType=student
+Content-Type: application/json
+
+### 3. Buscar Posts Filtrando Apenas Professores (Feed Docentes)
+GET http://localhost:3002/posts?profileType=professor
+Content-Type: application/json
+
+### 4. Buscar Posts - Teste de Validação de Erro (ValidationPipe)
+# Esperado: 400 Bad Request
+# O ValidationPipe com whitelist deve rejeitar esse profileType inválido e exibir
+# a mensagem de erro que configuramos no DTO.
+GET http://localhost:3002/posts?profileType=admin
+Content-Type: application/json

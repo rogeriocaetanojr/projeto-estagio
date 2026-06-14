@@ -29,3 +29,23 @@ Content-Type: {{contentType}}
 ### 3. Obter posts do Community Service (Feed simulado)
 GET http://localhost:3002/posts
 Content-Type: application/json
+
+### 4. Criar Post com Autor Válido (Fase 2)
+POST http://localhost:3002/posts
+Content-Type: application/json
+
+{
+  "title": "Minha publicação real no banco de dados",
+  "content": "Este é o conteúdo do post que está sendo salvo fisicamente na comunidade usando o PrismaService.",
+  "authorId": "e12b7a95-71cb-4a7b-b384-a82f3ef80f58"
+}
+
+### 5. Criar Post com Autor Inválido (Cenário de Erro 404 - Fase 2)
+POST http://localhost:3002/posts
+Content-Type: application/json
+
+{
+  "title": "Post que deve falhar",
+  "content": "Este post não deve ser salvo porque o authorId não existe no banco.",
+  "authorId": "00000000-0000-0000-0000-000000000000"
+}

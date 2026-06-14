@@ -8,7 +8,19 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     const connectionString = process.env.DATABASE_URL;
     const pool = new Pool({ connectionString });
-    const adapter = new PrismaPg(pool);
+
+    let schema = 'public';
+    try {
+      const url = new URL(connectionString as string);
+      schema = url.searchParams.get('schema') || 'public';
+      pool.on('connect', (client) => {
+        client.query(`SET search_path TO ${schema}`);
+      });
+    } catch (e) {
+      // fallback caso a URL não possa ser parseada
+    }
+
+    const adapter = new PrismaPg(pool, { schema });
     super({ adapter });
   }
 

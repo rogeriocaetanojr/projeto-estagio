@@ -1,11 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class PostsService {
-  create(createPostDto: CreatePostDto) {
-    return 'This action adds a new post';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createPostDto: CreatePostDto) {
+    const { title, content, authorId } = createPostDto;
+
+    const authorExists = await this.prisma.userMirror.findUnique({
+      where: { id: authorId },
+    });
+
+    if (!authorExists) {
+      throw new NotFoundException('Autor não encontrado na comunidade');
+    }
+
+    return this.prisma.post.create({
+      data: {
+        title,
+        content,
+        author: {
+          connect: { id: authorId },
+        },
+      },
+    });
   }
 
   findAll() {
@@ -24,3 +45,4 @@ export class PostsService {
     return `This action removes a #${id} post`;
   }
 }
+

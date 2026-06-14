@@ -80,3 +80,17 @@ Content-Type: application/json
 # a mensagem de erro que configuramos no DTO.
 GET http://localhost:3002/posts?profileType=admin
 Content-Type: application/json
+
+
+
+### Criar Usuário de Teste de Caos (Forçar DLQ)
+POST http://localhost:3001/auth/register
+Content-Type: application/json
+
+{
+  "email": "usuario.erro@unisenai.com",
+  "password": "SenhaSegura123",
+  "type": "student",
+  "ra": "123456789",
+  "periodo": 7
+}

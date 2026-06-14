@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Transport, MicroserviceOptions } from '@nestjs/microservices';
-import * as amqp from 'amqp-connection-manager';
+import { connect } from 'amqp-connection-manager';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -24,15 +24,29 @@ async function bootstrap() {
 
   // Setup manual da topologia Pub/Sub do RabbitMQ para a Comunidade
   logger.log('Configurando topologia Pub/Sub no RabbitMQ...');
-  const connection = amqp.connect([rabbitmqUrl]);
+  const connection = connect([rabbitmqUrl]);
   const channelWrapper = connection.createChannel({
-    setup: function(channel: any) {
+    setup: (channel: any) => {
       return Promise.all([
-        // Cria a Exchange 'user.events' do tipo fanout
+        // Exchange principal (já existente)
         channel.assertExchange('user.events', 'fanout', { durable: true }),
-        // Cria a Fila do serviço de comunidade
-        channel.assertQueue('community_service_queue', { durable: true }),
-        // Faz o BIND da Fila na Exchange (escutando tudo o que é publicado lá)
+        
+        // 1. Cria a Exchange de Erro (Dead Letter Exchange)
+        channel.assertExchange('user.events.dlx', 'fanout', { durable: true }),
+        
+        // 2. Cria a Fila de Segurança (Dead Letter Queue)
+        channel.assertQueue('community_service_queue_dlq', { durable: true }),
+        
+        // 3. Vincula a fila DLQ à Exchange DLX
+        channel.bindQueue('community_service_queue_dlq', 'user.events.dlx', ''),
+
+        // 4. Cria a Fila do serviço de comunidade configurada para desviar erros para a DLX
+        channel.assertQueue('community_service_queue', { 
+          durable: true,
+          deadLetterExchange: 'user.events.dlx' // Desvio automático em caso de rejeição (nack)
+        }),
+
+        // 5. Faz o BIND da Fila Principal na Exchange Principal
         channel.bindQueue('community_service_queue', 'user.events', ''),
       ]);
     }
@@ -47,8 +61,12 @@ async function bootstrap() {
     options: {
       urls: [rabbitmqUrl],
       queue: 'community_service_queue',
+      noAck: false, // Desativa o auto-ack para habilitar as rejeições (DLQ)
       queueOptions: {
         durable: true,
+        arguments: {
+          'x-dead-letter-exchange': 'user.events.dlx'
+        }
       },
     },
   });

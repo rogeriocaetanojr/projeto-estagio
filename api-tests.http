@@ -7,10 +7,10 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "teste.usuario777@unisenai.com",
+  "email": "usuario.exchange55777@unisenai.com",
   "password": "senhaSeguura12344",
   "type": "student",
-  "ra": "12345334444444443444446",
+  "ra": "19854466",
   "periodo": 1
 }
 
@@ -19,10 +19,10 @@ POST {{baseUrl}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "email": "professor2.restclient@unisenai.com",
-  "password": "senhaSegura123",
+  "email": "professor.teste777@unisenai.com",
+  "password": "senhaSegura1233",
   "type": "professor",
-  "matricula": "9876542",
+  "matricula": "987654255",
   "titulacao": "Mestrado"
 }
 
@@ -37,7 +37,7 @@ Content-Type: application/json
 {
   "title": "Minha publicação real no banco de dados",
   "content": "Este é o conteúdo do post que está sendo salvo fisicamente na comunidade usando o PrismaService.",
-  "authorId": "d49ce0be-38d2-4ac5-b94f-d53ea6fba306"
+  "authorId": "7e6ae6c6-b039-464b-a523-44cf0e3a233c"
 }
 
 ### 5. Criar Post com Autor Inválido (Cenário de Erro 404 - Fase 2)

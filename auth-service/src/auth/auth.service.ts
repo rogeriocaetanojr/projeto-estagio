@@ -2,8 +2,7 @@ import { Injectable, ConflictException, InternalServerErrorException, Inject, Lo
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, AccountType } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
-import { ClientProxy } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
+import type { ChannelWrapper } from 'amqp-connection-manager';
 
 @Injectable()
 export class AuthService {
@@ -11,7 +10,7 @@ export class AuthService {
 
   constructor(
     private readonly prisma: PrismaService,
-    @Inject('MESSAGE_BROKER') private readonly client: ClientProxy,
+    @Inject('MESSAGE_BROKER') private readonly client: ChannelWrapper,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -66,16 +65,21 @@ export class AuthService {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
 
-      // Emite o evento de usuário registrado para o RabbitMQ
-      this.logger.log(`Emitindo evento 'user_registered' para RabbitMQ...`);
-      await lastValueFrom(
-        this.client.emit('user_registered', {
+      // Emite o evento de usuário registrado para a Exchange no RabbitMQ
+      this.logger.log(`Emitindo evento 'user_registered' para a Exchange 'user.events'...`);
+      
+      const payload = {
+        pattern: 'user_registered',
+        data: {
           id: result.id,
           email: result.email,
           profileType: dto.type,
-        }),
-      );
-      this.logger.log(`Evento emitido com sucesso!`);
+        }
+      };
+
+      await this.client.publish('user.events', '', Buffer.from(JSON.stringify(payload)));
+      
+      this.logger.log(`Evento emitido com sucesso na Exchange!`);
 
       return result;
     } catch (error) {

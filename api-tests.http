@@ -37,7 +37,7 @@ Content-Type: application/json
 {
   "title": "Minha publicação real no banco de dados",
   "content": "Este é o conteúdo do post que está sendo salvo fisicamente na comunidade usando o PrismaService.",
-  "authorId": "e12b7a95-71cb-4a7b-b384-a82f3ef80f58"
+  "authorId": "ca5b1a23-ab4a-4edb-bf64-868921676de6"
 }
 
 ### 5. Criar Post com Autor Inválido (Cenário de Erro 404 - Fase 2)

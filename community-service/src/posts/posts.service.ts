@@ -30,7 +30,14 @@ export class PostsService {
   }
 
   findAll() {
-    return [{ id: "1", title: "Fase 1: Sucesso", content: "O feed simulado da comunidade está respondendo perfeitamente!" }];
+    return this.prisma.post.findMany({
+      include: {
+        author: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   findOne(id: number) {

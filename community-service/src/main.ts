@@ -9,6 +9,9 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
+  // Habilita requisições de origem cruzada para que o Application Shell consiga baixar os arquivos estáticos
+  app.enableCors();
+
   // Configuração de Pipes de Validação global
   app.useGlobalPipes(
     new ValidationPipe({

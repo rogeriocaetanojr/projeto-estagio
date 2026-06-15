@@ -15,8 +15,9 @@
         <aside class="app-sidebar">
             <nav>
                 <ul>
-                    <li><button onclick="loadMicroFrontend('community', 'http://localhost:3001/bundle.js', 'community-mfe')">Comunidade</button></li>
-                    <li><button onclick="loadMicroFrontend('education', 'http://localhost:3002/bundle.js', 'education-mfe')">Educação</button></li>
+                    <li><button onclick="loadMicroFrontend('community', '../community-service/public/community-element.js', 'community-application')">Comunidade</button></li>
+                    <li><button onclick="loadMicroFrontend('education', '../education-service/public/education-element.js', 'education-application')">Educação</button></li>
+                    <li><button onclick="loadMicroFrontend('inventory', '../inventory-service/public/inventory-element.js', 'inventory-application')">Inventário</button></li>
                 </ul>
             </nav>
         </aside>

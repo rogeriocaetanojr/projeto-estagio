@@ -29,6 +29,15 @@
         </main>
     </div>
 
+    <!-- Import Map para resolver dependências nativamente no navegador (Frameworkless) -->
+    <script type="importmap">
+        {
+            "imports": {
+                "lit": "https://cdn.jsdelivr.net/gh/lit/dist@3/core/lit-core.min.js"
+            }
+        }
+    </script>
+
     <!-- ES Modules suportado nativamente -->
     <script type="module" src="app.js"></script>
 </body>

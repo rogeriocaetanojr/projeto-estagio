@@ -1,0 +1,119 @@
+/* styles.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f4f6f8;
+    color: #333;
+}
+
+.app-header {
+    background-color: #0f172a;
+    color: white;
+    padding: 1.25rem 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    z-index: 10;
+}
+
+.app-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+}
+
+.app-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.app-sidebar {
+    width: 260px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    padding: 2rem 1.5rem;
+    box-shadow: 4px 0 6px -1px rgba(0,0,0,0.05);
+}
+
+.app-sidebar ul {
+    list-style: none;
+}
+
+.app-sidebar li {
+    margin-bottom: 1rem;
+}
+
+.app-sidebar button {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background-color: transparent;
+    border: 2px solid #3b82f6;
+    color: #3b82f6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-align: left;
+    display: flex;
+    align-items: center;
+}
+
+.app-sidebar button:hover {
+    background-color: #3b82f6;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+}
+
+#app-viewport {
+    flex: 1;
+    padding: 2.5rem;
+    overflow-y: auto;
+    background-color: #f8fafc;
+}
+
+#app-viewport h2 {
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+#app-viewport p {
+    color: #64748b;
+}
+
+.loading {
+    font-size: 1.125rem;
+    color: #3b82f6;
+    font-weight: 500;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.error-message {
+    background-color: #fef2f2;
+    border-left: 4px solid #ef4444;
+    padding: 1rem;
+    border-radius: 0 4px 4px 0;
+}
+
+.error-message h3 {
+    color: #991b1b;
+    margin-bottom: 0.5rem;
+}
+
+.error-message p {
+    color: #b91c1c !important;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}

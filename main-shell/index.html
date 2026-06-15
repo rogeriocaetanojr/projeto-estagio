@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Shell - Micro-Frontends</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="app-header">
+        <h1>Portal Institucional</h1>
+    </header>
+
+    <div class="app-container">
+        <aside class="app-sidebar">
+            <nav>
+                <ul>
+                    <li><button onclick="loadMicroFrontend('community', 'http://localhost:3001/bundle.js', 'community-mfe')">Comunidade</button></li>
+                    <li><button onclick="loadMicroFrontend('education', 'http://localhost:3002/bundle.js', 'education-mfe')">Educação</button></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main id="app-viewport">
+            <!-- Micro-frontends serão injetados aqui -->
+            <h2>Bem-vindo ao Portal</h2>
+            <p>Selecione um módulo no menu lateral para carregar o Micro-Frontend correspondente.</p>
+        </main>
+    </div>
+
+    <!-- ES Modules suportado nativamente -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>

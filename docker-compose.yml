@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # Banco de dados relacional para persistência de dados dos microsserviços
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_microservices
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: rootpassword
+      POSTGRES_DB: microservices_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - microservices_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root -d microservices_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Message Broker para comunicação assíncrona orientada a eventos
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq_microservices
+    restart: unless-stopped
+    ports:
+      - "5672:5672" # Porta de comunicação AMQP
+      - "15672:15672" # Porta do painel de gerenciamento HTTP
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - microservices_network
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics -q ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Microsserviço de Autenticação e Usuários
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth_service
+    ports:
+      - "3001:3001"
+      - "5555:5555"
+    environment:
+      - PORT=3001
+      - DATABASE_URL=postgresql://root:rootpassword@postgres:5432/microservices_db?schema=auth
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - microservices_network
+
+  # Microsserviço de Comunidade (Postagens e Anexos)
+  community-service:
+    build:
+      context: ./community-service
+      dockerfile: Dockerfile
+    container_name: community_service
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./community-service:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - PORT=3002
+      - DATABASE_URL=postgresql://root:rootpassword@postgres:5432/microservices_db?schema=community
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - microservices_network
+
+  # Microsserviço de Educação/Ensino (Cursos, Matrículas e Avaliações)
+  education-service:
+    build:
+      context: ./education-service
+      dockerfile: Dockerfile
+    container_name: education_service
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./education-service:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - PORT=3003
+      - DATABASE_URL=postgresql://root:rootpassword@postgres:5432/microservices_db?schema=education
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - microservices_network
+
+networks:
+  # Rede bridge dedicada para comunicação segura entre microsserviços
+  microservices_network:
+    driver: bridge
+    name: microservices_net
+
+volumes:
+  # Volumes nomeados para persistência durável de dados
+  postgres_data:
+    driver: local
+  rabbitmq_data:
+    driver: local

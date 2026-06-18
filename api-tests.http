@@ -1,0 +1,96 @@
+### Configurações Globais
+@baseUrl = http://localhost:3001
+@contentType = application/json
+
+### 1. Criar Novo Usuário - Estudante (Dispara evento para a Comunidade)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.exxchange55777@unisenai.com",
+  "password": "senhaSeguura12344",
+  "type": "student",
+  "ra": "1985446556",
+  "periodo": 1
+}
+
+### 2. Criar Novo Usuário - Professor (Dispara evento para a Comunidade)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "professor.teste777@unisenai.com",
+  "password": "senhaSegura1233",
+  "type": "professor",
+  "matricula": "987654255",
+  "titulacao": "Mestrado"
+}
+
+### 3. Obter posts do Community Service (Feed simulado)
+GET http://localhost:3002/posts
+Content-Type: application/json
+
+### 4. Criar Post com Autor Válido (Fase 2)
+POST http://localhost:3002/posts
+Content-Type: application/json
+
+{
+  "title": "Minha publicação real no banco de dados",
+  "content": "Este é o conteúdo do post que está sendo salvo fisicamente na comunidade usando o PrismaService.",
+  "authorId": "7e6ae6c6-b039-464b-a523-44cf0e3a233c"
+}
+
+### 5. Criar Post com Autor Inválido (Cenário de Erro 404 - Fase 2)
+POST http://localhost:3002/posts
+Content-Type: application/json
+
+{
+  "title": "Post que deve falhar",
+  "content": "Este post não deve ser salvo porque o authorId não existe no banco.",
+  "authorId": "00000000-0000-0000-0000-000000000000"
+}
+
+### ==========================================
+### REGRAS DE NEGÓCIO DO FEED (FILTROS)
+### ==========================================
+
+### 1. Criar Nova Publicação
+# Lembrete: Substitua o 'authorId' abaixo pelo ID do usuário que apareceu no 
+# log do terminal do community-service ("Usuário mirror persistido com sucesso...")
+POST http://localhost:3002/posts
+Content-Type: application/json
+
+{
+  "title": "Aviso de Prova de Engenharia de Software",
+  "content": "A prova será na próxima semana e cobrirá microsserviços e RabbitMQ.",
+  "authorId": "c76671b0-7947-40b6-9cc4-62133bb88979"
+}
+
+### 2. Buscar Posts Filtrando Apenas Estudantes (Feed Alunos)
+GET http://localhost:3002/posts?profileType=student
+Content-Type: application/json
+
+### 3. Buscar Posts Filtrando Apenas Professores (Feed Docentes)
+GET http://localhost:3002/posts?profileType=professor
+Content-Type: application/json
+
+### 4. Buscar Posts - Teste de Validação de Erro (ValidationPipe)
+# Esperado: 400 Bad Request
+# O ValidationPipe com whitelist deve rejeitar esse profileType inválido e exibir
+# a mensagem de erro que configuramos no DTO.
+GET http://localhost:3002/posts?profileType=admin
+Content-Type: application/json
+
+
+
+### Criar Usuário de Teste de Caos (Forçar DLQ)
+POST http://localhost:3001/auth/register
+Content-Type: application/json
+
+{
+  "email": "usuario.erro@unisenai.com",
+  "password": "SenhaSegura123",
+  "type": "student",
+  "ra": "123456789",
+  "periodo": 7
+}

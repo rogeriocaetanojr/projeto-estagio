@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ----------------------------------------------------------------------------
+// Modelagem de Dados: Class Table Inheritance
+// ----------------------------------------------------------------------------
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  settings  Json       @default("{}")
+  
+  // Relacionamentos 1:1 para tabelas filhas (Herança)
+  student   Student?
+  professor Professor?
+
+  // Relacionamentos da comunidade acadêmica
+  posts     Post[]
+}
+
+model Student {
+  id      String @id @default(uuid())
+  ra      String @unique
+  periodo Int
+  
+  // Relacionamento com a tabela pai
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String @unique
+}
+
+model Professor {
+  id        String @id @default(uuid())
+  matricula String @unique
+  titulacao String
+  
+  // Relacionamento com a tabela pai
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String @unique
+}
+
+model Post {
+  id          String       @id @default(uuid())
+  title       String
+  content     String
+  
+  // Relacionamento com User
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+
+  // Relacionamento com Attachment
+  attachments Attachment[]
+}
+
+model Attachment {
+  id       String @id @default(uuid())
+  fileName String
+  fileUrl  String
+
+  // Relacionamento com Post
+  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId   String
+}

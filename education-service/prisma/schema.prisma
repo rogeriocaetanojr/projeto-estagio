@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model UserMirror {
+  id               String       @id
+  email            String       @unique
+  profileType      String
+  professorCourses Course[]     @relation("ProfessorCourses")
+  enrollments      Enrollment[]
+}
+
+model Course {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  professorId String?
+  professor   UserMirror?  @relation("ProfessorCourses", fields: [professorId], references: [id], onDelete: SetNull)
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id        String     @id @default(uuid())
+  studentId String
+  student   UserMirror @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  grade     Float?
+  createdAt DateTime   @default(now())
+
+  @@unique([studentId, courseId])
+}

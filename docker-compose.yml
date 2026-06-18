@@ -84,6 +84,29 @@ services:
     networks:
       - microservices_network
 
+  # Microsserviço de Educação/Ensino (Cursos, Matrículas e Avaliações)
+  education-service:
+    build:
+      context: ./education-service
+      dockerfile: Dockerfile
+    container_name: education_service
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./education-service:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - PORT=3003
+      - DATABASE_URL=postgresql://root:rootpassword@postgres:5432/microservices_db?schema=education
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - microservices_network
+
 networks:
   # Rede bridge dedicada para comunicação segura entre microsserviços
   microservices_network:

@@ -1,9 +1,11 @@
-import { Injectable, ConflictException, InternalServerErrorException, Inject, Logger } from '@nestjs/common';
+import { Injectable, ConflictException, InternalServerErrorException, Inject, Logger, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, AccountType } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import type { ChannelWrapper } from 'amqp-connection-manager';
 import { ClientProxy } from '@nestjs/microservices';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +15,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     @Inject('MESSAGE_BROKER') private readonly messageBroker: ChannelWrapper,
     @Inject('AUTH_RABBITMQ_SERVICE') private readonly client: ClientProxy,
+    private readonly jwtService: JwtService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -94,6 +97,53 @@ export class AuthService {
       this.logger.error(`Erro no registro:`, error);
       throw new InternalServerErrorException('Erro interno ao registrar usuário');
     }
+  }
+
+  async login(dto: LoginDto) {
+    // Busca o User por email (include student e professor)
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+      include: {
+        student: true,
+        professor: true,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Credenciais inválidas');
+    }
+
+    // Compara dto.password com user.password usando bcrypt.compare
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+    
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Credenciais inválidas');
+    }
+
+    // Determina o profileType
+    let profileType: string | null = null;
+    if (user.student) {
+      profileType = 'student';
+    } else if (user.professor) {
+      profileType = 'professor';
+    }
+
+    // Gera o JWT com payload { sub: user.id, email: user.email, profileType }
+    const payload = { sub: user.id, email: user.email, profileType };
+    const access_token = await this.jwtService.signAsync(payload);
+
+    // Mantém a emissão do evento 'user_logged_in'
+    this.publishUserLogin({ id: user.id, email: user.email });
+
+    // Retorna { access_token, user: { id, email, profileType } }
+    return {
+      access_token,
+      user: {
+        id: user.id,
+        email: user.email,
+        profileType,
+      },
+    };
   }
 
   publishUserLogin(userData: any) {

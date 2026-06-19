@@ -24,6 +24,7 @@ model Course {
   professorId String?
   professor   UserMirror?  @relation("ProfessorCourses", fields: [professorId], references: [id], onDelete: SetNull)
   enrollments Enrollment[]
+  lessons     Lesson[]
 }
 
 model Enrollment {
@@ -36,4 +37,15 @@ model Enrollment {
   createdAt DateTime   @default(now())
 
   @@unique([studentId, courseId])
+}
+
+model Lesson {
+  id          String   @id @default(uuid())
+  title       String
+  content     String?
+  videoUrl    String?
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  orderIndex  Int      @default(0)
+  createdAt   DateTime @default(now())
 }

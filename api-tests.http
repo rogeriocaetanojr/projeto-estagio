@@ -94,3 +94,26 @@ Content-Type: application/json
   "ra": "123456789",
   "periodo": 7
 }
+
+### ==========================================
+### AUTENTICAÇÃO E JWT
+### ==========================================
+
+### Login para obter o Access Token
+# Lembre-se de usar credenciais de um usuário já criado (ex: requests 1 ou 2)
+# @name loginRequest
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.exxchange55777@unisenai.com",
+  "password": "senhaSeguura12344"
+}
+
+### Obter perfil protegido do usuário logado (requer JWT)
+# A extensão REST Client captura automaticamente o token da requisição acima via {{loginRequest.response.body.access_token}}
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+### Teste de Falha: Obter perfil sem token (401 Unauthorized)
+GET {{baseUrl}}/auth/me

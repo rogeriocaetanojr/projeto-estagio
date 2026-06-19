@@ -64,3 +64,46 @@ async handleUserRegistered(@Payload() data: any) {
 ```
 
 Essa arquitetura "Plug and Play" blinda o ecossistema, reduz o acoplamento e permite que a aplicação cresça indefinidamente através da inserção de novos módulos consumidores sem tocar no núcleo principal.
+
+## Contrato Tipado do Evento `user_registered`
+
+Para garantir um contrato estável e previsível entre os módulos, o evento publicado pelo `auth-service` é centralizado e tipado em `auth-service/src/events/contracts.ts`:
+
+```typescript
+export const USER_EVENTS_EXCHANGE = 'user.events';
+
+export enum ProfileType {
+  STUDENT = 'STUDENT',
+  PROFESSOR = 'PROFESSOR',
+}
+
+export interface UserRegisteredEvent {
+  pattern: 'user_registered';
+  data: {
+    id: string;
+    email: string;
+    profileType: ProfileType;
+  };
+}
+```
+
+### Regras do contrato (obrigatórias para os consumidores)
+
+1. **Exchange:** o evento é publicado na Exchange `user.events` (tipo `fanout`). Nunca alterar esse nome.
+2. **Formato do envelope:** o payload sempre segue `{ pattern, data }`, padrão do NestJS Microservices.
+3. **`profileType` em MAIÚSCULAS:** o valor é sempre `STUDENT` ou `PROFESSOR` (uppercase). Os módulos `community`, `education` e `inventory` devem consumir esperando esse formato. Comparar sempre de forma case-insensitive (ex.: `.toUpperCase()`) por segurança.
+
+```json
+{
+  "pattern": "user_registered",
+  "data": {
+    "id": "uuid-do-usuario",
+    "email": "usuario@dominio.com",
+    "profileType": "STUDENT"
+  }
+}
+```
+
+## Validando o Token JWT no seu módulo
+
+A autenticação é validada de forma **descentralizada**: cada módulo valida o token localmente usando a mesma chave simétrica (`JWT_SECRET`), sem chamar o `auth-service`. Para proteger rotas no seu módulo, replique a `JwtStrategy` e o `JwtAuthGuard` existentes no `auth-service` (em `src/auth/strategies/` e `src/auth/guards/`), garantindo que a variável `JWT_SECRET` no `.env` do seu serviço seja **idêntica** à do `auth-service`.

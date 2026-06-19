@@ -9,6 +9,7 @@
         /* Variáveis de Cores Oficiais UniSenai PR */
         :root {
             --primary-dark: #0d3168;
+            --azul-escuro: var(--primary-dark);
             --primary-light: #00aeef;
             --white: #ffffff;
             --bg-color: #f4f7f6;
@@ -106,6 +107,10 @@
             max-width: 1400px;
             margin: 0 auto;
         }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -125,13 +130,13 @@
         </nav>
 
         <div class="header-action">
-            <button class="login-btn">Entrar no Portal</button>
+            <button class="login-btn" id="auth-btn">Entrar no Portal</button>
         </div>
     </header>
 
     <!-- MAIN CONTENT: Banner e Grid de MFEs -->
     <main>
-        <section class="hero-banner">
+        <section class="hero-banner" id="public-view">
             <h2>Engenharia de Software</h2>
             <p>Atue em funções voltadas para especificação, desenvolvimento, manutenção e criação de sistemas de
                 software seguros e de alto desempenho para diversas áreas de negócio. Venha ser um aluno UniSenai PR e
@@ -139,7 +144,7 @@
         </section>
 
         <!-- Grid/Flexbox responsivo dos MFEs -->
-        <div class="mfe-grid-container">
+        <div class="mfe-grid-container hidden" id="private-view">
             <education-application></education-application>
             <community-application></community-application>
             <inventory-application></inventory-application>
@@ -160,6 +165,49 @@
     <script type="module" src="http://localhost:3002/app-bundle/community-element.js"></script>
     <script type="module" src="http://localhost:3004/app-bundle/inventory-element.js"></script>
 
+    <script>
+        const authBtn = document.getElementById('auth-btn');
+        const publicView = document.getElementById('public-view');
+        const privateView = document.getElementById('private-view'); // Certifique-se de que o container do grid use este ID ou a classe .mfe-grid-container
+        let isLoggedIn = false;
+
+        // Função para alternar o estado visual do Shell (esconder/exibir as seções)
+        function togglePortalState(loginSuccess) {
+            isLoggedIn = loginSuccess;
+            const mfeContainer = privateView || document.querySelector('.mfe-grid-container');
+            
+            if (isLoggedIn) {
+                if (publicView) publicView.classList.add('hidden');
+                if (mfeContainer) mfeContainer.classList.remove('hidden');
+                if (authBtn) {
+                    authBtn.textContent = 'Sair do Portal';
+                    authBtn.style.backgroundColor = '#cc0000';
+                }
+            } else {
+                if (publicView) publicView.classList.remove('hidden');
+                if (mfeContainer) mfeContainer.classList.add('hidden');
+                if (authBtn) {
+                    authBtn.textContent = 'Entrar no Portal';
+                    authBtn.style.backgroundColor = 'var(--azul-escuro)';
+                }
+                localStorage.removeItem('token');
+            }
+        }
+
+        // 1. Alternância manual caso o usuário clique no botão do Shell
+        if (authBtn) {
+            authBtn.addEventListener('click', () => {
+                togglePortalState(!isLoggedIn);
+            });
+        }
+
+        // 2. Escuta ao Evento Customizado Nativo disparado pelos MFEs (ex: auth-element)
+        window.addEventListener('login-success', (event) => {
+            const { token } = event.detail;
+            localStorage.setItem('token', token);
+            togglePortalState(true);
+        });
+    </script>
 </body>
 
 </html>

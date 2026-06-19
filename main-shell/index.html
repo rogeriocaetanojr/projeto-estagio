@@ -11,22 +11,10 @@
         <h1>Portal Institucional</h1>
     </header>
 
-    <div class="app-container">
-        <aside class="app-sidebar">
-            <nav>
-                <ul>
-                    <li><button onclick="loadMicroFrontend('community', 'http://localhost:3002/app-bundle/community-element.js', 'community-application')">Comunidade</button></li>
-                    <li><button onclick="loadMicroFrontend('education', 'http://localhost:3003/app-bundle/education-element.js', 'education-application')">Educação</button></li>
-                    <li><button onclick="loadMicroFrontend('inventory', 'http://localhost:3004/app-bundle/inventory-element.js', 'inventory-application')">Inventário</button></li>
-                </ul>
-            </nav>
-        </aside>
-
-        <main id="app-viewport">
-            <!-- Micro-frontends serão injetados aqui -->
-            <h2>Bem-vindo ao Portal</h2>
-            <p>Selecione um módulo no menu lateral para carregar o Micro-Frontend correspondente.</p>
-        </main>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 20px;">
+        <education-application></education-application>
+        <community-application></community-application>
+        <inventory-application></inventory-application>
     </div>
 
     <!-- Import Map para resolver dependências nativamente no navegador (Frameworkless) -->
@@ -38,7 +26,9 @@
         }
     </script>
 
-    <!-- ES Modules suportado nativamente -->
-    <script type="module" src="app.js"></script>
+    <!-- Importação direta dos componentes dos respectivos serviços -->
+    <script type="module" src="http://localhost:3003/app-bundle/education-element.js"></script>
+    <script type="module" src="http://localhost:3002/app-bundle/community-element.js"></script>
+    <script type="module" src="http://localhost:3004/app-bundle/inventory-element.js"></script>
 </body>
 </html>

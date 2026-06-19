@@ -1,9 +1,4 @@
 {
-<<<<<<< HEAD
-  "dependencies": {
-    "@nestjs/serve-static": "^5.0.5",
-    "lit": "^3.3.3"
-=======
   "name": "education-service",
   "version": "0.0.1",
   "description": "",
@@ -30,12 +25,14 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/microservices": "^11.1.24",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/serve-static": "^5.0.5",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "amqp-connection-manager": "^5.0.0",
     "amqplib": "^2.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "lit": "^3.3.3",
     "pg": "^8.21.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
@@ -83,6 +80,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
->>>>>>> be5e0a7e04a1e3eb308bd77363ffcc6732b571b3
   }
 }

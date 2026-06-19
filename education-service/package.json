@@ -1,4 +1,9 @@
 {
+<<<<<<< HEAD
+  "dependencies": {
+    "@nestjs/serve-static": "^5.0.5",
+    "lit": "^3.3.3"
+=======
   "name": "education-service",
   "version": "0.0.1",
   "description": "",
@@ -78,5 +83,6 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+>>>>>>> be5e0a7e04a1e3eb308bd77363ffcc6732b571b3
   }
 }

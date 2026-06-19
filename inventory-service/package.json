@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@nestjs/serve-static": "^5.0.5",
+    "lit": "^3.3.3"
+  }
+}

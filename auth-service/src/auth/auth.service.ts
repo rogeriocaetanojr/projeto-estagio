@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, AccountType } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import type { ChannelWrapper } from 'amqp-connection-manager';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class AuthService {
@@ -10,7 +11,8 @@ export class AuthService {
 
   constructor(
     private readonly prisma: PrismaService,
-    @Inject('MESSAGE_BROKER') private readonly client: ChannelWrapper,
+    @Inject('MESSAGE_BROKER') private readonly messageBroker: ChannelWrapper,
+    @Inject('AUTH_RABBITMQ_SERVICE') private readonly client: ClientProxy,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -77,7 +79,7 @@ export class AuthService {
         }
       };
 
-      await this.client.publish('user.events', '', Buffer.from(JSON.stringify(payload)));
+      await this.messageBroker.publish('user.events', '', Buffer.from(JSON.stringify(payload)));
       
       this.logger.log(`Evento emitido com sucesso na Exchange!`);
 
@@ -90,6 +92,11 @@ export class AuthService {
       this.logger.error(`Erro no registro:`, error);
       throw new InternalServerErrorException('Erro interno ao registrar usuário');
     }
+  }
+
+  publishUserLogin(userData: any) {
+    this.logger.log(`Emitindo evento 'user_logged_in'...`);
+    this.client.emit('user_logged_in', userData);
   }
 }
 

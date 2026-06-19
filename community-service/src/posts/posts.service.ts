@@ -50,16 +50,39 @@ export class PostsService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} post`;
+  async findOne(id: string) {
+    const post = await this.prisma.post.findUnique({
+      where: { id },
+      include: {
+        author: true,
+        attachments: true,
+      },
+    });
+
+    if (!post) {
+      throw new NotFoundException('Postagem não encontrada');
+    }
+
+    return post;
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: string, updatePostDto: UpdatePostDto) {
+    await this.findOne(id);
+
+    return this.prisma.post.update({
+      where: { id },
+      data: updatePostDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: string) {
+    await this.findOne(id);
+
+    await this.prisma.post.delete({
+      where: { id },
+    });
+
+    return { message: 'Postagem removida com sucesso' };
   }
 }
 

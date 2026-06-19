@@ -80,3 +80,12 @@ pnpm-debug.log*
 .Trashes
 Thumbs.db
 ehthumbs.db
+
+# ==============================================================================
+# 8. Arquivos de Teste Temporários e Manuais
+# ==============================================================================
+*.http
+!api-tests.http
+test-*.js
+test-*.ts
+scripts-temp/

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserMirrorModule } from './user-mirror/user-mirror.module';
 import { PostsModule } from './posts/posts.module';
+import { CommunityController } from './community.controller';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { PostsModule } from './posts/posts.module';
     UserMirrorModule,
     PostsModule,
   ],
-  controllers: [],
+  controllers: [CommunityController],
   providers: [],
 })
 export class AppModule {}

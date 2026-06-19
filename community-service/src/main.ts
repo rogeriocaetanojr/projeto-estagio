@@ -71,6 +71,16 @@ async function bootstrap() {
     },
   });
 
+  // Conexão com a fila de autenticação (auth_queue)
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: ['amqp://localhost:5672'],
+      queue: 'auth_queue',
+      noAck: true,
+    },
+  });
+
   // Inicia todos os microsserviços conectados (RabbitMQ)
   await app.startAllMicroservices();
   logger.log(`Microsserviço RabbitMQ escutando na fila vinculada 'community_service_queue'`);

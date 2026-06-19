@@ -1,21 +1,149 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Shell - Micro-Frontends</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>UniSenai PR - Engenharia de Software</title>
+    <style>
+        /* Variáveis de Cores Oficiais UniSenai PR */
+        :root {
+            --primary-dark: #0d3168;
+            --primary-light: #00aeef;
+            --white: #ffffff;
+            --bg-color: #f4f7f6;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+        }
+
+        /* HEADER STYLES */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background-color: var(--white);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-logo img {
+            height: 55px;
+            /* Altura ajustada para a logo */
+            object-fit: contain;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 35px;
+        }
+
+        .header-nav a {
+            text-decoration: none;
+            color: var(--primary-dark);
+            font-weight: 600;
+            font-size: 1.05em;
+            transition: color 0.3s ease;
+        }
+
+        .header-nav a:hover {
+            color: var(--primary-light);
+        }
+
+        .header-action .login-btn {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            padding: 12px 28px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 2px 4px rgba(13, 49, 104, 0.3);
+        }
+
+        .header-action .login-btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        /* HERO BANNER EM AZUL ESCURO */
+        .hero-banner {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            text-align: center;
+            padding: 60px 20px;
+            margin-bottom: 40px;
+            box-shadow: inset 0 -5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-banner h2 {
+            margin: 0;
+            font-size: 2.8em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-banner p {
+            margin-top: 15px;
+            font-size: 1.25em;
+            font-weight: 300;
+            color: var(--primary-light);
+        }
+
+        /* GRID DOS MICRO FRONT-ENDS */
+        .mfe-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            padding: 0 50px 60px 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
+
 <body>
+
+    <!-- HEADER: Logo, Links de Navegação e Botão -->
     <header class="app-header">
-        <h1>Portal Institucional</h1>
+        <div class="header-logo">
+            <img src="{6577A88C-6E6C-411C-AFE3-ADF86B64AED2}.png" alt="Logo UniSenai PR">
+        </div>
+
+        <nav class="header-nav">
+            <a href="#">Sobre o Curso</a>
+            <a href="#">Grade Curricular</a>
+            <a href="#">Sobre o UniSenai</a>
+        </nav>
+
+        <div class="header-action">
+            <button class="login-btn">Entrar no Portal</button>
+        </div>
     </header>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 20px;">
-        <education-application></education-application>
-        <community-application></community-application>
-        <inventory-application></inventory-application>
-    </div>
+    <!-- MAIN CONTENT: Banner e Grid de MFEs -->
+    <main>
+        <section class="hero-banner">
+            <h2>Engenharia de Software</h2>
+            <p>Atue em funções voltadas para especificação, desenvolvimento, manutenção e criação de sistemas de
+                software seguros e de alto desempenho para diversas áreas de negócio. Venha ser um aluno UniSenai PR e
+                estudar com quem é referência em Engenharia!</p>
+        </section>
+
+        <!-- Grid/Flexbox responsivo dos MFEs -->
+        <div class="mfe-grid-container">
+            <education-application></education-application>
+            <community-application></community-application>
+            <inventory-application></inventory-application>
+        </div>
+    </main>
 
     <!-- Import Map para resolver dependências nativamente no navegador (Frameworkless) -->
     <script type="importmap">
@@ -30,5 +158,7 @@
     <script type="module" src="http://localhost:3003/app-bundle/education-element.js"></script>
     <script type="module" src="http://localhost:3002/app-bundle/community-element.js"></script>
     <script type="module" src="http://localhost:3004/app-bundle/inventory-element.js"></script>
+
 </body>
+
 </html>

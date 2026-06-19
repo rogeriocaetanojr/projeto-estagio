@@ -83,6 +83,8 @@ export class AuthService {
       
       this.logger.log(`Evento emitido com sucesso na Exchange!`);
 
+      this.publishUserLogin({ id: result.id, email: result.email });
+
       return result;
     } catch (error) {
       // Em casos de violação de Unique Key (ex: RA ou Matrícula duplicados) que o prisma levanta (P2002)

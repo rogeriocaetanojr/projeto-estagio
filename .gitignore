@@ -89,3 +89,4 @@ ehthumbs.db
 test-*.js
 test-*.ts
 scripts-temp/
+test-jwt.js

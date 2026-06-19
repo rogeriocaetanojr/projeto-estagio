@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import type { ChannelWrapper } from 'amqp-connection-manager';
 import { ClientProxy } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
+import { USER_EVENTS_EXCHANGE, ProfileType, UserRegisteredEvent } from '../events/contracts';
 
 @Injectable()
 export class AuthService {
@@ -71,18 +72,18 @@ export class AuthService {
       const { password, ...result } = user;
 
       // Emite o evento de usuário registrado para a Exchange no RabbitMQ
-      this.logger.log(`Emitindo evento 'user_registered' para a Exchange 'user.events'...`);
+      this.logger.log(`Emitindo evento 'user_registered' para a Exchange '${USER_EVENTS_EXCHANGE}'...`);
       
-      const payload = {
+      const payload: UserRegisteredEvent = {
         pattern: 'user_registered',
         data: {
           id: result.id,
           email: result.email,
-          profileType: dto.type,
+          profileType: dto.type.toUpperCase() as ProfileType,
         }
       };
 
-      await this.messageBroker.publish('user.events', '', Buffer.from(JSON.stringify(payload)));
+      await this.messageBroker.publish(USER_EVENTS_EXCHANGE, '', Buffer.from(JSON.stringify(payload)));
       
       this.logger.log(`Evento emitido com sucesso na Exchange!`);
 

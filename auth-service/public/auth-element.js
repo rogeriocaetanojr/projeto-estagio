@@ -1,6 +1,32 @@
 import { LitElement, html, css } from 'lit';
 
 class AuthApplication extends LitElement {
+  static properties = {
+    profileType: { type: String }, // 'STUDENT' | 'PROFESSOR'
+    email: { type: String },
+    password: { type: String },
+  };
+
+  constructor() {
+    super();
+    this.profileType = 'STUDENT';
+    this.email = '';
+    this.password = '';
+  }
+
+  handleInput(e) {
+    this[e.target.name] = e.target.value;
+  }
+
+  setRole(role) {
+    this.profileType = role;
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+    console.log('submit (lógica vem na etapa 4)', this.email, this.profileType);
+  }
+
   static styles = css`
     :host {
       --primary-dark: #0d3168;
@@ -83,15 +109,107 @@ class AuthApplication extends LitElement {
       border-radius: 50%;
       flex-shrink: 0;
     }
+    
     .form-panel {
       flex: 1;
       background-color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
-      font-weight: bold;
+      padding: 2rem;
     }
+    .form-container {
+      width: 100%;
+      max-width: 380px;
+    }
+    .form-container h2 {
+      font-size: 2.2rem;
+      margin: 0 0 0.5rem 0;
+      color: var(--text);
+    }
+    .subtitle {
+      color: var(--muted);
+      margin: 0 0 2rem 0;
+      font-size: 1.05rem;
+    }
+    .role-toggle {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .role-btn {
+      flex: 1;
+      padding: 0.85rem;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--muted);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.05rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .role-btn.active {
+      background-color: rgba(0, 174, 239, 0.1);
+      border-color: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+    .input-group {
+      margin-bottom: 1.25rem;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text);
+    }
+    .input-group input {
+      width: 100%;
+      padding: 0.85rem 1.1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 0.95rem;
+      background-color: var(--primary-dark);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 1rem;
+    }
+    .submit-btn:hover {
+      background-color: var(--primary-light);
+    }
+    .switch-mode {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+    .switch-mode a {
+      color: var(--primary-light);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .switch-mode a:hover {
+      text-decoration: underline;
+    }
+
     @media (max-width: 900px) {
       .container {
         flex-direction: column;
@@ -145,7 +263,29 @@ class AuthApplication extends LitElement {
             </div>
           </div>
         </div>
-        <div class="form-panel">Login (em construção)</div>
+        
+        <div class="form-panel">
+          <div class="form-container">
+            <h2>Bem-vindo de volta</h2>
+            <p class="subtitle">Entre com suas credenciais para acessar o portal</p>
+            <form @submit=${this.handleSubmit}>
+              <div class="role-toggle">
+                <button type="button" class="role-btn ${this.profileType === 'STUDENT' ? 'active' : ''}" @click=${() => this.setRole('STUDENT')}>Aluno</button>
+                <button type="button" class="role-btn ${this.profileType === 'PROFESSOR' ? 'active' : ''}" @click=${() => this.setRole('PROFESSOR')}>Professor</button>
+              </div>
+              <div class="input-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" placeholder="aluno@unisenai.edu.br" .value=${this.email} @input=${this.handleInput}>
+              </div>
+              <div class="input-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password" .value=${this.password} @input=${this.handleInput}>
+              </div>
+              <button type="submit" class="submit-btn">Entrar no Portal</button>
+            </form>
+            <div class="switch-mode">Não tem conta? <a>Cadastre-se</a></div>
+          </div>
+        </div>
       </div>
     `;
   }

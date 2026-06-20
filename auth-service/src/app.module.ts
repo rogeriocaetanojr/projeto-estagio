@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Global()
 @Module({
@@ -29,6 +31,10 @@ export class GlobalRabbitMqModule {}
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // Torna o módulo de configuração global em toda a aplicação
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+      serveRoot: '/app-bundle',
     }),
     PrismaModule,
     GlobalRabbitMqModule,

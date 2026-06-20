@@ -19,19 +19,12 @@ class CommunityApplication extends LitElement {
 
         .container {
             display: grid;
-            grid-template-columns: 280px 1fr 300px;
+            grid-template-columns: 1fr 320px;
             gap: 24px;
-            max-width: 1300px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 24px;
             box-sizing: border-box;
-        }
-
-        /* CARD DE PERFIL (SIDEBAR) */
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
         }
 
         .card {
@@ -41,53 +34,6 @@ class CommunityApplication extends LitElement {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
             overflow: hidden;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .profile-card {
-            text-align: center;
-            padding: 24px;
-        }
-
-        .profile-bg {
-            height: 60px;
-            background: linear-gradient(135deg, #0d3168 0%, #00aeef 100%);
-            margin: -24px -24px 16px -24px;
-        }
-
-        .profile-avatar {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background-color: #00aeef;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8em;
-            font-weight: bold;
-            margin: -50px auto 12px auto;
-            border: 4px solid #ffffff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-name {
-            font-size: 1.1em;
-            font-weight: 700;
-            color: #0d3168;
-            margin: 0 0 4px 0;
-            word-break: break-all;
-        }
-
-        .profile-role {
-            font-size: 0.85em;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            background-color: #f1f5f9;
-            padding: 4px 12px;
-            border-radius: 20px;
-            display: inline-block;
         }
 
         /* FEED (COLUNA CENTRAL) */
@@ -543,16 +489,6 @@ class CommunityApplication extends LitElement {
 
         return html`
             <div class="container">
-                <!-- Coluna Esquerda (Sidebar): Perfil -->
-                <aside class="sidebar">
-                    <div class="card profile-card">
-                        <div class="profile-bg"></div>
-                        <div class="profile-avatar">${initials}</div>
-                        <h3 class="profile-name" title="${email}">${email}</h3>
-                        <span class="profile-role">${role}</span>
-                    </div>
-                </aside>
-
                 <!-- Coluna Central: Feed -->
                 <main class="feed">
                     <!-- Criador de Post -->

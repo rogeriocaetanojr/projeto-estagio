@@ -13,12 +13,15 @@
             --primary-light: #00aeef;
             --white: #ffffff;
             --bg-color: #f4f7f6;
+            --text-main: #1e293b;
+            --border-color: rgba(226, 232, 240, 0.8);
         }
 
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
+            color: var(--text-main);
         }
 
         /* HEADER STYLES */
@@ -26,47 +29,72 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 50px;
+            padding: 12px 50px;
             background-color: var(--white);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             position: relative;
-            z-index: 10;
+            z-index: 1000;
         }
 
-        .header-logo img {
-            height: 55px;
-            /* Altura ajustada para a logo */
-            object-fit: contain;
+        .header-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo svg {
+            height: 48px;
+            width: auto;
+            display: block;
         }
 
         .header-nav {
             display: flex;
             gap: 35px;
+            align-items: center;
         }
 
         .header-nav a {
             text-decoration: none;
-            color: var(--primary-dark);
+            color: #475569;
             font-weight: 600;
-            font-size: 1.05em;
-            transition: color 0.3s ease;
+            font-size: 1em;
+            transition: color 0.2s ease, border-color 0.2s ease;
+            padding: 8px 0;
+            position: relative;
         }
 
         .header-nav a:hover {
             color: var(--primary-light);
         }
 
+        /* Destaque da Aba Ativa (Padrão UI/UX Moderno) */
+        .header-nav a.active {
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        .header-nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 100%;
+            height: 3.5px;
+            background-color: var(--primary-light);
+            border-radius: 4px;
+        }
+
         .header-action .login-btn {
             background-color: var(--primary-dark);
             color: var(--white);
-            padding: 12px 28px;
+            padding: 10px 24px;
             border: none;
             border-radius: 6px;
-            font-weight: bold;
-            font-size: 1em;
+            font-weight: 700;
+            font-size: 0.95em;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.1s ease;
-            box-shadow: 0 2px 4px rgba(13, 49, 104, 0.3);
+            box-shadow: 0 4px 6px rgba(13, 49, 104, 0.2);
         }
 
         .header-action .login-btn:hover {
@@ -104,91 +132,202 @@
             display: none !important;
         }
 
-        /* AVATAR DO USUÁRIO */
+        /* CONTAINER DE PERFIL DO USUÁRIO & DROPDOWN */
+        .user-menu-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-trigger {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background-color: transparent;
+            border: none;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .user-trigger:hover {
+            background-color: #f1f5f9;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.92em;
+            color: var(--primary-dark);
+        }
+
         .user-avatar {
-            width: 45px;
-            height: 45px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            background-color: var(--primary-light);
+            background-color: var(--primary-dark);
             color: var(--white);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.1em;
-            cursor: pointer;
-            position: relative;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-            transition: transform 0.2s ease, background-color 0.2s ease;
+            font-size: 0.9em;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .user-avatar:hover {
-            transform: scale(1.05);
-            background-color: var(--primary-dark);
+        .dropdown-chevron {
+            font-size: 0.65em;
+            color: #64748b;
+            transition: transform 0.2s ease;
         }
 
-        /* Tooltip customizada */
-        .user-avatar .tooltip {
-            visibility: hidden;
-            width: 90px;
-            background-color: #2b2b2b;
-            color: var(--white);
-            text-align: center;
-            border-radius: 6px;
-            padding: 6px 0;
+        .user-menu-container.open .dropdown-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Menu suspenso flutuante */
+        .profile-dropdown {
             position: absolute;
-            z-index: 100;
-            bottom: -38px;
-            left: 50%;
-            margin-left: -45px;
-            opacity: 0;
-            transition: opacity 0.2s ease, visibility 0.2s ease;
-            font-size: 0.75em;
-            font-weight: 600;
-            pointer-events: none;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            width: 200px;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+            padding: 6px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            transform-origin: top right;
+            animation: dropdownFadeIn 0.15s ease-out;
         }
 
-        .user-avatar:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 0.88em;
+            font-weight: 600;
+            color: #475569;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            font-family: inherit;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f1f5f9;
+            color: var(--primary-dark);
+        }
+
+        .dropdown-item.logout {
+            color: #dc2626;
+        }
+
+        .dropdown-item.logout:hover {
+            background-color: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background-color: #e2e8f0;
+            margin: 4px 6px;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- HEADER: Logo, Links de Navegação e Botão -->
+    <!-- HEADER: Logo, Links de Navegação e Bloco de Usuário -->
     <header class="app-header hidden" id="app-header">
         <div class="header-logo">
-            <img src="logo-unisenai.png" alt="Logo UniSenai PR">
+            <svg class="brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 69.033">
+                <g fill="#0d3168" data-name="Group 11015">
+                    <path d="M.669 69.034a.669.669 0 1 1 0-1.338c9.365 0 15.876-2.347 19.905-7.175 3.349-4.013 4.978-9.805 4.978-17.709v-.135c0-8.23 1.73-14.3 5.289-18.566 4.3-5.151 11.147-7.655 20.932-7.655a.669.669 0 1 1 0 1.338c-9.364 0-15.875 2.346-19.905 7.174-3.349 4.013-4.978 9.806-4.978 17.709v.135c0 8.23-1.73 14.3-5.289 18.566C17.3 66.53 10.455 69.034.669 69.034" data-name="Path 1"/>
+                    <path d="M18.06 43.483a.669.669 0 0 1-.669-.669v-.135c0-10.22 2.35-18 7.184-23.8 5.946-7.123 14.842-10.586 27.2-10.586a.669.669 0 1 1 0 1.338c-11.934 0-20.494 3.306-26.171 10.106-4.627 5.546-6.875 13.046-6.875 22.94v.135a.669.669 0 0 1-.669.669" data-name="Path 2"/>
+                    <path d="M17.903 58.961a.669.669 0 0 1-.513-1.1c2.7-3.236 4.014-8.159 4.014-15.051v-.135c0-9.242 2.045-16.184 6.252-21.224 5.137-6.154 13.025-9.145 24.116-9.145a.669.669 0 1 1 0 1.338c-10.67 0-18.223 2.834-23.089 8.664-4 4.79-5.941 11.452-5.941 20.367v.135c0 7.218-1.415 12.422-4.326 15.908a.666.666 0 0 1-.514.241" data-name="Path 3"/>
+                    <path d="M15.685 29.299a.669.669 0 0 1-.643-.853 32.669 32.669 0 0 1 6.35-12.221C28.175 8.099 38.113 4.149 51.774 4.149a.669.669 0 1 1 0 1.338c-13.24 0-22.842 3.793-29.355 11.6a31.369 31.369 0 0 0-6.09 11.733.67.67 0 0 1-.643.485" data-name="Path 4"/>
+                    <path d="M18.72 14.664a.669.669 0 0 1-.513-1.1C25.83 4.438 36.806 0 51.773 0a.669.669 0 0 1 0 1.338c-14.543 0-25.189 4.28-32.543 13.085a.666.666 0 0 1-.514.241" data-name="Path 5"/>
+                </g>
+                <g fill="#0d3168" data-name="Group 11016">
+                    <path d="m89.381 51.975 3.436-4.1a10.8 10.8 0 0 0 6.733 2.254c1.182 0 1.65-.3 1.65-.824v-.055c0-.55-.605-.853-2.666-1.265-4.315-.879-8.108-2.116-8.108-6.184v-.055c0-3.655 2.886-6.486 8.163-6.486 3.738 0 6.459.88 8.685 2.639l-3.137 4.347a10.149 10.149 0 0 0-5.771-1.9c-.962 0-1.4.33-1.4.8v.055c0 .522.495.879 2.556 1.237 4.92.88 8.217 2.364 8.217 6.211v.055c0 4.04-3.325 6.514-8.493 6.514a14.67 14.67 0 0 1-9.867-3.243" data-name="Path 6"/>
+                    <path d="M109.224 35.623h16.408V40.9h-10.087v1.951h9.4v4.645h-9.4v2.088h10.224v5.281h-16.545Z" data-name="Path 7"/>
+                    <path d="M127.83 35.623h6.019l6.843 8.493v-8.493h6.376v19.242h-5.717l-7.146-8.877v8.877h-6.376Z" data-name="Path 8"/>
+                    <path d="M156.221 35.485h6.376l8.108 19.376h-6.981l-1.016-2.583h-6.734l-.989 2.583h-6.871Zm4.892 12.23-1.759-4.672-1.759 4.672Z" data-name="Path 9"/>
+                    <path d="M171.748 35.623h6.431v19.239h-6.431z" data-name="Rectangle 1"/>
+                </g>
+                <g fill="#00aeef" data-name="Group 11017">
+                    <path d="M43.984 46.393V35.627h3.51v10.624c0 3.738 1.883 5.678 5.051 5.678 3.11 0 5.022-1.855 5.022-5.536V35.627h3.51v10.6c0 5.964-3.367 8.96-8.589 8.96-5.165 0-8.5-3-8.5-8.788" data-name="Path 10"/>
+                    <path d="M64.615 39.801h3.481v2.311a5.461 5.461 0 0 1 4.708-2.625c3.424 0 5.365 2.254 5.365 5.764v9.616h-3.454v-8.56c0-2.368-1.17-3.681-3.224-3.681-2.026 0-3.4 1.369-3.4 3.738v8.5h-3.476Z" data-name="Path 11"/>
+                    <path d="M81.536 33.78h3.709v3.71h-3.709Zm.114 6.021h3.481v15.066H81.65Z" data-name="Path 12"/>
+                    <path d="M182.382 39.809h6.474c3.786 0 6.238 1.936 6.238 5.27v.043c0 3.57-2.732 5.441-6.453 5.441h-2.086v4.3h-4.173Zm6.173 7.485c1.463 0 2.388-.774 2.388-1.979v-.043c0-1.2-.925-1.957-2.409-1.957h-1.979v3.978Z" data-name="Path 13"/>
+                    <path d="M196.148 39.809h7.119a6.633 6.633 0 0 1 4.9 1.613 4.77 4.77 0 0 1 1.334 3.506v.043a4.742 4.742 0 0 1-3.1 4.645l3.592 5.248h-4.8l-3.033-4.56h-1.85v4.56h-4.173Zm6.948 7.227c1.4 0 2.237-.688 2.237-1.785v-.043c0-1.2-.882-1.806-2.258-1.806h-2.753v3.635Z" data-name="Path 14"/>
+                </g>
+            </svg>
         </div>
 
-        <nav class="header-nav">
-            <a href="#">Sobre o Curso</a>
-            <a href="#">Grade Curricular</a>
-            <a href="#">Sobre o UniSenai</a>
-            <a href="#">Fale Conosco</a>
+        <nav class="header-nav" id="header-nav">
+            <!-- Gerado Dinamicamente via JavaScript -->
         </nav>
 
         <div class="header-action" style="display: flex; align-items: center; gap: 20px;">
-            <div class="user-avatar hidden" id="user-avatar">
-                <span id="avatar-initials">RC</span>
-                <div class="tooltip">Ver perfil</div>
+            <!-- Dropdown de Usuário (Padrão UI/UX Moderno) -->
+            <div class="user-menu-container hidden" id="user-menu-container">
+                <div class="user-trigger" id="user-trigger">
+                    <span class="user-name" id="user-name">Usuário</span>
+                    <div class="user-avatar">
+                        <span id="avatar-initials">US</span>
+                    </div>
+                    <span class="dropdown-chevron">▼</span>
+                </div>
+                
+                <div class="profile-dropdown hidden" id="profile-dropdown">
+                    <button class="dropdown-item" id="dropdown-profile-btn">
+                        <span>👤</span> Meu Perfil
+                    </button>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item logout" id="dropdown-logout-btn">
+                        <span>🚪</span> Sair do Portal
+                    </button>
+                </div>
             </div>
             <button class="login-btn" id="auth-btn">Entrar no Portal</button>
         </div>
     </header>
 
-    <!-- MAIN CONTENT: Banner e Grid de MFEs -->
+    <!-- MAIN CONTENT: Banner e Componentes MFE -->
     <main>
         <section id="public-view">
             <auth-application></auth-application>
         </section>
 
-        <!-- Área Privada do Portal (Comunidade) -->
+        <!-- Área Privada do Portal (Abas Dinâmicas) -->
         <div class="mfe-grid-container hidden" id="private-view">
-            <community-application></community-application>
+            <community-application id="community-app"></community-application>
+            <education-application id="education-app" class="hidden"></education-application>
+            <inventory-application id="inventory-app" class="hidden"></inventory-application>
         </div>
         <profile-application id="profile-view" class="hidden"></profile-application>
     </main>
@@ -212,14 +351,30 @@
     <script>
         const authBtn = document.getElementById('auth-btn');
         const publicView = document.getElementById('public-view');
-        const privateView = document.getElementById('private-view'); // Certifique-se de que o container do grid use este ID ou a classe .mfe-grid-container
+        const privateView = document.getElementById('private-view');
         const profileView = document.getElementById('profile-view');
         const appHeader = document.getElementById('app-header');
-        const userAvatar = document.getElementById('user-avatar');
+        const userMenuContainer = document.getElementById('user-menu-container');
+        const userTrigger = document.getElementById('user-trigger');
+        const profileDropdown = document.getElementById('profile-dropdown');
+        const userNameSpan = document.getElementById('user-name');
         const avatarInitials = document.getElementById('avatar-initials');
+        const dropdownProfileBtn = document.getElementById('dropdown-profile-btn');
+        const dropdownLogoutBtn = document.getElementById('dropdown-logout-btn');
+        
         let isLoggedIn = false;
+        let activeTab = 'community'; // Aba ativa padrão
 
-        // Função para obter iniciais
+        // Função de formatação para exibir o nome amigável a partir do e-mail
+        function formatUserDisplayName(email) {
+            if (!email) return 'Usuário';
+            const namePart = email.split('@')[0];
+            const cleanName = namePart.replace(/[0-9]/g, '');
+            const parts = cleanName.split(/[\._-]/);
+            return parts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+        }
+
+        // Função para obter as iniciais do e-mail
         function getUserInitials(email) {
             if (!email) return 'US';
             const parts = email.split('@')[0].split('.');
@@ -229,58 +384,197 @@
             return parts[0].substring(0, 2).toUpperCase();
         }
 
-        // Função para alternar o estado visual do Shell (esconder/exibir as seções)
+        // Renderização dos links do header dinamicamente baseado no estado de login
+        function renderNavigationLinks(isLogged) {
+            const headerNav = document.getElementById('header-nav');
+            if (!headerNav) return;
+            
+            if (isLogged) {
+                headerNav.innerHTML = `
+                    <a href="#" class="nav-link" id="link-community">Comunidade</a>
+                    <a href="#" class="nav-link" id="link-education">Jogo de Lógica</a>
+                    <a href="#" class="nav-link" id="link-inventory">Inventário</a>
+                `;
+                
+                // Vincula eventos de clique nas abas
+                document.getElementById('link-community').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchTab('community');
+                });
+                document.getElementById('link-education').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchTab('education');
+                });
+                document.getElementById('link-inventory').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchTab('inventory');
+                });
+            } else {
+                headerNav.innerHTML = `
+                    <a href="#" class="nav-link-public">Sobre o Curso</a>
+                    <a href="#" class="nav-link-public">Grade Curricular</a>
+                    <a href="#" class="nav-link-public">Sobre o UniSenai</a>
+                    <a href="#" class="nav-link-public">Fale Conosco</a>
+                `;
+            }
+        }
+
+        // Controla a exibição das abas da área logada
+        function switchTab(tabName) {
+            activeTab = tabName;
+
+            // Remove classe active de todos os links de abas
+            document.querySelectorAll('.header-nav a').forEach(a => a.classList.remove('active'));
+            
+            // Adiciona classe active na aba clicada
+            const activeLink = document.getElementById(`link-${tabName}`);
+            if (activeLink) activeLink.classList.add('active');
+            
+            // Esconde a visualização de perfil
+            if (profileView) profileView.classList.add('hidden');
+            
+            // Gerencia os MFEs da área privada
+            const communityApp = document.getElementById('community-app');
+            const educationApp = document.getElementById('education-app');
+            const inventoryApp = document.getElementById('inventory-app');
+            
+            if (communityApp) communityApp.classList.add('hidden');
+            if (educationApp) educationApp.classList.add('hidden');
+            if (inventoryApp) inventoryApp.classList.add('hidden');
+            
+            if (privateView) privateView.classList.remove('hidden');
+            
+            if (tabName === 'community' && communityApp) communityApp.classList.remove('hidden');
+            if (tabName === 'education' && educationApp) educationApp.classList.remove('hidden');
+            if (tabName === 'inventory' && inventoryApp) inventoryApp.classList.remove('hidden');
+        }
+
+        // Abre a tela de perfil e oculta os demais MFEs
+        function showUserProfile() {
+            // Oculta abas privadas
+            const communityApp = document.getElementById('community-app');
+            const educationApp = document.getElementById('education-app');
+            const inventoryApp = document.getElementById('inventory-app');
+            if (communityApp) communityApp.classList.add('hidden');
+            if (educationApp) educationApp.classList.add('hidden');
+            if (inventoryApp) inventoryApp.classList.add('hidden');
+            if (privateView) privateView.classList.add('hidden');
+            
+            // Remove realce das abas
+            document.querySelectorAll('.header-nav a').forEach(a => a.classList.remove('active'));
+            
+            // Exibe componente de perfil
+            if (profileView) {
+                profileView.classList.remove('hidden');
+                if (typeof profileView.fetchProfile === 'function') {
+                    profileView.fetchProfile();
+                }
+            }
+            closeDropdown();
+        }
+
+        // Gerencia abertura do dropdown
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            profileDropdown.classList.toggle('hidden');
+            userMenuContainer.classList.toggle('open');
+        }
+
+        // Fecha o dropdown
+        function closeDropdown() {
+            if (profileDropdown) profileDropdown.classList.add('hidden');
+            if (userMenuContainer) userMenuContainer.classList.remove('open');
+        }
+
+        // Alterna o estado visual do Shell (esconder/exibir as seções)
         function togglePortalState(loginSuccess) {
             isLoggedIn = loginSuccess;
-            const mfeContainer = privateView || document.querySelector('.mfe-grid-container');
             
             if (isLoggedIn) {
                 if (publicView) publicView.classList.add('hidden');
-                if (mfeContainer) mfeContainer.classList.remove('hidden');
                 if (appHeader) appHeader.classList.remove('hidden');
-                if (authBtn) {
-                    authBtn.textContent = 'Sair do Portal';
-                    authBtn.style.backgroundColor = '#cc0000';
-                }
+                
+                // Oculta botão antigo de login e exibe dropdown do usuário
+                if (authBtn) authBtn.classList.add('hidden');
+                if (userMenuContainer) userMenuContainer.classList.remove('hidden');
 
-                // Renderiza o avatar do usuário logado
+                // Renderiza o avatar e nome do usuário logado
                 try {
                     const userRaw = localStorage.getItem('portal_user');
                     if (userRaw) {
                         const user = JSON.parse(userRaw);
                         if (user && user.email) {
+                            userNameSpan.textContent = formatUserDisplayName(user.email);
                             avatarInitials.textContent = getUserInitials(user.email);
                         }
                     }
                 } catch (e) {
                     avatarInitials.textContent = 'US';
                 }
-                if (userAvatar) userAvatar.classList.remove('hidden');
+
+                // Carrega navegação logada e exibe a aba padrão
+                renderNavigationLinks(true);
+                switchTab('community');
             } else {
                 if (publicView) publicView.classList.remove('hidden');
-                if (mfeContainer) mfeContainer.classList.add('hidden');
-                if (profileView) {
-                    profileView.classList.add('hidden');
-                }
+                if (privateView) privateView.classList.add('hidden');
+                if (profileView) profileView.classList.add('hidden');
                 if (appHeader) appHeader.classList.add('hidden');
+                
+                // Mostra botão de login e oculta menu de usuário
                 if (authBtn) {
+                    authBtn.classList.remove('hidden');
                     authBtn.textContent = 'Entrar no Portal';
-                    authBtn.style.backgroundColor = 'var(--azul-escuro)';
                 }
-                if (userAvatar) userAvatar.classList.add('hidden');
+                if (userMenuContainer) userMenuContainer.classList.add('hidden');
+                closeDropdown();
+
+                // Carrega links públicos
+                renderNavigationLinks(false);
+
+                // Limpa o localStorage
                 localStorage.removeItem('portal_token');
                 localStorage.removeItem('portal_user');
             }
         }
 
-        // 1. Alternância manual caso o usuário clique no botão do Shell
-        if (authBtn) {
-            authBtn.addEventListener('click', () => {
-                togglePortalState(!isLoggedIn);
+        // Ouvintes de clique e eventos do Dropdown
+        if (userTrigger) {
+            userTrigger.addEventListener('click', toggleDropdown);
+        }
+
+        if (dropdownProfileBtn) {
+            dropdownProfileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showUserProfile();
             });
         }
 
-        // 2. Escuta o evento auth-success disparado pelo auth-element (login)
+        if (dropdownLogoutBtn) {
+            dropdownLogoutBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                togglePortalState(false);
+            });
+        }
+
+        // Fecha o dropdown caso clique em qualquer outra área da página
+        window.addEventListener('click', () => {
+            closeDropdown();
+        });
+
+        // Clique manual no botão do Shell (Deslogado)
+        if (authBtn) {
+            authBtn.addEventListener('click', () => {
+                if (isLoggedIn) {
+                    togglePortalState(false);
+                } else {
+                    // Simplesmente garante o foco/exibição da tela pública de login
+                    if (publicView) publicView.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Escuta o evento auth-success disparado pelo auth-element (login bem sucedido)
         window.addEventListener('auth-success', (event) => {
             const { token, user } = event.detail;
             localStorage.setItem('portal_token', token);
@@ -288,35 +582,16 @@
             togglePortalState(true);
         });
 
-        // 3. Verificação inicial de carregamento
+        // Escuta o evento customizado close-profile para retornar à aba ativa
+        window.addEventListener('close-profile', () => {
+            if (profileView) profileView.classList.add('hidden');
+            switchTab('community');
+        });
+
+        // Verificação de autenticação inicial ao carregar a página
         window.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('portal_token');
             togglePortalState(!!token);
-        });
-
-        // Ouvinte para o clique no avatar
-        if (userAvatar) {
-            userAvatar.addEventListener('click', () => {
-                console.log('Clique no avatar: abrindo tela de perfil...');
-                console.log('Token no localStorage:', localStorage.getItem('portal_token'));
-                if (privateView) privateView.classList.add('hidden');
-                if (profileView) {
-                    profileView.classList.remove('hidden');
-                    console.log('Tipo de fetchProfile:', typeof profileView.fetchProfile);
-                    if (typeof profileView.fetchProfile === 'function') {
-                        profileView.fetchProfile();
-                    } else {
-                        console.warn('Método fetchProfile não foi encontrado no componente <profile-application>!');
-                    }
-                }
-            });
-        }
-
-        // Ouvinte para o evento customizado close-profile
-        window.addEventListener('close-profile', () => {
-            console.log('Evento close-profile capturado: voltando para a tela principal...');
-            if (profileView) profileView.classList.add('hidden');
-            if (privateView) privateView.classList.remove('hidden');
         });
     </script>
 </body>

@@ -12,6 +12,7 @@ class AuthApplication extends LitElement {
     periodo: { type: String },
     matricula: { type: String },
     titulacao: { type: String },
+    successMessage: { type: String },
   };
 
   constructor() {
@@ -26,11 +27,13 @@ class AuthApplication extends LitElement {
     this.periodo = '';
     this.matricula = '';
     this.titulacao = '';
+    this.successMessage = '';
   }
 
   toggleMode() {
     this.mode = this.mode === 'login' ? 'register' : 'login';
     this.error = '';
+    this.successMessage = '';
   }
 
   handleInput(e) {
@@ -44,6 +47,7 @@ class AuthApplication extends LitElement {
   async handleSubmit(e) {
     e.preventDefault();
     this.error = '';
+    this.successMessage = '';
 
     if (this.mode === 'register') {
       // 1. Validação genérica
@@ -56,29 +60,73 @@ class AuthApplication extends LitElement {
         return;
       }
 
-      // 2. Validação específica por perfil
-      if (this.profileType === 'STUDENT') {
+      // Payload condicional e validação específica por perfil
+      const type = this.profileType.toLowerCase();
+      const payload = {
+        email: this.email,
+        password: this.password,
+        type: type,
+      };
+
+      if (type === 'student') {
         if (!this.ra || !this.periodo) {
           this.error = 'Preencha o RA e o Período.';
           return;
         }
-        const periodVal = parseInt(this.periodo);
+        const periodVal = parseInt(this.periodo, 10);
         if (isNaN(periodVal) || periodVal <= 0) {
           this.error = 'O Período deve ser um número válido.';
           return;
         }
-        console.log('Validação de estudante aceita:', { email: this.email, ra: this.ra, periodo: periodVal });
+        payload.ra = this.ra;
+        payload.periodo = periodVal;
       } else {
         if (!this.matricula || !this.titulacao) {
           this.error = 'Preencha a Matrícula e a Titulação.';
           return;
         }
-        console.log('Validação de professor aceita:', { email: this.email, matricula: this.matricula, titulacao: this.titulacao });
+        payload.matricula = this.matricula;
+        payload.titulacao = this.titulacao;
       }
-      return; // Sem lógica de API na Etapa 1B
+
+      this.loading = true;
+      try {
+        const response = await fetch('http://localhost:3001/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          let msg = 'Erro ao realizar o cadastro.';
+          try {
+            const errData = await response.json();
+            if (errData && errData.message) {
+              msg = Array.isArray(errData.message) ? errData.message[0] : errData.message;
+            }
+          } catch (_) {}
+          throw new Error(msg);
+        }
+
+        // Sucesso no cadastro
+        this.successMessage = 'Cadastro realizado com sucesso! Faça seu login.';
+        this.mode = 'login';
+
+        // Limpa os campos de registro e senha
+        this.password = '';
+        this.ra = '';
+        this.periodo = '';
+        this.matricula = '';
+        this.titulacao = '';
+      } catch (err) {
+        this.error = err.message || 'Ocorreu um erro inesperado. Tente novamente.';
+      } finally {
+        this.loading = false;
+      }
+      return;
     }
 
-    // validação simples no front
+    // validação simples no front para login
     if (!this.email || !this.password) {
       this.error = 'Preencha e-mail e senha.';
       return;
@@ -93,7 +141,6 @@ class AuthApplication extends LitElement {
       });
 
       if (!response.ok) {
-        // tenta ler a mensagem do back; senão usa uma genérica
         let msg = 'E-mail ou senha inválidos.';
         try {
           const errData = await response.json();
@@ -108,13 +155,11 @@ class AuthApplication extends LitElement {
       const token = data.access_token;
       const user = data.user;
 
-      // persiste localmente (o shell também persiste ao receber o evento, mas garantimos aqui)
       localStorage.setItem('portal_token', token);
       if (user) localStorage.setItem('portal_user', JSON.stringify(user));
 
       console.log('Login realizado com sucesso:', user);
 
-      // dispara o evento que o shell escuta
       this.dispatchEvent(new CustomEvent('auth-success', {
         detail: { token, user },
         bubbles: true,
@@ -383,6 +428,9 @@ class AuthApplication extends LitElement {
                 ? 'Entre com suas credenciais para acessar o portal'
                 : 'Preencha os dados abaixo para registrar-se'}
             </p>
+            ${this.successMessage
+              ? html`<div style="color: #16a34a; font-size: 0.95rem; margin-bottom: 1.25rem; text-align: center; font-weight: 600;">${this.successMessage}</div>`
+              : ''}
             <form @submit=${this.handleSubmit}>
               <div class="role-toggle">
                 <button type="button" class="role-btn ${this.profileType === 'STUDENT' ? 'active' : ''}" @click=${() => this.setRole('STUDENT')}>Aluno</button>

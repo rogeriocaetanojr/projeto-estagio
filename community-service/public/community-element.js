@@ -513,7 +513,7 @@ class CommunityApplication extends LitElement {
         const user = this.currentUser;
         const email = user ? user.email : 'Visitante';
         const initials = user ? this._getInitials(user.email) : 'US';
-        const role = user ? (user.profileType === 'professor' || user.profileType === 'PROFESSOR' ? 'Professor' : 'Estudante') : 'Visitante';
+        const role = user ? (user.profileType?.toLowerCase() === 'professor' ? 'Professor' : 'Estudante') : 'Visitante';
 
         return html`
             <div class="container">
@@ -576,7 +576,7 @@ class CommunityApplication extends LitElement {
                         : this.posts.map(post => {
                             const authorEmail = post.author ? post.author.email : 'Autor Desconhecido';
                             const authorInitials = this._getInitials(authorEmail);
-                            const isStudent = post.author ? (post.author.profileType === 'STUDENT' || post.author.profileType === 'student') : true;
+                            const isStudent = post.author ? (post.author.profileType?.toLowerCase() === 'student') : true;
                             const authorRoleLabel = isStudent ? 'Estudante' : 'Professor';
                             
                             // Formatação simples de data

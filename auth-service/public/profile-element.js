@@ -445,7 +445,7 @@ export class ProfileApplication extends LitElement {
     }
 
     const u = this.profileData;
-    const isStudent = !!u.student;
+    const isStudent = !!u.student || u.profileType?.toLowerCase() === 'student';
     const profileTypeLabel = isStudent ? 'Estudante' : 'Professor';
     const initials = this._getInitials(u.email);
     const displayName = this._formatDisplayName(u.email);

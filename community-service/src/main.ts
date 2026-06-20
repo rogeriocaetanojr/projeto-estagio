@@ -9,6 +9,13 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
+  // Habilita CORS para o front-end (main-shell) acessar as APIs
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
   // Configuração de Pipes de Validação global
   app.useGlobalPipes(
     new ValidationPipe({

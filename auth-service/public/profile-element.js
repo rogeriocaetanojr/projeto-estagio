@@ -21,13 +21,20 @@ export class ProfileApplication extends LitElement {
 
     .profile-container {
       display: grid;
-      grid-template-columns: 1fr 400px;
-      gap: 30px;
+      grid-template-columns: 350px 1fr 350px;
+      gap: 24px;
       width: 100%;
       margin: 0;
     }
 
-    @media (max-width: 850px) {
+    @media (max-width: 1100px) {
+      .profile-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
       .profile-container {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -43,8 +50,8 @@ export class ProfileApplication extends LitElement {
       box-sizing: border-box;
     }
 
-    /* COLUNA DIREITA: PERFIL E DETALHES */
-    .profile-right-column {
+    /* COLUNA ESQUERDA: PERFIL E DETALHES */
+    .profile-left-column {
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -157,7 +164,7 @@ export class ProfileApplication extends LitElement {
       font-weight: 600;
     }
 
-    /* CARD DE HISTÓRICO DE POSTS (COLUNA ESQUERDA) */
+    /* CARD DE HISTÓRICO DE POSTS (COLUNA DO MEIO) */
     .profile-posts-card {
       padding: 24px 30px;
       display: flex;
@@ -238,6 +245,29 @@ export class ProfileApplication extends LitElement {
       margin: 0;
       max-width: 320px;
       line-height: 1.5;
+    }
+
+    /* CARD DE PROGRESSO DE ENSINO (COLUNA DIREITA) */
+    .profile-progress-card {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: white;
+      min-height: 300px;
+    }
+
+    .progress-title {
+      font-size: 1.1em;
+      font-weight: 700;
+      color: #0d3168;
+      margin: 0;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+
+    .progress-content {
+      flex: 1;
     }
 
     .loading-state, .error-state {
@@ -403,34 +433,8 @@ export class ProfileApplication extends LitElement {
 
     return html`
       <div class="profile-container">
-        <!-- Coluna da Esquerda: Histórico de Posts -->
-        <div class="card profile-posts-card">
-          <h3 class="posts-title">Minhas postagens</h3>
-          
-          <div class="posts-list">
-            ${this.userPosts.length === 0
-              ? html`
-                  <div class="empty-posts-state">
-                    <svg viewBox="0 0 24 24" class="empty-icon" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM4 16V4h16v12H5.17L4 17.17V16zm5-7h6v2H9V9zm0 3h6v2H9v-2z" />
-                    </svg>
-                    <h4 class="empty-message">Você ainda não fez nenhuma publicação.</h4>
-                    <p class="empty-submessage">Vá até a Comunidade e compartilhe algo com seus colegas!</p>
-                  </div>
-                `
-              : this.userPosts.map(post => html`
-                  <div class="post-item">
-                    <div class="post-meta">
-                      ${this._formatRelativeTime(post.createdAt)} • ${post.category || 'Geral'}
-                    </div>
-                    <div class="post-content">${post.content}</div>
-                  </div>
-                `)}
-          </div>
-        </div>
-
-        <!-- Coluna da Direita: Dados do Perfil -->
-        <div class="profile-right-column">
+        <!-- Coluna da Esquerda: Dados do Perfil -->
+        <div class="profile-left-column">
           <!-- Card Superior: Informações do Estudante (Horizontal) -->
           <div class="card profile-info-card">
             <div class="profile-avatar-wrapper">
@@ -481,6 +485,40 @@ export class ProfileApplication extends LitElement {
                 <div class="info-value">${this.postsCount}</div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Coluna do Meio: Histórico de Posts -->
+        <div class="card profile-posts-card">
+          <h3 class="posts-title">Minhas postagens</h3>
+          
+          <div class="posts-list">
+            ${this.userPosts.length === 0
+              ? html`
+                  <div class="empty-posts-state">
+                    <svg viewBox="0 0 24 24" class="empty-icon" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM4 16V4h16v12H5.17L4 17.17V16zm5-7h6v2H9V9zm0 3h6v2H9v-2z" />
+                    </svg>
+                    <h4 class="empty-message">Você ainda não fez nenhuma publicação.</h4>
+                    <p class="empty-submessage">Vá até a Comunidade e compartilhe algo com seus colegas!</p>
+                  </div>
+                `
+              : this.userPosts.map(post => html`
+                  <div class="post-item">
+                    <div class="post-meta">
+                      ${this._formatRelativeTime(post.createdAt)} • ${post.category || 'Geral'}
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                  </div>
+                `)}
+          </div>
+        </div>
+
+        <!-- Coluna da Direita: Progresso de Ensino -->
+        <div class="card profile-progress-card">
+          <h3 class="progress-title">Progresso de ensino</h3>
+          <div class="progress-content">
+            <!-- Em branco por enquanto -->
           </div>
         </div>
       </div>

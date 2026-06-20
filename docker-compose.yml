@@ -49,6 +49,9 @@ services:
     ports:
       - "3001:3001"
       - "5555:5555"
+    volumes:
+      - ./auth-service:/usr/src/app
+      - /usr/src/app/node_modules
     environment:
       - PORT=3001
       - DATABASE_URL=postgresql://root:rootpassword@postgres:5432/microservices_db?schema=auth

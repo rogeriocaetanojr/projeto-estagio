@@ -190,7 +190,8 @@
                     authBtn.textContent = 'Entrar no Portal';
                     authBtn.style.backgroundColor = 'var(--azul-escuro)';
                 }
-                localStorage.removeItem('token');
+                localStorage.removeItem('portal_token');
+                localStorage.removeItem('portal_user');
             }
         }
 
@@ -201,10 +202,11 @@
             });
         }
 
-        // 2. Escuta ao Evento Customizado Nativo disparado pelos MFEs (ex: auth-element)
-        window.addEventListener('login-success', (event) => {
-            const { token } = event.detail;
-            localStorage.setItem('token', token);
+        // 2. Escuta o evento auth-success disparado pelo auth-element (login)
+        window.addEventListener('auth-success', (event) => {
+            const { token, user } = event.detail;
+            localStorage.setItem('portal_token', token);
+            if (user) localStorage.setItem('portal_user', JSON.stringify(user));
             togglePortalState(true);
         });
     </script>

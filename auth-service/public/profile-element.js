@@ -19,6 +19,24 @@ export class ProfileApplication extends LitElement {
       --primary-light: #00aeef;
     }
 
+    /* Scrollbars customizadas */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+      transition: background 0.2s ease-in-out;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
     .profile-container {
       display: grid;
       grid-template-columns: 350px 1fr 350px;
@@ -81,6 +99,7 @@ export class ProfileApplication extends LitElement {
       font-size: 1.8em;
       font-weight: 700;
       box-shadow: 0 4px 10px rgba(13, 49, 104, 0.15);
+      line-height: 1;
     }
 
     .profile-meta-content {

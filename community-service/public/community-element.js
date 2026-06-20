@@ -17,6 +17,24 @@ class CommunityApplication extends LitElement {
             min-height: 100vh;
         }
 
+        /* Scrollbars customizadas */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+            transition: background 0.2s ease-in-out;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
         .container {
             display: grid;
             grid-template-columns: 1fr 320px;
@@ -31,9 +49,9 @@ class CommunityApplication extends LitElement {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
 
         /* FEED (COLUNA CENTRAL) */
@@ -64,6 +82,8 @@ class CommunityApplication extends LitElement {
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            line-height: 1;
+            flex-shrink: 0;
         }
 
         .creator-inputs {
@@ -83,7 +103,7 @@ class CommunityApplication extends LitElement {
             color: #1e293b;
             background-color: #ffffff;
             outline: none;
-            transition: border-color 0.2s ease;
+            transition: all 0.2s ease-in-out;
         }
 
         .creator-textarea {
@@ -97,12 +117,13 @@ class CommunityApplication extends LitElement {
             color: #1e293b;
             background-color: #ffffff;
             outline: none;
-            transition: border-color 0.2s ease;
+            transition: all 0.2s ease-in-out;
         }
 
         .creator-title-input:focus,
         .creator-textarea:focus {
             border-color: #00aeef;
+            box-shadow: 0 0 0 3px rgba(0, 174, 239, 0.15);
         }
 
         .creator-title-input:disabled,
@@ -128,13 +149,14 @@ class CommunityApplication extends LitElement {
             font-weight: 700;
             font-size: 0.9em;
             cursor: not-allowed;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            transition: all 0.2s ease-in-out;
         }
 
         .publish-btn.active {
             background-color: #0d3168;
             color: #ffffff;
             cursor: pointer;
+            transition: all 0.2s ease-in-out;
         }
 
         .publish-btn.active:hover:not(:disabled) {
@@ -172,6 +194,8 @@ class CommunityApplication extends LitElement {
             justify-content: center;
             font-weight: bold;
             font-size: 1.1em;
+            line-height: 1;
+            flex-shrink: 0;
         }
 
         .post-author-avatar.student-av {
@@ -237,11 +261,15 @@ class CommunityApplication extends LitElement {
             align-items: center;
             gap: 6px;
             cursor: pointer;
-            transition: color 0.2s ease;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease-in-out;
+            user-select: none;
         }
 
         .post-action-btn:hover {
             color: #00aeef;
+            background-color: #f1f5f9;
         }
 
         /* WIDGETS (COLUNA DIREITA) */

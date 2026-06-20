@@ -4,37 +4,75 @@ class InventoryApplication extends LitElement {
     static styles = css`
         :host {
             display: block;
-            padding: 20px;
-            background-color: #fff3e0;
-            border: 1px solid #ffe0b2;
-            border-radius: 8px;
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px 20px;
+            background-color: #f4f6f9;
+            box-sizing: border-box;
+            width: 100%;
         }
-        h2 {
-            color: #e65100;
-            margin-top: 0;
-        }
-        p {
-            color: #f57c00;
-        }
-        .item-card {
+
+        .inventory-container {
             background: white;
-            padding: 12px;
-            margin-top: 10px;
-            border-radius: 6px;
-            border-left: 4px solid #e65100;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            padding: 35px 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .inventory-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .inventory-title {
+            color: #0d3168;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .integration-badge {
+            display: inline-block;
+            background: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fde68a;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .item-card {
+            padding: 16px 0;
+            border-bottom: 1px solid #f1f5f9;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
+
+        .item-card:last-child {
+            border-bottom: none;
+        }
+
         .quantity {
-            font-weight: bold;
-            color: #e65100;
-            background: #ffe0b2;
-            padding: 4px 8px;
+            font-weight: 600;
+            color: #0d3168;
+            background: #f1f5f9;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.9em;
+            font-size: 0.88em;
+            border: 1px solid #e2e8f0;
         }
     `;
 
@@ -53,20 +91,24 @@ class InventoryApplication extends LitElement {
 
     render() {
         return html`
-            <div>
-                <h2>Inventory Micro-Frontend</h2>
-                <p>Controle de insumos e ativos locais do sistema:</p>
+            <div class="inventory-container">
+                <div class="inventory-header">
+                    <h2 class="inventory-title">Módulo de Inventário — Controle de Ativos</h2>
+                    <span class="integration-badge">Em Integração</span>
+                </div>
                 
-                ${this.items.map(item => html`
-                    <div class="item-card">
-                        <div>
-                            <strong>${item.name}</strong>
-                            <br/>
-                            <small style="color: #777;">ID: ${item.id}</small>
+                <div class="items-list">
+                    ${this.items.map(item => html`
+                        <div class="item-card">
+                            <div>
+                                <strong style="color: #1e293b; font-size: 0.98em;">${item.name}</strong>
+                                <br/>
+                                <small style="color: #64748b; font-size: 0.8em; font-weight: 500;">ID: ${item.id}</small>
+                            </div>
+                            <span class="quantity">${item.qty} un</span>
                         </div>
-                        <span class="quantity">${item.qty} un</span>
-                    </div>
-                `)}
+                    `)}
+                </div>
             </div>
         `;
     }

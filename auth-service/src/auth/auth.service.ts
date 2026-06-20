@@ -151,5 +151,21 @@ export class AuthService {
     this.logger.log(`Emitindo evento 'user_logged_in'...`);
     this.client.emit('user_logged_in', userData);
   }
+
+  async getProfile(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        student: true,
+        professor: true,
+      },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Usuário não encontrado');
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...result } = user;
+    return result;
+  }
 }
 

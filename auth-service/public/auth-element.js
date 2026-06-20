@@ -7,6 +7,7 @@ class AuthApplication extends LitElement {
     password: { type: String },
     loading: { type: Boolean },
     error: { type: String },
+    mode: { type: String }, // 'login' | 'register'
   };
 
   constructor() {
@@ -15,6 +16,12 @@ class AuthApplication extends LitElement {
     this.email = '';
     this.password = '';
     this.loading = false;
+    this.error = '';
+    this.mode = 'login';
+  }
+
+  toggleMode() {
+    this.mode = this.mode === 'login' ? 'register' : 'login';
     this.error = '';
   }
 
@@ -29,6 +36,11 @@ class AuthApplication extends LitElement {
   async handleSubmit(e) {
     e.preventDefault();
     this.error = '';
+
+    if (this.mode === 'register') {
+      console.log('Registro acionado visualmente (sem API na Etapa 1A).');
+      return;
+    }
 
     // validação simples no front
     if (!this.email || !this.password) {
@@ -329,8 +341,12 @@ class AuthApplication extends LitElement {
         
         <div class="form-panel">
           <div class="form-container">
-            <h2>Bem-vindo de volta</h2>
-            <p class="subtitle">Entre com suas credenciais para acessar o portal</p>
+            <h2>${this.mode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}</h2>
+            <p class="subtitle">
+              ${this.mode === 'login'
+                ? 'Entre com suas credenciais para acessar o portal'
+                : 'Preencha os dados abaixo para registrar-se'}
+            </p>
             <form @submit=${this.handleSubmit}>
               <div class="role-toggle">
                 <button type="button" class="role-btn ${this.profileType === 'STUDENT' ? 'active' : ''}" @click=${() => this.setRole('STUDENT')}>Aluno</button>
@@ -345,11 +361,17 @@ class AuthApplication extends LitElement {
                 <input type="password" id="password" name="password" .value=${this.password} @input=${this.handleInput}>
               </div>
               <button type="submit" class="submit-btn" ?disabled=${this.loading}>
-                ${this.loading ? 'Entrando...' : 'Entrar no Portal'}
+                ${this.mode === 'login'
+                  ? (this.loading ? 'Entrando...' : 'Entrar no Portal')
+                  : (this.loading ? 'Cadastrando...' : 'Criar Conta')}
               </button>
               ${this.error ? html`<div class="error-msg">${this.error}</div>` : ''}
             </form>
-            <div class="switch-mode">Não tem conta? <a>Cadastre-se</a></div>
+            <div class="switch-mode">
+              ${this.mode === 'login'
+                ? html`Não tem conta? <a @click=${this.toggleMode}>Cadastre-se</a>`
+                : html`Já tem conta? <a @click=${this.toggleMode}>Faça login</a>`}
+            </div>
           </div>
         </div>
       </div>

@@ -2,7 +2,9 @@ import { LitElement, html, css } from 'lit';
 
 class CommunityApplication extends LitElement {
     static properties = {
-        // Declaração de propriedades reativas, caso precise no futuro
+        posts: { type: Array },
+        loading: { type: Boolean },
+        error: { type: String }
     };
 
     static styles = css`
@@ -291,6 +293,63 @@ class CommunityApplication extends LitElement {
             color: #64748b;
         }
 
+        /* ESTADOS DE CARREGAMENTO E ERRO */
+        .loading-posts {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #00aeef;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-posts {
+            background-color: #fef2f2;
+            border: 1px solid #fee2e2;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            color: #991b1b;
+        }
+
+        .retry-btn {
+            background-color: #0d3168;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .retry-btn:hover {
+            background-color: #00aeef;
+        }
+
+        .no-posts {
+            padding: 30px;
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+        }
+
         /* RESPONSIVIDADE */
         @media (max-width: 1024px) {
             .container {
@@ -311,6 +370,43 @@ class CommunityApplication extends LitElement {
             }
         }
     `;
+
+    constructor() {
+        super();
+        this.posts = [];
+        this.loading = false;
+        this.error = '';
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this.fetchPosts();
+    }
+
+    async fetchPosts() {
+        this.loading = true;
+        this.error = '';
+        const token = localStorage.getItem('portal_token');
+
+        try {
+            const response = await fetch('http://localhost:3002/posts', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Falha ao carregar as publicações da comunidade.');
+            }
+
+            this.posts = await response.json();
+        } catch (err) {
+            console.error('Erro ao buscar posts da comunidade:', err);
+            this.error = err.message;
+        } finally {
+            this.loading = false;
+        }
+    }
 
     get currentUser() {
         try {
@@ -365,62 +461,68 @@ class CommunityApplication extends LitElement {
                         </div>
                     </div>
 
-                    <!-- Post Estático 1 -->
-                    <div class="card post-card">
-                        <div class="post-header">
-                            <div class="post-author-avatar">RS</div>
-                            <div class="post-meta">
-                                <h4 class="post-author-name">
-                                    Prof. Ricardo Santos
-                                    <span class="post-author-badge">Professor</span>
-                                </h4>
-                                <div class="post-time">Há 2 horas</div>
+                    <!-- Lista de Publicações Dinâmicas -->
+                    ${this.loading
+                        ? html`
+                            <div class="loading-posts">
+                                <div class="spinner"></div>
+                                <p>Carregando publicações...</p>
                             </div>
-                        </div>
-                        <h3 class="post-title">Nova data de entrega do projeto de microsserviços</h3>
-                        <p class="post-content">
-                            Olá pessoal, estendi o prazo de entrega da Fase 2 para a próxima sexta-feira. 
-                            Certifiquem-se de que os testes unitários do auth-service estejam passando e o build 
-                            no docker-compose seja executado sem falhas. Bons estudos a todos!
-                        </p>
-                        <div class="post-actions">
-                            <div class="post-action-btn">
-                                <span>👍</span> 12 Curtidas
+                          `
+                        : this.error
+                        ? html`
+                            <div class="card error-posts">
+                                <p>⚠️ ${this.error}</p>
+                                <button class="retry-btn" @click="${this.fetchPosts}">Tentar Novamente</button>
                             </div>
-                            <div class="post-action-btn">
-                                <span>💬</span> 4 Comentários
+                          `
+                        : this.posts.length === 0
+                        ? html`
+                            <div class="card no-posts">
+                                <p>Ainda não há nenhuma publicação na comunidade. Seja o primeiro a postar!</p>
                             </div>
-                        </div>
-                    </div>
+                          `
+                        : this.posts.map(post => {
+                            const authorEmail = post.author ? post.author.email : 'Autor Desconhecido';
+                            const authorInitials = this._getInitials(authorEmail);
+                            const isStudent = post.author ? (post.author.profileType === 'STUDENT' || post.author.profileType === 'student') : true;
+                            const authorRoleLabel = isStudent ? 'Estudante' : 'Professor';
+                            
+                            // Formatação simples de data
+                            const dateStr = post.createdAt ? new Date(post.createdAt).toLocaleString('pt-BR', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            }) : 'Agora';
 
-                    <!-- Post Estático 2 -->
-                    <div class="card post-card">
-                        <div class="post-header">
-                            <div class="post-author-avatar student-av">AC</div>
-                            <div class="post-meta">
-                                <h4 class="post-author-name">
-                                    Ana Clara Silva
-                                    <span class="post-author-badge">Estudante</span>
-                                </h4>
-                                <div class="post-time">Há 4 horas</div>
-                            </div>
-                        </div>
-                        <h3 class="post-title">Dica sobre integração com RabbitMQ</h3>
-                        <p class="post-content">
-                            Se alguém estiver enfrentando problemas com mensagens caindo na fila errada, 
-                            dê uma olhada no contrato de Exchange e na rota de binding no docker-compose. 
-                            A exchange 'user.events' deve ser declarada como 'fanout' para propagar 
-                            corretamente a criação dos usuários espelhados.
-                        </p>
-                        <div class="post-actions">
-                            <div class="post-action-btn">
-                                <span>👍</span> 8 Curtidas
-                            </div>
-                            <div class="post-action-btn">
-                                <span>💬</span> 2 Comentários
-                            </div>
-                        </div>
-                    </div>
+                            return html`
+                                <div class="card post-card" key="${post.id}">
+                                    <div class="post-header">
+                                        <div class="post-author-avatar ${isStudent ? 'student-av' : ''}">${authorInitials}</div>
+                                        <div class="post-meta">
+                                            <h4 class="post-author-name">
+                                                ${authorEmail.split('@')[0]}
+                                                <span class="post-author-badge">${authorRoleLabel}</span>
+                                            </h4>
+                                            <div class="post-time">${dateStr}</div>
+                                        </div>
+                                    </div>
+                                    <h3 class="post-title">${post.title}</h3>
+                                    <p class="post-content">${post.content}</p>
+                                    <div class="post-actions">
+                                        <div class="post-action-btn">
+                                            <span>👍</span> Curtir
+                                        </div>
+                                        <div class="post-action-btn">
+                                            <span>💬</span> Comentar
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        })
+                    }
                 </main>
 
                 <!-- Coluna Direita: Widgets -->

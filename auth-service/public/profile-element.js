@@ -208,12 +208,39 @@ export class ProfileApplication extends LitElement {
       word-break: break-word;
     }
 
-    .no-posts-msg {
-      font-size: 0.95em;
+    .empty-posts-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      background-color: #fafbfc;
+      border: 1.5px dashed #e2e8f0;
+      border-radius: 12px;
+      margin-top: 8px;
+    }
+
+    .empty-icon {
+      width: 48px;
+      height: 48px;
+      fill: #cbd5e1;
+      margin-bottom: 16px;
+    }
+
+    .empty-message {
+      font-size: 1.05em;
+      font-weight: 700;
+      color: #0d3168;
+      margin: 0 0 6px 0;
+    }
+
+    .empty-submessage {
+      font-size: 0.85em;
       color: #64748b;
-      font-style: italic;
-      padding: 20px 0;
       margin: 0;
+      max-width: 320px;
+      line-height: 1.5;
     }
 
     .loading-state, .error-state {
@@ -385,7 +412,15 @@ export class ProfileApplication extends LitElement {
           
           <div class="posts-list">
             ${this.userPosts.length === 0
-              ? html`<p class="no-posts-msg">Você ainda não publicou nenhuma postagem.</p>`
+              ? html`
+                  <div class="empty-posts-state">
+                    <svg viewBox="0 0 24 24" class="empty-icon" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM4 16V4h16v12H5.17L4 17.17V16zm5-7h6v2H9V9zm0 3h6v2H9v-2z" />
+                    </svg>
+                    <h4 class="empty-message">Você ainda não fez nenhuma publicação.</h4>
+                    <p class="empty-submessage">Vá até a Comunidade e compartilhe algo com seus colegas!</p>
+                  </div>
+                `
               : this.userPosts.map(post => html`
                   <div class="post-item">
                     <div class="post-meta">

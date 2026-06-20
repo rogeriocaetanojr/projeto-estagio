@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const services = {
+    3001: 'auth-service',
     3002: 'community-service',
     3003: 'education-service',
     3004: 'inventory-service'

@@ -1,66 +1,460 @@
 import { LitElement, html, css } from 'lit';
 
 class CommunityApplication extends LitElement {
+    static properties = {
+        // Declaração de propriedades reativas, caso precise no futuro
+    };
+
     static styles = css`
         :host {
             display: block;
-            padding: 20px;
-            background-color: #f3e5f5;
-            border: 1px solid #e1bee7;
-            border-radius: 8px;
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            color: #1e293b;
+            min-height: 100vh;
         }
-        h2 {
-            color: #4a148c;
-            margin-top: 0;
+
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            gap: 24px;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 24px;
+            box-sizing: border-box;
         }
-        p {
-            color: #7b1fa2;
+
+        /* CARD DE PERFIL (SIDEBAR) */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-        .user-card {
-            background: white;
-            padding: 12px;
-            margin-top: 10px;
-            border-radius: 6px;
-            border-left: 4px solid #4a148c;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .badge {
+
+        .profile-card {
+            text-align: center;
+            padding: 24px;
+        }
+
+        .profile-bg {
+            height: 60px;
+            background: linear-gradient(135deg, #0d3168 0%, #00aeef 100%);
+            margin: -24px -24px 16px -24px;
+        }
+
+        .profile-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background-color: #00aeef;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: -50px auto 12px auto;
+            border: 4px solid #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-name {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #0d3168;
+            margin: 0 0 4px 0;
+            word-break: break-all;
+        }
+
+        .profile-role {
+            font-size: 0.85em;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            background-color: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 20px;
             display: inline-block;
-            background: #e1bee7;
-            color: #4a148c;
+        }
+
+        /* FEED (COLUNA CENTRAL) */
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .creator-card {
+            padding: 20px;
+        }
+
+        .creator-header {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .creator-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #0d3168;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .creator-textarea {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.95em;
+            resize: none;
+            height: 60px;
+            font-family: inherit;
+            background-color: #f8fafc;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .creator-actions {
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 12px;
+        }
+
+        .publish-btn {
+            background-color: #cbd5e1;
+            color: #ffffff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9em;
+            cursor: not-allowed;
+        }
+
+        /* CARD DE POST */
+        .post-card {
+            padding: 20px;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .post-author-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #0d3168;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .post-author-avatar.student-av {
+            background-color: #00aeef;
+        }
+
+        .post-meta {
+            flex: 1;
+        }
+
+        .post-author-name {
+            font-weight: 700;
+            color: #0d3168;
+            margin: 0;
+            font-size: 0.95em;
+        }
+
+        .post-author-badge {
+            font-size: 0.75em;
+            font-weight: 600;
+            color: #64748b;
+            background-color: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 6px;
+            vertical-align: middle;
+            text-transform: uppercase;
+        }
+
+        .post-time {
+            font-size: 0.75em;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .post-title {
+            font-size: 1.15em;
+            font-weight: 700;
+            color: #0d3168;
+            margin: 0 0 10px 0;
+            line-height: 1.3;
+        }
+
+        .post-content {
+            font-size: 0.95em;
+            color: #334155;
+            line-height: 1.6;
+            margin: 0 0 16px 0;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 16px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 12px;
+            color: #64748b;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .post-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .post-action-btn:hover {
+            color: #00aeef;
+        }
+
+        /* WIDGETS (COLUNA DIREITA) */
+        .widgets {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .widget-card {
+            padding: 20px;
+        }
+
+        .widget-title {
+            font-size: 1em;
+            font-weight: 700;
+            color: #0d3168;
+            margin: 0 0 16px 0;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .widget-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .widget-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border-left: 3px solid #00aeef;
+            padding-left: 10px;
+        }
+
+        .widget-item-title {
+            font-size: 0.9em;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .widget-item-desc {
             font-size: 0.8em;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-top: 5px;
+            color: #64748b;
+        }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+
+            .sidebar {
+                order: 2;
+            }
+
+            .feed {
+                order: 1;
+            }
+
+            .widgets {
+                order: 3;
+            }
         }
     `;
 
-    static properties = {
-        users: { type: Array }
-    };
+    get currentUser() {
+        try {
+            const userRaw = localStorage.getItem('portal_user');
+            return userRaw ? JSON.parse(userRaw) : null;
+        } catch (e) {
+            return null;
+        }
+    }
 
-    constructor() {
-        super();
-        this.users = [
-            { id: 1, email: 'rogerio.caetano@unisenai.edu.br', status: 'Online' },
-            { id: 2, email: 'natalia.cunha@dev.com', status: 'Offline' }
-        ];
+    _getInitials(email) {
+        if (!email) return 'US';
+        const parts = email.split('@')[0].split('.');
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
+        return parts[0].substring(0, 2).toUpperCase();
     }
 
     render() {
+        const user = this.currentUser;
+        const email = user ? user.email : 'Visitante';
+        const initials = user ? this._getInitials(user.email) : 'US';
+        const role = user ? (user.profileType === 'professor' || user.profileType === 'PROFESSOR' ? 'Professor' : 'Estudante') : 'Visitante';
+
         return html`
-            <div>
-                <h2>Community Micro-Frontend</h2>
-                <p>Membros da comunidade integrados ao ecossistema:</p>
-                
-                ${this.users.map(user => html`
-                    <div class="user-card">
-                        <strong>Usuário ID: ${user.id}</strong>
-                        <div>E-mail: ${user.email}</div>
-                        <span class="badge">${user.status}</span>
+            <div class="container">
+                <!-- Coluna Esquerda (Sidebar): Perfil -->
+                <aside class="sidebar">
+                    <div class="card profile-card">
+                        <div class="profile-bg"></div>
+                        <div class="profile-avatar">${initials}</div>
+                        <h3 class="profile-name" title="${email}">${email}</h3>
+                        <span class="profile-role">${role}</span>
                     </div>
-                `)}
+                </aside>
+
+                <!-- Coluna Central: Feed -->
+                <main class="feed">
+                    <!-- Criador de Post (Estático/Desabilitado) -->
+                    <div class="card creator-card">
+                        <div class="creator-header">
+                            <div class="creator-avatar">${initials}</div>
+                            <textarea 
+                                class="creator-textarea" 
+                                placeholder="No que você está pensando, ${user ? email.split('@')[0].split('.')[0] : 'colega'}?" 
+                                disabled
+                            ></textarea>
+                        </div>
+                        <div class="creator-actions">
+                            <button class="publish-btn" disabled>Publicar</button>
+                        </div>
+                    </div>
+
+                    <!-- Post Estático 1 -->
+                    <div class="card post-card">
+                        <div class="post-header">
+                            <div class="post-author-avatar">RS</div>
+                            <div class="post-meta">
+                                <h4 class="post-author-name">
+                                    Prof. Ricardo Santos
+                                    <span class="post-author-badge">Professor</span>
+                                </h4>
+                                <div class="post-time">Há 2 horas</div>
+                            </div>
+                        </div>
+                        <h3 class="post-title">Nova data de entrega do projeto de microsserviços</h3>
+                        <p class="post-content">
+                            Olá pessoal, estendi o prazo de entrega da Fase 2 para a próxima sexta-feira. 
+                            Certifiquem-se de que os testes unitários do auth-service estejam passando e o build 
+                            no docker-compose seja executado sem falhas. Bons estudos a todos!
+                        </p>
+                        <div class="post-actions">
+                            <div class="post-action-btn">
+                                <span>👍</span> 12 Curtidas
+                            </div>
+                            <div class="post-action-btn">
+                                <span>💬</span> 4 Comentários
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Post Estático 2 -->
+                    <div class="card post-card">
+                        <div class="post-header">
+                            <div class="post-author-avatar student-av">AC</div>
+                            <div class="post-meta">
+                                <h4 class="post-author-name">
+                                    Ana Clara Silva
+                                    <span class="post-author-badge">Estudante</span>
+                                </h4>
+                                <div class="post-time">Há 4 horas</div>
+                            </div>
+                        </div>
+                        <h3 class="post-title">Dica sobre integração com RabbitMQ</h3>
+                        <p class="post-content">
+                            Se alguém estiver enfrentando problemas com mensagens caindo na fila errada, 
+                            dê uma olhada no contrato de Exchange e na rota de binding no docker-compose. 
+                            A exchange 'user.events' deve ser declarada como 'fanout' para propagar 
+                            corretamente a criação dos usuários espelhados.
+                        </p>
+                        <div class="post-actions">
+                            <div class="post-action-btn">
+                                <span>👍</span> 8 Curtidas
+                            </div>
+                            <div class="post-action-btn">
+                                <span>💬</span> 2 Comentários
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                <!-- Coluna Direita: Widgets -->
+                <aside class="widgets">
+                    <!-- Bloco 1: Avisos da Instituição -->
+                    <div class="card widget-card">
+                        <h3 class="widget-title">Avisos da Instituição</h3>
+                        <div class="widget-list">
+                            <div class="widget-item">
+                                <span class="widget-item-title">Renovação de Matrícula 2026/2</span>
+                                <span class="widget-item-desc">Prazo limite prorrogado até 30/06 via portal financeiro.</span>
+                            </div>
+                            <div class="widget-item">
+                                <span class="widget-item-title">Semana de Tecnologia UniSenai</span>
+                                <span class="widget-item-desc">Inscrições abertas para workshops e palestras gratuitas.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bloco 2: Próximos Eventos -->
+                    <div class="card widget-card">
+                        <h3 class="widget-title">Próximos Eventos</h3>
+                        <div class="widget-list">
+                            <div class="widget-item">
+                                <span class="widget-item-title">Hackathon Interno UniSenai</span>
+                                <span class="widget-item-desc">De 25 a 27 de Junho. Inscreva seu time no Moodle.</span>
+                            </div>
+                            <div class="widget-item">
+                                <span class="widget-item-title">Palestra: Arquitetura de Software</span>
+                                <span class="widget-item-desc">Amanhã, às 19h00 no Auditório Principal e via Teams.</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
             </div>
         `;
     }

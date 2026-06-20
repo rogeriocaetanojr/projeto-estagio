@@ -74,14 +74,30 @@
             transform: translateY(-1px);
         }
 
-        /* GRID DOS MICRO FRONT-ENDS */
+        /* CONTAINER DO PORTAL PRIVADO */
         .mfe-grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-            padding: 40px 50px 60px 50px;
             max-width: 1400px;
             margin: 0 auto;
+            padding: 20px 0;
+        }
+
+        /* GARANTE QUE OS COMPONENTES NÃO SE SOBROPONHAM */
+        education-application,
+        inventory-application,
+        community-application,
+        profile-application {
+            display: block;
+            position: relative !important;
+            z-index: 1 !important;
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+
+        /* Ajuste do Perfil */
+        #profile-view {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 50px;
         }
 
         .hidden {
@@ -170,11 +186,9 @@
             <auth-application></auth-application>
         </section>
 
-        <!-- Grid/Flexbox responsivo dos MFEs -->
+        <!-- Área Privada do Portal (Comunidade) -->
         <div class="mfe-grid-container hidden" id="private-view">
-            <education-application></education-application>
             <community-application></community-application>
-            <inventory-application></inventory-application>
         </div>
         <profile-application id="profile-view" class="hidden"></profile-application>
     </main>
@@ -284,8 +298,17 @@
         if (userAvatar) {
             userAvatar.addEventListener('click', () => {
                 console.log('Clique no avatar: abrindo tela de perfil...');
+                console.log('Token no localStorage:', localStorage.getItem('portal_token'));
                 if (privateView) privateView.classList.add('hidden');
-                if (profileView) profileView.classList.remove('hidden');
+                if (profileView) {
+                    profileView.classList.remove('hidden');
+                    console.log('Tipo de fetchProfile:', typeof profileView.fetchProfile);
+                    if (typeof profileView.fetchProfile === 'function') {
+                        profileView.fetchProfile();
+                    } else {
+                        console.warn('Método fetchProfile não foi encontrado no componente <profile-application>!');
+                    }
+                }
             });
         }
 

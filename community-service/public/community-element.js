@@ -4,7 +4,8 @@ class CommunityApplication extends LitElement {
     static properties = {
         posts: { type: Array },
         loading: { type: Boolean },
-        error: { type: String }
+        error: { type: String },
+        creatingPost: { type: Boolean }
     };
 
     static styles = css`
@@ -119,15 +120,47 @@ class CommunityApplication extends LitElement {
             font-weight: bold;
         }
 
-        .creator-textarea {
+        .creator-inputs {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .creator-title-input {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.95em;
+            font-family: inherit;
+            font-weight: 600;
+            color: #1e293b;
+            background-color: #ffffff;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .creator-textarea {
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 12px;
             font-size: 0.95em;
             resize: none;
-            height: 60px;
+            height: 80px;
             font-family: inherit;
+            color: #1e293b;
+            background-color: #ffffff;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .creator-title-input:focus,
+        .creator-textarea:focus {
+            border-color: #00aeef;
+        }
+
+        .creator-title-input:disabled,
+        .creator-textarea:disabled {
             background-color: #f8fafc;
             color: #94a3b8;
             cursor: not-allowed;
@@ -149,6 +182,25 @@ class CommunityApplication extends LitElement {
             font-weight: 700;
             font-size: 0.9em;
             cursor: not-allowed;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .publish-btn.active {
+            background-color: #0d3168;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .publish-btn.active:hover:not(:disabled) {
+            background-color: #00aeef;
+            transform: translateY(-1px);
+        }
+
+        .publish-btn.active:disabled {
+            background-color: #cbd5e1;
+            color: #ffffff;
+            cursor: not-allowed;
+            transform: none;
         }
 
         /* CARD DE POST */
@@ -376,6 +428,7 @@ class CommunityApplication extends LitElement {
         this.posts = [];
         this.loading = false;
         this.error = '';
+        this.creatingPost = false;
     }
 
     connectedCallback() {
@@ -405,6 +458,62 @@ class CommunityApplication extends LitElement {
             this.error = err.message;
         } finally {
             this.loading = false;
+        }
+    }
+
+    async handleCreatePost(e) {
+        e.preventDefault();
+        const user = this.currentUser;
+        if (!user) {
+            alert('Você precisa estar logado para publicar.');
+            return;
+        }
+
+        const titleInput = this.shadowRoot.querySelector('#post-title');
+        const contentTextarea = this.shadowRoot.querySelector('#post-content');
+        
+        const title = titleInput.value.trim();
+        const content = contentTextarea.value.trim();
+
+        if (!title || !content) {
+            alert('Por favor, preencha o título e o conteúdo.');
+            return;
+        }
+
+        this.creatingPost = true;
+        const token = localStorage.getItem('portal_token');
+        const authorId = user.id || user.userId;
+
+        try {
+            const response = await fetch('http://localhost:3002/posts', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title,
+                    content,
+                    authorId
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.message || 'Falha ao criar publicação.');
+            }
+
+            // Limpa o formulário
+            titleInput.value = '';
+            contentTextarea.value = '';
+
+            // Atualiza os posts dinamicamente
+            await this.fetchPosts();
+        } catch (err) {
+            console.error('Erro ao criar postagem:', err);
+            alert(`Erro ao publicar: ${err.message}`);
+        } finally {
+            this.creatingPost = false;
         }
     }
 
@@ -446,20 +555,38 @@ class CommunityApplication extends LitElement {
 
                 <!-- Coluna Central: Feed -->
                 <main class="feed">
-                    <!-- Criador de Post (Estático/Desabilitado) -->
-                    <div class="card creator-card">
+                    <!-- Criador de Post -->
+                    <form class="card creator-card" @submit="${this.handleCreatePost}">
                         <div class="creator-header">
                             <div class="creator-avatar">${initials}</div>
-                            <textarea 
-                                class="creator-textarea" 
-                                placeholder="No que você está pensando, ${user ? email.split('@')[0].split('.')[0] : 'colega'}?" 
-                                disabled
-                            ></textarea>
+                            <div class="creator-inputs">
+                                <input 
+                                    type="text" 
+                                    id="post-title" 
+                                    class="creator-title-input" 
+                                    placeholder="Título da publicação..." 
+                                    ?disabled="${!user || this.creatingPost}"
+                                    required
+                                />
+                                <textarea 
+                                    id="post-content"
+                                    class="creator-textarea" 
+                                    placeholder="No que você está pensando, ${user ? email.split('@')[0].split('.')[0] : 'colega'}?" 
+                                    ?disabled="${!user || this.creatingPost}"
+                                    required
+                                ></textarea>
+                            </div>
                         </div>
                         <div class="creator-actions">
-                            <button class="publish-btn" disabled>Publicar</button>
+                            <button 
+                                type="submit" 
+                                class="publish-btn active" 
+                                ?disabled="${!user || this.creatingPost}"
+                            >
+                                ${this.creatingPost ? 'Publicando...' : 'Publicar'}
+                            </button>
                         </div>
-                    </div>
+                    </form>
 
                     <!-- Lista de Publicações Dinâmicas -->
                     ${this.loading

@@ -87,6 +87,56 @@
         .hidden {
             display: none !important;
         }
+
+        /* AVATAR DO USUÁRIO */
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            background-color: var(--primary-dark);
+        }
+
+        /* Tooltip customizada */
+        .user-avatar .tooltip {
+            visibility: hidden;
+            width: 90px;
+            background-color: #2b2b2b;
+            color: var(--white);
+            text-align: center;
+            border-radius: 6px;
+            padding: 6px 0;
+            position: absolute;
+            z-index: 100;
+            bottom: -38px;
+            left: 50%;
+            margin-left: -45px;
+            opacity: 0;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            font-size: 0.75em;
+            font-weight: 600;
+            pointer-events: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-avatar:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -105,7 +155,11 @@
             <a href="#">Fale Conosco</a>
         </nav>
 
-        <div class="header-action">
+        <div class="header-action" style="display: flex; align-items: center; gap: 20px;">
+            <div class="user-avatar hidden" id="user-avatar">
+                <span id="avatar-initials">RC</span>
+                <div class="tooltip">Ver perfil</div>
+            </div>
             <button class="login-btn" id="auth-btn">Entrar no Portal</button>
         </div>
     </header>
@@ -144,7 +198,19 @@
         const publicView = document.getElementById('public-view');
         const privateView = document.getElementById('private-view'); // Certifique-se de que o container do grid use este ID ou a classe .mfe-grid-container
         const appHeader = document.getElementById('app-header');
+        const userAvatar = document.getElementById('user-avatar');
+        const avatarInitials = document.getElementById('avatar-initials');
         let isLoggedIn = false;
+
+        // Função para obter iniciais
+        function getUserInitials(email) {
+            if (!email) return 'US';
+            const parts = email.split('@')[0].split('.');
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[1][0]).toUpperCase();
+            }
+            return parts[0].substring(0, 2).toUpperCase();
+        }
 
         // Função para alternar o estado visual do Shell (esconder/exibir as seções)
         function togglePortalState(loginSuccess) {
@@ -159,6 +225,20 @@
                     authBtn.textContent = 'Sair do Portal';
                     authBtn.style.backgroundColor = '#cc0000';
                 }
+
+                // Renderiza o avatar do usuário logado
+                try {
+                    const userRaw = localStorage.getItem('portal_user');
+                    if (userRaw) {
+                        const user = JSON.parse(userRaw);
+                        if (user && user.email) {
+                            avatarInitials.textContent = getUserInitials(user.email);
+                        }
+                    }
+                } catch (e) {
+                    avatarInitials.textContent = 'US';
+                }
+                if (userAvatar) userAvatar.classList.remove('hidden');
             } else {
                 if (publicView) publicView.classList.remove('hidden');
                 if (mfeContainer) mfeContainer.classList.add('hidden');
@@ -167,6 +247,7 @@
                     authBtn.textContent = 'Entrar no Portal';
                     authBtn.style.backgroundColor = 'var(--azul-escuro)';
                 }
+                if (userAvatar) userAvatar.classList.add('hidden');
                 localStorage.removeItem('portal_token');
                 localStorage.removeItem('portal_user');
             }
@@ -192,6 +273,14 @@
             const token = localStorage.getItem('portal_token');
             togglePortalState(!!token);
         });
+
+        // Ouvinte para o clique no avatar
+        if (userAvatar) {
+            userAvatar.addEventListener('click', () => {
+                console.log('Clique no avatar: abrindo tela de perfil...');
+                // A ser implementado na Etapa 2C
+            });
+        }
     </script>
 </body>
 

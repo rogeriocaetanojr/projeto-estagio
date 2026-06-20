@@ -5,6 +5,8 @@ class AuthApplication extends LitElement {
     profileType: { type: String }, // 'STUDENT' | 'PROFESSOR'
     email: { type: String },
     password: { type: String },
+    loading: { type: Boolean },
+    error: { type: String },
   };
 
   constructor() {
@@ -12,6 +14,8 @@ class AuthApplication extends LitElement {
     this.profileType = 'STUDENT';
     this.email = '';
     this.password = '';
+    this.loading = false;
+    this.error = '';
   }
 
   handleInput(e) {
@@ -22,9 +26,57 @@ class AuthApplication extends LitElement {
     this.profileType = role;
   }
 
-  handleSubmit(e) {
+  async handleSubmit(e) {
     e.preventDefault();
-    console.log('submit (lógica vem na etapa 4)', this.email, this.profileType);
+    this.error = '';
+
+    // validação simples no front
+    if (!this.email || !this.password) {
+      this.error = 'Preencha e-mail e senha.';
+      return;
+    }
+
+    this.loading = true;
+    try {
+      const response = await fetch('http://localhost:3001/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: this.email, password: this.password }),
+      });
+
+      if (!response.ok) {
+        // tenta ler a mensagem do back; senão usa uma genérica
+        let msg = 'E-mail ou senha inválidos.';
+        try {
+          const errData = await response.json();
+          if (errData && errData.message) {
+            msg = Array.isArray(errData.message) ? errData.message[0] : errData.message;
+          }
+        } catch (_) {}
+        throw new Error(msg);
+      }
+
+      const data = await response.json();
+      const token = data.access_token;
+      const user = data.user;
+
+      // persiste localmente (o shell também persiste ao receber o evento, mas garantimos aqui)
+      localStorage.setItem('portal_token', token);
+      if (user) localStorage.setItem('portal_user', JSON.stringify(user));
+
+      console.log('Login realizado com sucesso:', user);
+
+      // dispara o evento que o shell escuta
+      this.dispatchEvent(new CustomEvent('auth-success', {
+        detail: { token, user },
+        bubbles: true,
+        composed: true,
+      }));
+    } catch (err) {
+      this.error = err.message || 'Ocorreu um erro inesperado. Tente novamente.';
+    } finally {
+      this.loading = false;
+    }
   }
 
   static styles = css`
@@ -194,6 +246,17 @@ class AuthApplication extends LitElement {
     .submit-btn:hover {
       background-color: var(--primary-light);
     }
+    .submit-btn:disabled {
+      background-color: var(--muted);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    .error-msg {
+      color: #dc2626;
+      font-size: 0.875rem;
+      margin-top: 0.75rem;
+      text-align: center;
+    }
     .switch-mode {
       text-align: center;
       margin-top: 1.5rem;
@@ -281,7 +344,10 @@ class AuthApplication extends LitElement {
                 <label for="password">Senha</label>
                 <input type="password" id="password" name="password" .value=${this.password} @input=${this.handleInput}>
               </div>
-              <button type="submit" class="submit-btn">Entrar no Portal</button>
+              <button type="submit" class="submit-btn" ?disabled=${this.loading}>
+                ${this.loading ? 'Entrando...' : 'Entrar no Portal'}
+              </button>
+              ${this.error ? html`<div class="error-msg">${this.error}</div>` : ''}
             </form>
             <div class="switch-mode">Não tem conta? <a>Cadastre-se</a></div>
           </div>

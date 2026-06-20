@@ -8,6 +8,10 @@ class AuthApplication extends LitElement {
     loading: { type: Boolean },
     error: { type: String },
     mode: { type: String }, // 'login' | 'register'
+    ra: { type: String },
+    periodo: { type: String },
+    matricula: { type: String },
+    titulacao: { type: String },
   };
 
   constructor() {
@@ -18,6 +22,10 @@ class AuthApplication extends LitElement {
     this.loading = false;
     this.error = '';
     this.mode = 'login';
+    this.ra = '';
+    this.periodo = '';
+    this.matricula = '';
+    this.titulacao = '';
   }
 
   toggleMode() {
@@ -38,8 +46,36 @@ class AuthApplication extends LitElement {
     this.error = '';
 
     if (this.mode === 'register') {
-      console.log('Registro acionado visualmente (sem API na Etapa 1A).');
-      return;
+      // 1. Validação genérica
+      if (!this.email || !this.password) {
+        this.error = 'Preencha todos os campos obrigatórios.';
+        return;
+      }
+      if (this.password.length < 6) {
+        this.error = 'A senha deve ter no mínimo 6 caracteres.';
+        return;
+      }
+
+      // 2. Validação específica por perfil
+      if (this.profileType === 'STUDENT') {
+        if (!this.ra || !this.periodo) {
+          this.error = 'Preencha o RA e o Período.';
+          return;
+        }
+        const periodVal = parseInt(this.periodo);
+        if (isNaN(periodVal) || periodVal <= 0) {
+          this.error = 'O Período deve ser um número válido.';
+          return;
+        }
+        console.log('Validação de estudante aceita:', { email: this.email, ra: this.ra, periodo: periodVal });
+      } else {
+        if (!this.matricula || !this.titulacao) {
+          this.error = 'Preencha a Matrícula e a Titulação.';
+          return;
+        }
+        console.log('Validação de professor aceita:', { email: this.email, matricula: this.matricula, titulacao: this.titulacao });
+      }
+      return; // Sem lógica de API na Etapa 1B
     }
 
     // validação simples no front
@@ -360,6 +396,29 @@ class AuthApplication extends LitElement {
                 <label for="password">Senha</label>
                 <input type="password" id="password" name="password" .value=${this.password} @input=${this.handleInput}>
               </div>
+              ${this.mode === 'register'
+                ? (this.profileType === 'STUDENT'
+                  ? html`
+                      <div class="input-group">
+                        <label for="ra">RA</label>
+                        <input type="text" id="ra" name="ra" placeholder="Ex: 123456" .value=${this.ra} @input=${this.handleInput}>
+                      </div>
+                      <div class="input-group">
+                        <label for="periodo">Período</label>
+                        <input type="number" id="periodo" name="periodo" placeholder="Ex: 2" .value=${this.periodo} @input=${this.handleInput}>
+                      </div>
+                    `
+                  : html`
+                      <div class="input-group">
+                        <label for="matricula">Matrícula</label>
+                        <input type="text" id="matricula" name="matricula" placeholder="Ex: 987654" .value=${this.matricula} @input=${this.handleInput}>
+                      </div>
+                      <div class="input-group">
+                        <label for="titulacao">Titulação</label>
+                        <input type="text" id="titulacao" name="titulacao" placeholder="Ex: Mestrado" .value=${this.titulacao} @input=${this.handleInput}>
+                      </div>
+                    `)
+                : ''}
               <button type="submit" class="submit-btn" ?disabled=${this.loading}>
                 ${this.mode === 'login'
                   ? (this.loading ? 'Entrando...' : 'Entrar no Portal')

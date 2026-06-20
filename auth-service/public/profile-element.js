@@ -214,10 +214,7 @@ export class ProfileApplication extends LitElement {
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 40px 20px;
-      background-color: #fafbfc;
-      border: 1.5px dashed #e2e8f0;
-      border-radius: 12px;
+      padding: 60px 20px;
       margin-top: 8px;
     }
 

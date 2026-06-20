@@ -176,6 +176,7 @@
             <community-application></community-application>
             <inventory-application></inventory-application>
         </div>
+        <profile-application id="profile-view" class="hidden"></profile-application>
     </main>
 
     <!-- Import Map para resolver dependências nativamente no navegador (Frameworkless) -->
@@ -192,11 +193,13 @@
     <script type="module" src="http://localhost:3003/app-bundle/education-element.js"></script>
     <script type="module" src="http://localhost:3002/app-bundle/community-element.js"></script>
     <script type="module" src="http://localhost:3004/app-bundle/inventory-element.js"></script>
+    <script type="module" src="http://localhost:3001/app-bundle/profile-element.js"></script>
 
     <script>
         const authBtn = document.getElementById('auth-btn');
         const publicView = document.getElementById('public-view');
         const privateView = document.getElementById('private-view'); // Certifique-se de que o container do grid use este ID ou a classe .mfe-grid-container
+        const profileView = document.getElementById('profile-view');
         const appHeader = document.getElementById('app-header');
         const userAvatar = document.getElementById('user-avatar');
         const avatarInitials = document.getElementById('avatar-initials');
@@ -242,6 +245,9 @@
             } else {
                 if (publicView) publicView.classList.remove('hidden');
                 if (mfeContainer) mfeContainer.classList.add('hidden');
+                if (profileView) {
+                    profileView.classList.add('hidden');
+                }
                 if (appHeader) appHeader.classList.add('hidden');
                 if (authBtn) {
                     authBtn.textContent = 'Entrar no Portal';
@@ -278,9 +284,17 @@
         if (userAvatar) {
             userAvatar.addEventListener('click', () => {
                 console.log('Clique no avatar: abrindo tela de perfil...');
-                // A ser implementado na Etapa 2C
+                if (privateView) privateView.classList.add('hidden');
+                if (profileView) profileView.classList.remove('hidden');
             });
         }
+
+        // Ouvinte para o evento customizado close-profile
+        window.addEventListener('close-profile', () => {
+            console.log('Evento close-profile capturado: voltando para a tela principal...');
+            if (profileView) profileView.classList.add('hidden');
+            if (privateView) privateView.classList.remove('hidden');
+        });
     </script>
 </body>
 

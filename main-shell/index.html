@@ -74,36 +74,12 @@
             transform: translateY(-1px);
         }
 
-        /* HERO BANNER EM AZUL ESCURO */
-        .hero-banner {
-            background-color: var(--primary-dark);
-            color: var(--white);
-            text-align: center;
-            padding: 60px 20px;
-            margin-bottom: 40px;
-            box-shadow: inset 0 -5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .hero-banner h2 {
-            margin: 0;
-            font-size: 2.8em;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .hero-banner p {
-            margin-top: 15px;
-            font-size: 1.25em;
-            font-weight: 300;
-            color: var(--primary-light);
-        }
-
         /* GRID DOS MICRO FRONT-ENDS */
         .mfe-grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 30px;
-            padding: 0 50px 60px 50px;
+            padding: 40px 50px 60px 50px;
             max-width: 1400px;
             margin: 0 auto;
         }
@@ -117,7 +93,7 @@
 <body>
 
     <!-- HEADER: Logo, Links de Navegação e Botão -->
-    <header class="app-header">
+    <header class="app-header hidden" id="app-header">
         <div class="header-logo">
             <img src="logo-unisenai.png" alt="Logo UniSenai PR">
         </div>
@@ -136,11 +112,8 @@
 
     <!-- MAIN CONTENT: Banner e Grid de MFEs -->
     <main>
-        <section class="hero-banner" id="public-view">
-            <h2>Engenharia de Software</h2>
-            <p>Atue em funções voltadas para especificação, desenvolvimento, manutenção e criação de sistemas de
-                software seguros e de alto desempenho para diversas áreas de negócio. Venha ser um aluno UniSenai PR e
-                estudar com quem é referência em Engenharia!</p>
+        <section id="public-view">
+            <auth-application></auth-application>
         </section>
 
         <!-- Grid/Flexbox responsivo dos MFEs -->
@@ -161,6 +134,7 @@
     </script>
 
     <!-- Importação direta dos componentes dos respectivos serviços -->
+    <script type="module" src="http://localhost:3001/app-bundle/auth-element.js"></script>
     <script type="module" src="http://localhost:3003/app-bundle/education-element.js"></script>
     <script type="module" src="http://localhost:3002/app-bundle/community-element.js"></script>
     <script type="module" src="http://localhost:3004/app-bundle/inventory-element.js"></script>
@@ -169,6 +143,7 @@
         const authBtn = document.getElementById('auth-btn');
         const publicView = document.getElementById('public-view');
         const privateView = document.getElementById('private-view'); // Certifique-se de que o container do grid use este ID ou a classe .mfe-grid-container
+        const appHeader = document.getElementById('app-header');
         let isLoggedIn = false;
 
         // Função para alternar o estado visual do Shell (esconder/exibir as seções)
@@ -179,6 +154,7 @@
             if (isLoggedIn) {
                 if (publicView) publicView.classList.add('hidden');
                 if (mfeContainer) mfeContainer.classList.remove('hidden');
+                if (appHeader) appHeader.classList.remove('hidden');
                 if (authBtn) {
                     authBtn.textContent = 'Sair do Portal';
                     authBtn.style.backgroundColor = '#cc0000';
@@ -186,6 +162,7 @@
             } else {
                 if (publicView) publicView.classList.remove('hidden');
                 if (mfeContainer) mfeContainer.classList.add('hidden');
+                if (appHeader) appHeader.classList.add('hidden');
                 if (authBtn) {
                     authBtn.textContent = 'Entrar no Portal';
                     authBtn.style.backgroundColor = 'var(--azul-escuro)';
@@ -208,6 +185,12 @@
             localStorage.setItem('portal_token', token);
             if (user) localStorage.setItem('portal_user', JSON.stringify(user));
             togglePortalState(true);
+        });
+
+        // 3. Verificação inicial de carregamento
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('portal_token');
+            togglePortalState(!!token);
         });
     </script>
 </body>

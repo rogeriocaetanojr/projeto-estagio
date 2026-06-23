@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UserMirrorModule } from './user-mirror/user-mirror.module';
 import { PostsModule } from './posts/posts.module';
 import { CommunityController } from './community.controller';
+import { CommunitiesModule } from './communities/communities.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { CommunityController } from './community.controller';
     PrismaModule,
     UserMirrorModule,
     PostsModule,
+    CommunitiesModule,
   ],
   controllers: [CommunityController],
   providers: [],

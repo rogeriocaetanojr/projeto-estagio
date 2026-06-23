@@ -26,17 +26,22 @@ import * as amqp from 'amqp-connection-manager';
       provide: 'MESSAGE_BROKER',
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const urls = [configService.get<string>('RABBITMQ_URL') || 'amqp://guest:guest@localhost:5672'];
+        const urls = [
+          configService.get<string>('RABBITMQ_URL') ||
+            'amqp://guest:guest@localhost:5672',
+        ];
         const connection = amqp.connect(urls);
         const channelWrapper = connection.createChannel({
           setup: (channel: any) => {
             // Assert da Exchange 'user.events' do tipo fanout
-            return channel.assertExchange('user.events', 'fanout', { durable: true });
+            return channel.assertExchange('user.events', 'fanout', {
+              durable: true,
+            });
           },
         });
         return channelWrapper;
       },
     },
-  ]
+  ],
 })
 export class AuthModule {}

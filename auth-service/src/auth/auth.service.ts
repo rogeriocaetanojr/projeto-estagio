@@ -1,4 +1,11 @@
-import { Injectable, ConflictException, InternalServerErrorException, Inject, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  InternalServerErrorException,
+  Inject,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, AccountType } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -6,7 +13,11 @@ import * as bcrypt from 'bcrypt';
 import type { ChannelWrapper } from 'amqp-connection-manager';
 import { ClientProxy } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
-import { USER_EVENTS_EXCHANGE, ProfileType, UserRegisteredEvent } from '../events/contracts';
+import {
+  USER_EVENTS_EXCHANGE,
+  ProfileType,
+  UserRegisteredEvent,
+} from '../events/contracts';
 
 @Injectable()
 export class AuthService {
@@ -72,19 +83,25 @@ export class AuthService {
       const { password, ...result } = user;
 
       // Emite o evento de usuário registrado para a Exchange no RabbitMQ
-      this.logger.log(`Emitindo evento 'user_registered' para a Exchange '${USER_EVENTS_EXCHANGE}'...`);
-      
+      this.logger.log(
+        `Emitindo evento 'user_registered' para a Exchange '${USER_EVENTS_EXCHANGE}'...`,
+      );
+
       const payload: UserRegisteredEvent = {
         pattern: 'user_registered',
         data: {
           id: result.id,
           email: result.email,
           profileType: dto.type as unknown as ProfileType,
-        }
+        },
       };
 
-      await this.messageBroker.publish(USER_EVENTS_EXCHANGE, '', Buffer.from(JSON.stringify(payload)));
-      
+      await this.messageBroker.publish(
+        USER_EVENTS_EXCHANGE,
+        '',
+        Buffer.from(JSON.stringify(payload)),
+      );
+
       this.logger.log(`Evento emitido com sucesso na Exchange!`);
 
       this.publishUserLogin({ id: result.id, email: result.email });
@@ -93,10 +110,14 @@ export class AuthService {
     } catch (error) {
       // Em casos de violação de Unique Key (ex: RA ou Matrícula duplicados) que o prisma levanta (P2002)
       if (error.code === 'P2002') {
-         throw new ConflictException('Dados únicos já registrados (RA ou Matrícula).');
+        throw new ConflictException(
+          'Dados únicos já registrados (RA ou Matrícula).',
+        );
       }
       this.logger.error(`Erro no registro:`, error);
-      throw new InternalServerErrorException('Erro interno ao registrar usuário');
+      throw new InternalServerErrorException(
+        'Erro interno ao registrar usuário',
+      );
     }
   }
 
@@ -116,7 +137,7 @@ export class AuthService {
 
     // Compara dto.password com user.password usando bcrypt.compare
     const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-    
+
     if (!isPasswordValid) {
       throw new UnauthorizedException('Credenciais inválidas');
     }
@@ -168,4 +189,3 @@ export class AuthService {
     return result;
   }
 }
-

@@ -58,30 +58,51 @@ describe('AuthService', () => {
 
   describe('register', () => {
     it('deve lançar ConflictException quando o e-mail já existe', async () => {
-      (prismaService.user.findUnique as jest.Mock).mockResolvedValue({ id: '1', email: 'test@test.com' });
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
+        id: '1',
+        email: 'test@test.com',
+      });
 
       await expect(
-        service.register({ email: 'test@test.com', password: 'pass', type: AccountType.STUDENT, ra: '123', periodo: 1 })
+        service.register({
+          email: 'test@test.com',
+          password: 'pass',
+          type: AccountType.STUDENT,
+          ra: '123',
+          periodo: 1,
+        }),
       ).rejects.toThrow(ConflictException);
     });
   });
 
   describe('login', () => {
     it('deve lançar UnauthorizedException quando a senha está incorreta', async () => {
-      (prismaService.user.findUnique as jest.Mock).mockResolvedValue({ id: '1', email: 'test@test.com', password: 'hashed' });
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
+        id: '1',
+        email: 'test@test.com',
+        password: 'hashed',
+      });
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await expect(
-        service.login({ email: 'test@test.com', password: 'wrong' })
+        service.login({ email: 'test@test.com', password: 'wrong' }),
       ).rejects.toThrow(UnauthorizedException);
     });
 
     it('deve retornar access_token quando as credenciais são válidas', async () => {
-      (prismaService.user.findUnique as jest.Mock).mockResolvedValue({ id: '1', email: 'test@test.com', password: 'hashed', student: { ra: '123' } });
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
+        id: '1',
+        email: 'test@test.com',
+        password: 'hashed',
+        student: { ra: '123' },
+      });
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (jwtService.signAsync as jest.Mock).mockResolvedValue('fake_token');
 
-      const result = await service.login({ email: 'test@test.com', password: 'correct' });
+      const result = await service.login({
+        email: 'test@test.com',
+        password: 'correct',
+      });
 
       expect(result).toEqual({
         access_token: 'fake_token',

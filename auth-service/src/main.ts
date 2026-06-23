@@ -31,4 +31,3 @@ async function bootstrap() {
   logger.log(`Serviço de Autenticação (auth-service) rodando na porta ${port}`);
 }
 bootstrap();
-

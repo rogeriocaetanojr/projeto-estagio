@@ -213,6 +213,24 @@ export class PostsService {
     });
   }
 
+  async updateComment(commentId: string, content: string) {
+    const comment = await this.prisma.comment.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!comment) {
+      throw new NotFoundException('Comentário não encontrado');
+    }
+
+    return this.prisma.comment.update({
+      where: { id: commentId },
+      data: { content },
+      include: {
+        author: true,
+      },
+    });
+  }
+
   async removeComment(commentId: string) {
     const comment = await this.prisma.comment.findUnique({
       where: { id: commentId },

@@ -5,7 +5,12 @@ class CommunityApplication extends LitElement {
         posts: { type: Array },
         loading: { type: Boolean },
         error: { type: String },
-        creatingPost: { type: Boolean }
+        creatingPost: { type: Boolean },
+        editingPostId: { type: String },
+        editingPostTitle: { type: String },
+        editingPostContent: { type: String },
+        editingCommentId: { type: String },
+        editingCommentContent: { type: String }
     };
 
     static styles = css`
@@ -404,6 +409,11 @@ class CommunityApplication extends LitElement {
         this.error = '';
         this.creatingPost = false;
         this.activeCommentBox = null; // ID do post que tem a caixa de comentário aberta
+        this.editingPostId = null;
+        this.editingPostTitle = '';
+        this.editingPostContent = '';
+        this.editingCommentId = null;
+        this.editingCommentContent = '';
     }
 
     connectedCallback() {
@@ -563,6 +573,130 @@ class CommunityApplication extends LitElement {
             alert('Não foi possível enviar o comentário.');
         }
     }
+
+    startEditPost(post) {
+        this.editingPostId = post.id;
+        this.editingPostTitle = post.title;
+        this.editingPostContent = post.content;
+    }
+
+    cancelEditPost() {
+        this.editingPostId = null;
+        this.editingPostTitle = '';
+        this.editingPostContent = '';
+    }
+
+    async handleSavePost(postId) {
+        if (!this.editingPostTitle.trim() || !this.editingPostContent.trim()) {
+            alert('Título e conteúdo não podem ser vazios.');
+            return;
+        }
+
+        const token = localStorage.getItem('portal_token');
+        try {
+            const response = await fetch(`http://localhost:3002/posts/${postId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: this.editingPostTitle,
+                    content: this.editingPostContent
+                })
+            });
+
+            if (!response.ok) throw new Error('Falha ao editar a publicação');
+
+            this.cancelEditPost();
+            await this.fetchPosts();
+        } catch (err) {
+            console.error(err);
+            alert('Não foi possível editar a publicação.');
+        }
+    }
+
+    async handleDeletePost(postId) {
+        if (!confirm('Deseja realmente excluir esta publicação?')) return;
+
+        const token = localStorage.getItem('portal_token');
+        try {
+            const response = await fetch(`http://localhost:3002/posts/${postId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Falha ao excluir a publicação');
+
+            await this.fetchPosts();
+        } catch (err) {
+            console.error(err);
+            alert('Não foi possível excluir a publicação.');
+        }
+    }
+
+    startEditComment(comment) {
+        this.editingCommentId = comment.id;
+        this.editingCommentContent = comment.content;
+    }
+
+    cancelEditComment() {
+        this.editingCommentId = null;
+        this.editingCommentContent = '';
+    }
+
+    async handleSaveComment(postId, commentId) {
+        if (!this.editingCommentContent.trim()) {
+            alert('O comentário não pode ser vazio.');
+            return;
+        }
+
+        const token = localStorage.getItem('portal_token');
+        try {
+            const response = await fetch(`http://localhost:3002/posts/${postId}/comments/${commentId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    content: this.editingCommentContent
+                })
+            });
+
+            if (!response.ok) throw new Error('Falha ao editar o comentário');
+
+            this.cancelEditComment();
+            await this.fetchPosts();
+        } catch (err) {
+            console.error(err);
+            alert('Não foi possível editar o comentário.');
+        }
+    }
+
+    async handleDeleteComment(postId, commentId) {
+        if (!confirm('Deseja realmente excluir este comentário?')) return;
+
+        const token = localStorage.getItem('portal_token');
+        try {
+            const response = await fetch(`http://localhost:3002/posts/${postId}/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Falha ao excluir o comentário');
+
+            await this.fetchPosts();
+        } catch (err) {
+            console.error(err);
+            alert('Não foi possível excluir o comentário.');
+        }
+    }
+
     get currentUser() {
         try {
             const userRaw = localStorage.getItem('portal_user');
@@ -662,18 +796,39 @@ class CommunityApplication extends LitElement {
 
                             return html`
                                 <div class="card post-card" key="${post.id}">
-                                    <div class="post-header">
-                                        <div class="post-author-avatar ${isStudent ? 'student-av' : ''}">${authorInitials}</div>
-                                        <div class="post-meta">
-                                            <h4 class="post-author-name">
-                                                ${authorEmail.split('@')[0]}
-                                                <span class="post-author-badge">${authorRoleLabel}</span>
-                                            </h4>
-                                            <div class="post-time">${dateStr}</div>
+                                    <div class="post-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                        <div style="display: flex; gap: 12px; align-items: center;">
+                                            <div class="post-author-avatar ${isStudent ? 'student-av' : ''}">${authorInitials}</div>
+                                            <div class="post-meta">
+                                                <h4 class="post-author-name">
+                                                    ${authorEmail.split('@')[0]}
+                                                    <span class="post-author-badge">${authorRoleLabel}</span>
+                                                </h4>
+                                                <div class="post-time">${dateStr}</div>
+                                            </div>
                                         </div>
+                                        ${post.authorId === (this.currentUser?.id || this.currentUser?.userId) ? html`
+                                            <div class="post-actions-menu" style="display: flex; gap: 8px;">
+                                                <button @click="${() => this.startEditPost(post)}" style="background: none; border: none; cursor: pointer; font-size: 1.1em; color: #64748b;" title="Editar Publicação">✏️</button>
+                                                <button @click="${() => this.handleDeletePost(post.id)}" style="background: none; border: none; cursor: pointer; font-size: 1.1em; color: #ef4444;" title="Excluir Publicação">🗑️</button>
+                                            </div>
+                                        ` : ''}
                                     </div>
-                                    <h3 class="post-title">${post.title}</h3>
-                                    <p class="post-content">${post.content}</p>
+
+                                    ${this.editingPostId === post.id ? html`
+                                        <div class="edit-post-form" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <input type="text" .value="${this.editingPostTitle}" @input="${(e) => this.editingPostTitle = e.target.value}" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600;" placeholder="Título..." />
+                                            <textarea @input="${(e) => this.editingPostContent = e.target.value}" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; min-height: 85px; font-family: inherit;" placeholder="Conteúdo...">${this.editingPostContent}</textarea>
+                                            <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
+                                                <button @click="${() => this.cancelEditPost()}" style="padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; cursor: pointer; font-size: 0.9em;">Cancelar</button>
+                                                <button @click="${() => this.handleSavePost(post.id)}" style="padding: 6px 12px; border: none; border-radius: 6px; background: #00aeef; color: white; cursor: pointer; font-weight: 600; font-size: 0.9em;">Salvar</button>
+                                            </div>
+                                        </div>
+                                    ` : html`
+                                        <h3 class="post-title" style="margin-top: 12px; margin-bottom: 8px; color: #0d3168;">${post.title}</h3>
+                                        <p class="post-content" style="color: #334155; line-height: 1.5; white-space: pre-wrap;">${post.content}</p>
+                                    `}
+
                                     <div class="post-actions">
                                         <div class="post-action-btn ${post.likes?.some(l => l.userId === (this.currentUser?.id || this.currentUser?.userId)) ? 'liked' : ''}" @click="${() => this.toggleLike(post.id)}">
                                             <span>👍</span> ${post.likes?.length || 0} Curtidas
@@ -684,18 +839,37 @@ class CommunityApplication extends LitElement {
                                     </div>
                                     
                                     ${post.comments && post.comments.length > 0 ? html`
-                                        <div class="comments-list" style="margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                                        <div class="comments-list" style="margin-top: 15px; border-left: 3px solid #e2e8f0; padding-left: 16px; margin-left: 16px;">
                                             ${post.comments.map(comment => {
                                                 const authorName = comment.author?.email ? comment.author.email.split('@')[0] : 'Usuário';
+                                                const isCommentAuthor = comment.authorId === (this.currentUser?.id || this.currentUser?.userId);
                                                 return html`
-                                                    <div style="font-size: 0.85em; margin-bottom: 8px; padding: 8px; background: #f8fafc; border-radius: 6px;">
-                                                        <strong style="color: #0d3168;">${authorName}:</strong>
-                                                        <span style="color: #334155;">${comment.content}</span>
+                                                    <div style="font-size: 0.85em; margin-bottom: 8px; padding: 10px; background: #f8fafc; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start; border: 1px solid #f1f5f9; gap: 8px;">
+                                                        <div style="flex: 1;">
+                                                            <strong style="color: #0d3168; display: block; margin-bottom: 2px;">${authorName}</strong>
+                                                            ${this.editingCommentId === comment.id ? html`
+                                                                <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+                                                                    <input type="text" .value="${this.editingCommentContent}" @input="${(e) => this.editingCommentContent = e.target.value}" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; box-sizing: border-box;" />
+                                                                    <div style="display: flex; gap: 4px; justify-content: flex-end;">
+                                                                        <button @click="${() => this.cancelEditComment()}" style="padding: 3px 8px; border: 1px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Cancelar</button>
+                                                                        <button @click="${() => this.handleSaveComment(post.id, comment.id)}" style="padding: 3px 8px; border: none; background: #00aeef; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
+                                                                    </div>
+                                                                </div>
+                                                            ` : html`
+                                                                <span style="color: #334155; white-space: pre-wrap;">${comment.content}</span>
+                                                            `}
+                                                        </div>
+                                                        ${isCommentAuthor && this.editingCommentId !== comment.id ? html`
+                                                            <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                                                                <button @click="${() => this.startEditComment(comment)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #64748b; padding: 2px;" title="Editar Comentário">✏️</button>
+                                                                <button @click="${() => this.handleDeleteComment(post.id, comment.id)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #ef4444; padding: 2px;" title="Excluir Comentário">🗑️</button>
+                                                            </div>
+                                                        ` : ''}
                                                     </div>
-                                                `;
-                                            })}
+                                                 `;
+                                             })}
                                         </div>
-                                    ` : ''}
+                                     ` : ''}
 
                                     ${this.activeCommentBox === post.id ? html`
                                         <form class="comment-form" @submit="${(e) => this.handleAddComment(e, post.id)}" style="display: flex; gap: 8px; margin-top: 10px;">

@@ -16,6 +16,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { GetPostsDto } from './dto/get-posts.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 import { ToggleLikeDto } from './dto/toggle-like.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -130,6 +131,14 @@ export class PostsController {
       createCommentDto.content,
       createCommentDto.parentId,
     );
+  }
+
+  @Patch(':id/comments/:commentId')
+  updateComment(
+    @Param('commentId') commentId: string,
+    @Body() updateCommentDto: UpdateCommentDto,
+  ) {
+    return this.postsService.updateComment(commentId, updateCommentDto.content);
   }
 
   @Delete(':id/comments/:commentId')

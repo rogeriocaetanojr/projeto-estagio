@@ -1,8 +1,8 @@
 export const USER_EVENTS_EXCHANGE = 'user.events';
 
 export enum ProfileType {
-  STUDENT = 'STUDENT',
-  PROFESSOR = 'PROFESSOR',
+  STUDENT = 'student',
+  PROFESSOR = 'professor',
 }
 
 export interface UserRegisteredEvent {

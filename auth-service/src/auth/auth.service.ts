@@ -79,7 +79,7 @@ export class AuthService {
         data: {
           id: result.id,
           email: result.email,
-          profileType: dto.type.toUpperCase() as ProfileType,
+          profileType: dto.type as unknown as ProfileType,
         }
       };
 

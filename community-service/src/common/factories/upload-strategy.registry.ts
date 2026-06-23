@@ -16,7 +16,7 @@ export class UploadStrategyRegistry {
   }
 
   getStrategy(profileType: string): UploadLimitStrategy {
-    const strategy = this.strategies.get(profileType.toLowerCase());
+    const strategy = this.strategies.get(profileType);
 
     if (!strategy) {
       throw new NotFoundException(

@@ -73,8 +73,8 @@ Para garantir um contrato estável e previsível entre os módulos, o evento pub
 export const USER_EVENTS_EXCHANGE = 'user.events';
 
 export enum ProfileType {
-  STUDENT = 'STUDENT',
-  PROFESSOR = 'PROFESSOR',
+  STUDENT = 'student',
+  PROFESSOR = 'professor',
 }
 
 export interface UserRegisteredEvent {
@@ -91,7 +91,7 @@ export interface UserRegisteredEvent {
 
 1. **Exchange:** o evento é publicado na Exchange `user.events` (tipo `fanout`). Nunca alterar esse nome.
 2. **Formato do envelope:** o payload sempre segue `{ pattern, data }`, padrão do NestJS Microservices.
-3. **`profileType` em MAIÚSCULAS:** o valor é sempre `STUDENT` ou `PROFESSOR` (uppercase). Os módulos `community`, `education` e `inventory` devem consumir esperando esse formato. Comparar sempre de forma case-insensitive (ex.: `.toUpperCase()`) por segurança.
+3. **`profileType` em minúsculas:** o valor é sempre `student` ou `professor` (lowercase). Os módulos `community`, `education` e `inventory` devem consumir esperando esse formato.
 
 ```json
 {
@@ -99,7 +99,7 @@ export interface UserRegisteredEvent {
   "data": {
     "id": "uuid-do-usuario",
     "email": "usuario@dominio.com",
-    "profileType": "STUDENT"
+    "profileType": "student"
   }
 }
 ```

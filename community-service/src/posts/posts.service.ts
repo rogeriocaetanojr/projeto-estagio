@@ -23,12 +23,8 @@ export class PostsService {
       data: {
         title,
         content,
-        author: {
-          connect: { id: authorId },
-        },
-        community: {
-          connect: { id: communityId },
-        },
+        authorId,
+        communityId,
       },
     });
   }

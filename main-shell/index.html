@@ -392,25 +392,8 @@
             if (!headerNav) return;
             
             if (isLogged) {
-                headerNav.innerHTML = `
-                    <a href="#" class="nav-link" id="link-community">Comunidade</a>
-                    <a href="#" class="nav-link" id="link-education">Jogo de Lógica</a>
-                    <a href="#" class="nav-link" id="link-inventory">Inventário</a>
-                `;
-                
-                // Vincula eventos de clique nas abas
-                document.getElementById('link-community').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    switchTab('community');
-                });
-                document.getElementById('link-education').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    switchTab('education');
-                });
-                document.getElementById('link-inventory').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    switchTab('inventory');
-                });
+                // Remove os clicáveis superiores quando logado (eles migram para a lateral esquerda da Comunidade)
+                headerNav.innerHTML = '';
             } else {
                 headerNav.innerHTML = `
                     <a href="#" class="nav-link-public">Sobre o Curso</a>
@@ -588,6 +571,12 @@
         window.addEventListener('close-profile', () => {
             if (profileView) profileView.classList.add('hidden');
             switchTab('community');
+        });
+
+        // Escuta o evento customizado portal-switch-tab para trocar de aba a partir dos MFEs
+        window.addEventListener('portal-switch-tab', (event) => {
+            const { tab } = event.detail;
+            switchTab(tab);
         });
 
         // Verificação de autenticação inicial ao carregar a página

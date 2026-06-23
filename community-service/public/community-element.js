@@ -21,7 +21,8 @@ class CommunityApplication extends LitElement {
         newCommunityIsLocked: { type: Boolean },
         newCommunityPassword: { type: String },
         communityPasswordPromptId: { type: String },
-        communityPasswordInput: { type: String }
+        communityPasswordInput: { type: String },
+        clickedPosts: { type: Array }
     };
 
     static styles = css`
@@ -53,9 +54,9 @@ class CommunityApplication extends LitElement {
 
         .container {
             display: grid;
-            grid-template-columns: 1fr 320px;
+            grid-template-columns: 280px 1fr 320px;
             gap: 24px;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 24px;
             box-sizing: border-box;
@@ -399,12 +400,12 @@ class CommunityApplication extends LitElement {
                 padding: 16px;
             }
 
-            .sidebar {
-                order: 2;
+            .sidebar-left {
+                order: 1;
             }
 
             .feed {
-                order: 1;
+                order: 2;
             }
 
             .widgets {
@@ -552,6 +553,115 @@ class CommunityApplication extends LitElement {
             align-items: center;
             gap: 8px;
         }
+
+        /* BARRA LATERAL ESQUERDA (NOVA) */
+        .sidebar-left {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .nav-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-section-title {
+            font-size: 0.8em;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            padding-left: 8px;
+        }
+
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid transparent;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            font-size: 0.95em;
+        }
+
+        .sidebar-nav-item:hover {
+            background-color: #f1f5f9;
+            color: #0d3168;
+        }
+
+        .create-comm-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: #0d3168;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease-in-out;
+            width: 100%;
+        }
+
+        .create-comm-btn:hover {
+            background-color: #00aeef;
+        }
+
+        /* HISTÓRICO DE CLIQUES (NOVO) */
+        .history-card {
+            padding: 20px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border-left: 3px solid #0d3168;
+            background-color: #f8fafc;
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+        }
+
+        .history-item:hover {
+            background-color: #f1f5f9;
+            border-left-color: #00aeef;
+        }
+
+        .history-item-title {
+            font-size: 0.88em;
+            font-weight: 600;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-item-time {
+            font-size: 0.72em;
+            color: #94a3b8;
+        }
     `;
 
     constructor() {
@@ -560,7 +670,7 @@ class CommunityApplication extends LitElement {
         this.loading = false;
         this.error = '';
         this.creatingPost = false;
-        this.activeCommentBox = null; // ID do post que tem a caixa de comentário aberta
+        this.activeCommentBox = null;
         this.editingPostId = null;
         this.editingPostTitle = '';
         this.editingPostContent = '';
@@ -577,10 +687,12 @@ class CommunityApplication extends LitElement {
         this.newCommunityPassword = '';
         this.communityPasswordPromptId = null;
         this.communityPasswordInput = '';
+        this.clickedPosts = [];
     }
 
     connectedCallback() {
         super.connectedCallback();
+        this.loadClickedPosts();
         this.fetchPosts();
         this.fetchCommunities();
     }
@@ -1104,6 +1216,92 @@ class CommunityApplication extends LitElement {
         return parts[0].substring(0, 2).toUpperCase();
     }
 
+    loadClickedPosts() {
+        try {
+            const raw = localStorage.getItem('portal_clicked_posts');
+            this.clickedPosts = raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            this.clickedPosts = [];
+        }
+    }
+
+    registerPostClick(post) {
+        // Evita registrar cliques múltiplos consecutivos para o mesmo post
+        if (this.clickedPosts.length > 0 && this.clickedPosts[0].id === post.id) {
+            return;
+        }
+
+        let posts = [];
+        try {
+            const raw = localStorage.getItem('portal_clicked_posts');
+            posts = raw ? JSON.parse(raw) : [];
+        } catch (e) {}
+
+        // Remove do histórico existente se já houver (para puxar pro topo)
+        posts = posts.filter(p => p.id !== post.id);
+        
+        // Adiciona ao topo
+        posts.unshift({
+            id: post.id,
+            title: post.title,
+            clickedAt: new Date().toISOString()
+        });
+
+        // Limita a 8 posts
+        if (posts.length > 8) {
+            posts = posts.slice(0, 8);
+        }
+
+        this.clickedPosts = posts;
+        localStorage.setItem('portal_clicked_posts', JSON.stringify(posts));
+    }
+
+    scrollToPost(postId) {
+        const postElement = this.shadowRoot.querySelector(`[key="${postId}"]`);
+        if (postElement) {
+            postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Efeito visual de destaque no post scrollado
+            const originalShadow = postElement.style.boxShadow;
+            const originalTransition = postElement.style.transition;
+            
+            postElement.style.transition = 'all 0.3s ease';
+            postElement.style.boxShadow = '0 0 15px rgba(0, 174, 239, 0.5)';
+            
+            setTimeout(() => {
+                postElement.style.boxShadow = originalShadow;
+                postElement.style.transition = originalTransition;
+            }, 1500);
+        }
+    }
+
+    dispatchSwitchTab(tabName) {
+        this.dispatchEvent(new CustomEvent('portal-switch-tab', {
+            detail: { tab: tabName },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    renderCommunitySidebarItem(c, isMemberOrOwner = true) {
+        const isActive = this.selectedCommunityId === c.id;
+        return html`
+            <div class="community-item ${isActive ? 'active' : ''}" @click="${() => isMemberOrOwner ? this.selectCommunity(c.id) : null}">
+                <div class="community-info">
+                    <span class="community-name">
+                        ${c.isLocked ? '🔒' : '💬'} ${c.name}
+                    </span>
+                    <span class="community-desc">${c.description || 'Sem descrição'}</span>
+                </div>
+                ${!isMemberOrOwner ? html`
+                    <button class="community-action-btn" @click="${(e) => { e.stopPropagation(); this.handleJoinCommunity(c.id, c.isLocked); }}">Entrar</button>
+                ` : html`
+                    <span style="font-size: 0.75em; color: #10b981; font-weight: 600; padding: 2px 6px; background: #ecfdf5; border-radius: 4px; flex-shrink: 0;">Membro</span>
+                `}
+            </div>
+        `;
+    }
+
     render() {
         const user = this.currentUser;
         const email = user ? user.email : 'Visitante';
@@ -1112,6 +1310,78 @@ class CommunityApplication extends LitElement {
 
         return html`
             <div class="container">
+                <!-- Coluna Esquerda: Navegação Lateral -->
+                <aside class="sidebar-left">
+                    <!-- Outros Módulos do Portal -->
+                    <div class="card widget-card">
+                        <h3 class="widget-title">Portal</h3>
+                        <div class="nav-section">
+                            <button class="sidebar-nav-item" @click="${() => this.dispatchSwitchTab('education')}">
+                                <span style="font-size: 1.2em; margin-right: 2px;">🧩</span> Jogo de Lógica
+                            </button>
+                            <button class="sidebar-nav-item" @click="${() => this.dispatchSwitchTab('inventory')}">
+                                <span style="font-size: 1.2em; margin-right: 2px;">📦</span> Inventário
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Comunidades -->
+                    <div class="card widget-card">
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+                            <h3 class="widget-title" style="margin: 0; border-bottom: none; padding-bottom: 0;">Comunidades</h3>
+                            <button @click="${() => this.openCreateCommunityModal()}" class="create-comm-btn">
+                                <span>+</span> Criar Comunidade
+                            </button>
+                        </div>
+                        
+                        <div class="widget-list">
+                            <!-- Feed Geral -->
+                            <div class="community-item ${!this.selectedCommunityId ? 'active' : ''}" @click="${() => this.selectCommunity(null)}">
+                                <div class="community-info">
+                                    <span class="community-name">🌐 Feed Geral</span>
+                                    <span class="community-desc">Todas as publicações</span>
+                                </div>
+                            </div>
+
+                            <!-- As que Criei -->
+                            <div class="nav-section-title" style="margin-top: 16px;">As que criei</div>
+                            ${(() => {
+                                const created = this.communities.filter(c => c.ownerId === (this.currentUser?.id || this.currentUser?.userId));
+                                if (created.length === 0) {
+                                    return html`<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic; margin-bottom: 8px;">Nenhuma criada</div>`;
+                                }
+                                return created.map(c => this.renderCommunitySidebarItem(c));
+                            })()}
+
+                            <!-- As que Participo -->
+                            <div class="nav-section-title" style="margin-top: 16px;">As que participo</div>
+                            ${(() => {
+                                const joined = this.communities.filter(c => 
+                                    c.members?.some(m => m.userId === (this.currentUser?.id || this.currentUser?.userId)) &&
+                                    c.ownerId !== (this.currentUser?.id || this.currentUser?.userId)
+                                );
+                                if (joined.length === 0) {
+                                    return html`<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic; margin-bottom: 8px;">Nenhuma participando</div>`;
+                                }
+                                return joined.map(c => this.renderCommunitySidebarItem(c));
+                            })()}
+
+                            <!-- Outras Comunidades -->
+                            <div class="nav-section-title" style="margin-top: 16px;">Outras Comunidades</div>
+                            ${(() => {
+                                const others = this.communities.filter(c => 
+                                    c.ownerId !== (this.currentUser?.id || this.currentUser?.userId) &&
+                                    !c.members?.some(m => m.userId === (this.currentUser?.id || this.currentUser?.userId))
+                                );
+                                if (others.length === 0) {
+                                    return html`<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma outra disponível</div>`;
+                                }
+                                return others.map(c => this.renderCommunitySidebarItem(c, false));
+                            })()}
+                        </div>
+                    </div>
+                </aside>
+
                 <!-- Coluna Central: Feed -->
                 <main class="feed">
                     <!-- Criador de Post -->
@@ -1197,7 +1467,7 @@ class CommunityApplication extends LitElement {
                             }) : 'Agora';
 
                             return html`
-                                <div class="card post-card" key="${post.id}">
+                                <div class="card post-card" key="${post.id}" @click="${() => this.registerPostClick(post)}">
                                     <div class="post-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
                                         <div style="display: flex; gap: 12px; align-items: center;">
                                             <div class="post-author-avatar ${isStudent ? 'student-av' : ''}">${authorInitials}</div>
@@ -1359,75 +1629,27 @@ class CommunityApplication extends LitElement {
                     }
                 </main>
 
-                <!-- Coluna Direita: Widgets -->
+                <!-- Coluna Direita: Histórico -->
                 <aside class="widgets">
-                    <!-- Bloco: Comunidades Acadêmicas -->
-                    <div class="card widget-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <h3 class="widget-title" style="margin: 0;">Comunidades</h3>
-                            <button @click="${() => this.openCreateCommunityModal()}" style="background: #0d3168; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer; font-weight: 600;">+ Criar</button>
-                        </div>
-                        <div class="widget-list">
-                            <!-- Opção Geral -->
-                            <div class="community-item ${!this.selectedCommunityId ? 'active' : ''}" @click="${() => this.selectCommunity(null)}">
-                                <div class="community-info">
-                                    <span class="community-name">🌐 Feed Geral</span>
-                                    <span class="community-desc">Publicações de todas as áreas</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Lista de comunidades -->
-                            ${this.communities && this.communities.length > 0 ? this.communities.map(c => {
-                                const isMember = c.members?.some(m => m.userId === (this.currentUser?.id || this.currentUser?.userId));
-                                const isOwner = c.ownerId === (this.currentUser?.id || this.currentUser?.userId);
-                                const canView = isMember || isOwner;
-
+                    <div class="card widget-card history-card">
+                        <h3 class="widget-title">Histórico de Visualização</h3>
+                        <div class="history-list">
+                            ${this.clickedPosts && this.clickedPosts.length > 0 ? this.clickedPosts.map(post => {
+                                const clickTimeStr = post.clickedAt ? new Date(post.clickedAt).toLocaleTimeString('pt-BR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) : '';
                                 return html`
-                                    <div class="community-item ${this.selectedCommunityId === c.id ? 'active' : ''}" @click="${() => canView ? this.selectCommunity(c.id) : null}">
-                                        <div class="community-info">
-                                            <span class="community-name">
-                                                ${c.isLocked ? '🔒' : '💬'} ${c.name}
-                                            </span>
-                                            <span class="community-desc">${c.description || 'Sem descrição'}</span>
-                                        </div>
-                                        ${!canView ? html`
-                                            <button class="community-action-btn" @click="${(e) => { e.stopPropagation(); this.handleJoinCommunity(c.id, c.isLocked); }}">Entrar</button>
-                                        ` : html`
-                                            <span style="font-size: 0.85em; color: #10b981; font-weight: 600; padding: 2px 6px; background: #ecfdf5; border-radius: 4px; flex-shrink: 0;">Membro</span>
-                                        `}
+                                    <div class="history-item" @click="${() => this.scrollToPost(post.id)}">
+                                        <span class="history-item-title">${post.title}</span>
+                                        <span class="history-item-time">Clicado às ${clickTimeStr}</span>
                                     </div>
                                 `;
-                            }) : html`<div style="text-align: center; color: #64748b; font-size: 0.85em; padding: 10px 0;">Nenhuma comunidade criada.</div>`}
-                        </div>
-                    </div>
-
-                    <!-- Bloco 1: Avisos da Instituição -->
-                    <div class="card widget-card">
-                        <h3 class="widget-title">Avisos da Instituição</h3>
-                        <div class="widget-list">
-                            <div class="widget-item">
-                                <span class="widget-item-title">Renovação de Matrícula 2026/2</span>
-                                <span class="widget-item-desc">Prazo limite prorrogado até 30/06 via portal financeiro.</span>
-                            </div>
-                            <div class="widget-item">
-                                <span class="widget-item-title">Semana de Tecnologia UniSenai</span>
-                                <span class="widget-item-desc">Inscrições abertas para workshops e palestras gratuitas.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Bloco 2: Próximos Eventos -->
-                    <div class="card widget-card">
-                        <h3 class="widget-title">Próximos Eventos</h3>
-                        <div class="widget-list">
-                            <div class="widget-item">
-                                <span class="widget-item-title">Hackathon Interno UniSenai</span>
-                                <span class="widget-item-desc">De 25 a 27 de Junho. Inscreva seu time no Moodle.</span>
-                            </div>
-                            <div class="widget-item">
-                                <span class="widget-item-title">Palestra: Arquitetura de Software</span>
-                                <span class="widget-item-desc">Amanhã, às 19h00 no Auditório Principal e via Teams.</span>
-                            </div>
+                            }) : html`
+                                <div style="text-align: center; color: #64748b; font-size: 0.85em; padding: 10px 0; font-style: italic;">
+                                    Nenhum post clicado recentemente.
+                                </div>
+                            `}
                         </div>
                     </div>
                 </aside>

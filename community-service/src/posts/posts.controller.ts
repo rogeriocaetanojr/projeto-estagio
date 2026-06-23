@@ -15,6 +15,8 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { GetPostsDto } from './dto/get-posts.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { ToggleLikeDto } from './dto/toggle-like.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -110,5 +112,28 @@ export class PostsController {
     );
 
     return attachment;
+  }
+
+  @Post(':id/likes')
+  toggleLike(@Param('id') id: string, @Body() toggleLikeDto: ToggleLikeDto) {
+    return this.postsService.toggleLike(id, toggleLikeDto.userId);
+  }
+
+  @Post(':id/comments')
+  addComment(
+    @Param('id') id: string,
+    @Body() createCommentDto: CreateCommentDto,
+  ) {
+    return this.postsService.addComment(
+      id,
+      createCommentDto.authorId,
+      createCommentDto.content,
+      createCommentDto.parentId,
+    );
+  }
+
+  @Delete(':id/comments/:commentId')
+  removeComment(@Param('commentId') commentId: string) {
+    return this.postsService.removeComment(commentId);
   }
 }

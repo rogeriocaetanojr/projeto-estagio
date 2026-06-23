@@ -16,6 +16,8 @@ model UserMirror {
   posts            Post[]
   ownedCommunities Community[]       @relation("CommunityOwner")
   memberships      CommunityMember[]
+  comments         Comment[]
+  likes            Like[]
 }
 
 model Community {
@@ -53,6 +55,8 @@ model Post {
   communityId String
   community   Community    @relation(fields: [communityId], references: [id], onDelete: Cascade)
   attachments Attachment[]
+  comments    Comment[]
+  likes       Like[]
 }
 
 model Attachment {
@@ -61,4 +65,30 @@ model Attachment {
   fileUrl  String
   postId   String
   post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        String     @id @default(uuid())
+  content   String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  postId    String
+  post      Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    UserMirror @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  parentId  String?
+  parent    Comment?   @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]  @relation("CommentReplies")
+}
+
+model Like {
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  postId    String
+  post      Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      UserMirror @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
 }

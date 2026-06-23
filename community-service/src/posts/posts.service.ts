@@ -43,6 +43,9 @@ export class PostsService {
       include: {
         author: true,
         attachments: true,
+        _count: {
+          select: { likes: true, comments: true },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -56,6 +59,26 @@ export class PostsService {
       include: {
         author: true,
         attachments: true,
+        _count: {
+          select: { likes: true },
+        },
+        comments: {
+          where: { parentId: null },
+          include: {
+            author: true,
+            replies: {
+              include: {
+                author: true,
+              },
+              orderBy: {
+                createdAt: 'asc',
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
       },
     });
 
@@ -95,5 +118,88 @@ export class PostsService {
         postId,
       },
     });
+  }
+
+  async toggleLike(postId: string, userId: string) {
+    await this.findOne(postId);
+
+    const existingLike = await this.prisma.like.findUnique({
+      where: {
+        postId_userId: {
+          postId,
+          userId,
+        },
+      },
+    });
+
+    if (existingLike) {
+      await this.prisma.like.delete({
+        where: { id: existingLike.id },
+      });
+      return { message: 'Curtida removida com sucesso', liked: false };
+    }
+
+    await this.prisma.like.create({
+      data: {
+        postId,
+        userId,
+      },
+    });
+    return { message: 'Curtida adicionada com sucesso', liked: true };
+  }
+
+  async addComment(
+    postId: string,
+    authorId: string,
+    content: string,
+    parentId?: string,
+  ) {
+    await this.findOne(postId);
+
+    const authorExists = await this.prisma.userMirror.findUnique({
+      where: { id: authorId },
+    });
+
+    if (!authorExists) {
+      throw new NotFoundException('Autor não encontrado');
+    }
+
+    if (parentId) {
+      const parentExists = await this.prisma.comment.findUnique({
+        where: { id: parentId },
+      });
+
+      if (!parentExists) {
+        throw new NotFoundException('Comentário original não encontrado');
+      }
+    }
+
+    return this.prisma.comment.create({
+      data: {
+        content,
+        postId,
+        authorId,
+        parentId,
+      },
+      include: {
+        author: true,
+      },
+    });
+  }
+
+  async removeComment(commentId: string) {
+    const comment = await this.prisma.comment.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!comment) {
+      throw new NotFoundException('Comentário não encontrado');
+    }
+
+    await this.prisma.comment.delete({
+      where: { id: commentId },
+    });
+
+    return { message: 'Comentário removido com sucesso' };
   }
 }

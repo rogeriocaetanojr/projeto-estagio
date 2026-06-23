@@ -10,7 +10,9 @@ class CommunityApplication extends LitElement {
         editingPostTitle: { type: String },
         editingPostContent: { type: String },
         editingCommentId: { type: String },
-        editingCommentContent: { type: String }
+        editingCommentContent: { type: String },
+        activeReplyBox: { type: String },
+        replyContent: { type: String }
     };
 
     static styles = css`
@@ -414,6 +416,8 @@ class CommunityApplication extends LitElement {
         this.editingPostContent = '';
         this.editingCommentId = null;
         this.editingCommentContent = '';
+        this.activeReplyBox = null;
+        this.replyContent = '';
     }
 
     connectedCallback() {
@@ -697,6 +701,52 @@ class CommunityApplication extends LitElement {
         }
     }
 
+    toggleReplyBox(commentId) {
+        if (this.activeReplyBox === commentId) {
+            this.activeReplyBox = null;
+            this.replyContent = '';
+        } else {
+            this.activeReplyBox = commentId;
+            this.replyContent = '';
+        }
+    }
+
+    async handleAddReply(e, postId, parentId) {
+        e.preventDefault();
+        const user = this.currentUser;
+        if (!user) {
+            alert('Faça login para responder.');
+            return;
+        }
+
+        const input = this.shadowRoot.querySelector(`#reply-input-${parentId}`);
+        const content = input.value.trim();
+        if (!content) return;
+
+        const token = localStorage.getItem('portal_token');
+        const authorId = user.id || user.userId;
+
+        try {
+            const response = await fetch(`http://localhost:3002/posts/${postId}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ authorId, content, parentId })
+            });
+
+            if (!response.ok) throw new Error('Falha ao responder comentário');
+
+            input.value = '';
+            this.activeReplyBox = null;
+            await this.fetchPosts();
+        } catch (err) {
+            console.error(err);
+            alert('Não foi possível enviar a resposta.');
+        }
+    }
+
     get currentUser() {
         try {
             const userRaw = localStorage.getItem('portal_user');
@@ -840,34 +890,86 @@ class CommunityApplication extends LitElement {
                                     
                                     ${post.comments && post.comments.length > 0 ? html`
                                         <div class="comments-list" style="margin-top: 15px; border-left: 3px solid #e2e8f0; padding-left: 16px; margin-left: 16px;">
-                                            ${post.comments.map(comment => {
-                                                const authorName = comment.author?.email ? comment.author.email.split('@')[0] : 'Usuário';
-                                                const isCommentAuthor = comment.authorId === (this.currentUser?.id || this.currentUser?.userId);
-                                                return html`
-                                                    <div style="font-size: 0.85em; margin-bottom: 8px; padding: 10px; background: #f8fafc; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start; border: 1px solid #f1f5f9; gap: 8px;">
-                                                        <div style="flex: 1;">
-                                                            <strong style="color: #0d3168; display: block; margin-bottom: 2px;">${authorName}</strong>
-                                                            ${this.editingCommentId === comment.id ? html`
-                                                                <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
-                                                                    <input type="text" .value="${this.editingCommentContent}" @input="${(e) => this.editingCommentContent = e.target.value}" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; box-sizing: border-box;" />
-                                                                    <div style="display: flex; gap: 4px; justify-content: flex-end;">
-                                                                        <button @click="${() => this.cancelEditComment()}" style="padding: 3px 8px; border: 1px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Cancelar</button>
-                                                                        <button @click="${() => this.handleSaveComment(post.id, comment.id)}" style="padding: 3px 8px; border: none; background: #00aeef; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
-                                                                    </div>
-                                                                </div>
-                                                            ` : html`
-                                                                <span style="color: #334155; white-space: pre-wrap;">${comment.content}</span>
-                                                            `}
-                                                        </div>
-                                                        ${isCommentAuthor && this.editingCommentId !== comment.id ? html`
-                                                            <div style="display: flex; gap: 4px; flex-shrink: 0;">
-                                                                <button @click="${() => this.startEditComment(comment)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #64748b; padding: 2px;" title="Editar Comentário">✏️</button>
-                                                                <button @click="${() => this.handleDeleteComment(post.id, comment.id)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #ef4444; padding: 2px;" title="Excluir Comentário">🗑️</button>
-                                                            </div>
-                                                        ` : ''}
-                                                    </div>
-                                                 `;
-                                             })}
+                                            ${(() => {
+                                                 const rootComments = post.comments.filter(c => !c.parentId);
+                                                 return rootComments.map(comment => {
+                                                     const authorName = comment.author?.email ? comment.author.email.split('@')[0] : 'Usuário';
+                                                     const isCommentAuthor = comment.authorId === (this.currentUser?.id || this.currentUser?.userId);
+                                                     const replies = post.comments.filter(c => c.parentId === comment.id);
+
+                                                     return html`
+                                                         <!-- Comentário Principal (Root) -->
+                                                         <div style="font-size: 0.85em; margin-bottom: 8px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 6px;">
+                                                             <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                                                                 <div style="flex: 1;">
+                                                                     <strong style="color: #0d3168; display: block; margin-bottom: 2px;">${authorName}</strong>
+                                                                     ${this.editingCommentId === comment.id ? html`
+                                                                         <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+                                                                             <input type="text" .value="${this.editingCommentContent}" @input="${(e) => this.editingCommentContent = e.target.value}" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; box-sizing: border-box;" />
+                                                                             <div style="display: flex; gap: 4px; justify-content: flex-end;">
+                                                                                 <button @click="${() => this.cancelEditComment()}" style="padding: 3px 8px; border: 1px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Cancelar</button>
+                                                                                 <button @click="${() => this.handleSaveComment(post.id, comment.id)}" style="padding: 3px 8px; border: none; background: #00aeef; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
+                                                                             </div>
+                                                                         </div>
+                                                                     ` : html`
+                                                                         <span style="color: #334155; white-space: pre-wrap;">${comment.content}</span>
+                                                                     `}
+                                                                 </div>
+                                                                 <div style="display: flex; gap: 4px; flex-shrink: 0; align-items: center;">
+                                                                     <button @click="${() => this.toggleReplyBox(comment.id)}" style="background: none; border: none; cursor: pointer; font-size: 1.1em; color: #00aeef; padding: 2px;" title="Responder">💬</button>
+                                                                     ${isCommentAuthor && this.editingCommentId !== comment.id ? html`
+                                                                         <button @click="${() => this.startEditComment(comment)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #64748b; padding: 2px;" title="Editar Comentário">✏️</button>
+                                                                         <button @click="${() => this.handleDeleteComment(post.id, comment.id)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #ef4444; padding: 2px;" title="Excluir Comentário">🗑️</button>
+                                                                     ` : ''}
+                                                                 </div>
+                                                             </div>
+
+                                                             <!-- Caixa de Resposta (Reply Form) -->
+                                                             ${this.activeReplyBox === comment.id ? html`
+                                                                 <form @submit="${(e) => this.handleAddReply(e, post.id, comment.id)}" style="display: flex; gap: 8px; margin-top: 6px;">
+                                                                     <input type="text" id="reply-input-${comment.id}" placeholder="Escreva uma resposta..." style="flex: 1; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.95em;" required />
+                                                                     <button type="submit" style="background: #00aeef; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 600;">Responder</button>
+                                                                 </form>
+                                                             ` : ''}
+                                                         </div>
+
+                                                         <!-- Respostas Indentadas (Replies) -->
+                                                         ${replies.length > 0 ? html`
+                                                             <div class="replies-list" style="margin-left: 24px; border-left: 2px dashed #cbd5e1; padding-left: 12px; margin-bottom: 12px;">
+                                                                 ${replies.map(reply => {
+                                                                     const replyAuthorName = reply.author?.email ? reply.author.email.split('@')[0] : 'Usuário';
+                                                                     const isReplyAuthor = reply.authorId === (this.currentUser?.id || this.currentUser?.userId);
+
+                                                                     return html`
+                                                                         <div style="font-size: 0.85em; margin-bottom: 6px; padding: 8px; background: #f8fafc; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start; border: 1px solid #f1f5f9; gap: 8px;">
+                                                                             <div style="flex: 1;">
+                                                                                 <strong style="color: #0d3168; display: block; margin-bottom: 2px;">${replyAuthorName} <span style="font-weight: normal; color: #64748b; font-size: 0.9em;">(resposta)</span></strong>
+                                                                                 ${this.editingCommentId === reply.id ? html`
+                                                                                     <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+                                                                                         <input type="text" .value="${this.editingCommentContent}" @input="${(e) => this.editingCommentContent = e.target.value}" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; box-sizing: border-box;" />
+                                                                                         <div style="display: flex; gap: 4px; justify-content: flex-end;">
+                                                                                             <button @click="${() => this.cancelEditComment()}" style="padding: 3px 8px; border: 1px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Cancelar</button>
+                                                                                             <button @click="${() => this.handleSaveComment(post.id, reply.id)}" style="padding: 3px 8px; border: none; background: #00aeef; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
+                                                                                         </div>
+                                                                                     </div>
+                                                                                 ` : html`
+                                                                                     <span style="color: #334155; white-space: pre-wrap;">${reply.content}</span>
+                                                                                 `}
+                                                                             </div>
+                                                                             ${isReplyAuthor && this.editingCommentId !== reply.id ? html`
+                                                                                 <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                                                                                     <button @click="${() => this.startEditComment(reply)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #64748b; padding: 2px;" title="Editar Resposta">✏️</button>
+                                                                                     <button @click="${() => this.handleDeleteComment(post.id, reply.id)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #ef4444; padding: 2px;" title="Excluir Resposta">🗑️</button>
+                                                                                 </div>
+                                                                             ` : ''}
+                                                                         </div>
+                                                                     `;
+                                                                 })}
+                                                             </div>
+                                                         ` : ''}
+                                                     `;
+                                                 });
+                                             })()}
                                         </div>
                                      ` : ''}
 

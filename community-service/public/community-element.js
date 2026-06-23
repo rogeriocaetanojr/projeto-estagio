@@ -12,7 +12,16 @@ class CommunityApplication extends LitElement {
         editingCommentId: { type: String },
         editingCommentContent: { type: String },
         activeReplyBox: { type: String },
-        replyContent: { type: String }
+        replyContent: { type: String },
+        communities: { type: Array },
+        selectedCommunityId: { type: String },
+        showCreateCommunityModal: { type: Boolean },
+        newCommunityName: { type: String },
+        newCommunityDescription: { type: String },
+        newCommunityIsLocked: { type: Boolean },
+        newCommunityPassword: { type: String },
+        communityPasswordPromptId: { type: String },
+        communityPasswordInput: { type: String }
     };
 
     static styles = css`
@@ -402,6 +411,147 @@ class CommunityApplication extends LitElement {
                 order: 3;
             }
         }
+
+        /* Estilos de Comunidades */
+        .community-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+            margin-bottom: 6px;
+            border: 1px solid transparent;
+        }
+
+        .community-item:hover {
+            background-color: #f1f5f9;
+        }
+
+        .community-item.active {
+            background-color: #e0f2fe;
+            border-color: #bae6fd;
+            font-weight: 600;
+            color: #0369a1;
+        }
+
+        .community-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+        }
+
+        .community-name {
+            font-size: 0.95em;
+            color: #0f172a;
+        }
+
+        .community-item.active .community-name {
+            color: #0369a1;
+        }
+
+        .community-desc {
+            font-size: 0.8em;
+            color: #64748b;
+        }
+
+        .community-action-btn {
+            background-color: #00aeef;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .community-action-btn:hover {
+            background-color: #0d3168;
+        }
+
+        /* Modal / Form overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-container {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #0d3168;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .form-group input, .form-group textarea {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
     `;
 
     constructor() {
@@ -418,20 +568,47 @@ class CommunityApplication extends LitElement {
         this.editingCommentContent = '';
         this.activeReplyBox = null;
         this.replyContent = '';
+        this.communities = [];
+        this.selectedCommunityId = null;
+        this.showCreateCommunityModal = false;
+        this.newCommunityName = '';
+        this.newCommunityDescription = '';
+        this.newCommunityIsLocked = false;
+        this.newCommunityPassword = '';
+        this.communityPasswordPromptId = null;
+        this.communityPasswordInput = '';
     }
 
     connectedCallback() {
         super.connectedCallback();
         this.fetchPosts();
+        this.fetchCommunities();
+    }
+
+    async fetchCommunities() {
+        const token = localStorage.getItem('portal_token');
+        try {
+            const response = await fetch('http://localhost:3002/communities', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                this.communities = await response.json();
+            }
+        } catch (err) {
+            console.error('Erro ao buscar comunidades:', err);
+        }
     }
 
     async fetchPosts() {
         this.loading = true;
         this.error = '';
         const token = localStorage.getItem('portal_token');
+        const url = this.selectedCommunityId ? `http://localhost:3002/posts?communityId=${this.selectedCommunityId}` : 'http://localhost:3002/posts';
 
         try {
-            const response = await fetch('http://localhost:3002/posts', {
+            const response = await fetch(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -483,7 +660,8 @@ class CommunityApplication extends LitElement {
                 body: JSON.stringify({
                     title,
                     content,
-                    authorId
+                    authorId,
+                    communityId: this.selectedCommunityId || null
                 })
             });
 
@@ -747,6 +925,114 @@ class CommunityApplication extends LitElement {
         }
     }
 
+    selectCommunity(communityId) {
+        this.selectedCommunityId = communityId;
+        this.fetchPosts();
+    }
+
+    openCreateCommunityModal() {
+        this.showCreateCommunityModal = true;
+    }
+
+    closeCreateCommunityModal() {
+        this.showCreateCommunityModal = false;
+        this.newCommunityName = '';
+        this.newCommunityDescription = '';
+        this.newCommunityIsLocked = false;
+        this.newCommunityPassword = '';
+    }
+
+    async handleCreateCommunity(e) {
+        e.preventDefault();
+        const user = this.currentUser;
+        if (!user) {
+            alert('Você precisa estar logado para criar uma comunidade.');
+            return;
+        }
+
+        const token = localStorage.getItem('portal_token');
+        const ownerId = user.id || user.userId;
+
+        try {
+            const response = await fetch('http://localhost:3002/communities', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: this.newCommunityName,
+                    description: this.newCommunityDescription || null,
+                    isLocked: this.newCommunityIsLocked,
+                    password: this.newCommunityIsLocked ? this.newCommunityPassword : null,
+                    ownerId
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.message || 'Falha ao criar comunidade.');
+            }
+
+            this.closeCreateCommunityModal();
+            await this.fetchCommunities();
+            alert('Comunidade criada com sucesso!');
+        } catch (err) {
+            console.error('Erro ao criar comunidade:', err);
+            alert(err.message);
+        }
+    }
+
+    async handleJoinCommunity(communityId, isLocked) {
+        const user = this.currentUser;
+        if (!user) {
+            alert('Você precisa estar logado para entrar em uma comunidade.');
+            return;
+        }
+
+        if (isLocked) {
+            this.communityPasswordPromptId = communityId;
+            this.communityPasswordInput = '';
+            return;
+        }
+
+        await this._submitJoinRequest(communityId);
+    }
+
+    async _submitJoinRequest(communityId, password = null) {
+        const user = this.currentUser;
+        const token = localStorage.getItem('portal_token');
+        const userId = user.id || user.userId;
+
+        try {
+            const response = await fetch(`http://localhost:3002/communities/${communityId}/join`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId,
+                    password
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || 'Falha ao entrar na comunidade.');
+            }
+
+            alert(data.message || 'Você entrou na comunidade!');
+            this.communityPasswordPromptId = null;
+            this.communityPasswordInput = '';
+            await this.fetchCommunities();
+            this.selectCommunity(communityId);
+        } catch (err) {
+            console.error('Erro ao entrar na comunidade:', err);
+            alert(err.message);
+        }
+    }
+
     get currentUser() {
         try {
             const userRaw = localStorage.getItem('portal_user');
@@ -987,6 +1273,46 @@ class CommunityApplication extends LitElement {
 
                 <!-- Coluna Direita: Widgets -->
                 <aside class="widgets">
+                    <!-- Bloco: Comunidades Acadêmicas -->
+                    <div class="card widget-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <h3 class="widget-title" style="margin: 0;">Comunidades</h3>
+                            <button @click="${() => this.openCreateCommunityModal()}" style="background: #0d3168; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; cursor: pointer; font-weight: 600;">+ Criar</button>
+                        </div>
+                        <div class="widget-list">
+                            <!-- Opção Geral -->
+                            <div class="community-item ${!this.selectedCommunityId ? 'active' : ''}" @click="${() => this.selectCommunity(null)}">
+                                <div class="community-info">
+                                    <span class="community-name">🌐 Feed Geral</span>
+                                    <span class="community-desc">Publicações de todas as áreas</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Lista de comunidades -->
+                            ${this.communities && this.communities.length > 0 ? this.communities.map(c => {
+                                const isMember = c.members?.some(m => m.userId === (this.currentUser?.id || this.currentUser?.userId));
+                                const isOwner = c.ownerId === (this.currentUser?.id || this.currentUser?.userId);
+                                const canView = isMember || isOwner;
+
+                                return html`
+                                    <div class="community-item ${this.selectedCommunityId === c.id ? 'active' : ''}" @click="${() => canView ? this.selectCommunity(c.id) : null}">
+                                        <div class="community-info">
+                                            <span class="community-name">
+                                                ${c.isLocked ? '🔒' : '💬'} ${c.name}
+                                            </span>
+                                            <span class="community-desc">${c.description || 'Sem descrição'}</span>
+                                        </div>
+                                        ${!canView ? html`
+                                            <button class="community-action-btn" @click="${(e) => { e.stopPropagation(); this.handleJoinCommunity(c.id, c.isLocked); }}">Entrar</button>
+                                        ` : html`
+                                            <span style="font-size: 0.85em; color: #10b981; font-weight: 600; padding: 2px 6px; background: #ecfdf5; border-radius: 4px; flex-shrink: 0;">Membro</span>
+                                        `}
+                                    </div>
+                                `;
+                            }) : html`<div style="text-align: center; color: #64748b; font-size: 0.85em; padding: 10px 0;">Nenhuma comunidade criada.</div>`}
+                        </div>
+                    </div>
+
                     <!-- Bloco 1: Avisos da Instituição -->
                     <div class="card widget-card">
                         <h3 class="widget-title">Avisos da Instituição</h3>
@@ -1018,6 +1344,62 @@ class CommunityApplication extends LitElement {
                     </div>
                 </aside>
             </div>
+
+            <!-- Modal de Criação de Comunidade -->
+            ${this.showCreateCommunityModal ? html`
+                <div class="modal-overlay">
+                    <div class="modal-container">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Nova Comunidade</h3>
+                            <button class="modal-close" @click="${() => this.closeCreateCommunityModal()}">&times;</button>
+                        </div>
+                        <form class="modal-form" @submit="${(e) => this.handleCreateCommunity(e)}">
+                            <div class="form-group">
+                                <label for="comm-name">Nome</label>
+                                <input type="text" id="comm-name" .value="${this.newCommunityName}" @input="${(e) => this.newCommunityName = e.target.value}" required placeholder="Ex: Grupo de Estudo de NestJS" />
+                            </div>
+                            <div class="form-group">
+                                <label for="comm-desc">Descrição</label>
+                                <textarea id="comm-desc" .value="${this.newCommunityDescription}" @input="${(e) => this.newCommunityDescription = e.target.value}" placeholder="Descreva o propósito da comunidade..."></textarea>
+                            </div>
+                            <div class="form-group form-row">
+                                <input type="checkbox" id="comm-locked" .checked="${this.newCommunityIsLocked}" @change="${(e) => this.newCommunityIsLocked = e.target.checked}" />
+                                <label for="comm-locked">Restrita com Senha (Privada)</label>
+                            </div>
+                            ${this.newCommunityIsLocked ? html`
+                                <div class="form-group">
+                                    <label for="comm-pass">Senha de Acesso</label>
+                                    <input type="password" id="comm-pass" .value="${this.newCommunityPassword}" @input="${(e) => this.newCommunityPassword = e.target.value}" required placeholder="Digite a senha de acesso" />
+                                </div>
+                            ` : ''}
+                            <button type="submit" style="background: #00aeef; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 8px;">Criar Comunidade</button>
+                        </form>
+                    </div>
+                </div>
+            ` : ''}
+
+            <!-- Prompt de Senha para Entrar em Comunidade Trancada -->
+            ${this.communityPasswordPromptId ? html`
+                <div class="modal-overlay">
+                    <div class="modal-container" style="max-width: 380px;">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Comunidade Restrita</h3>
+                            <button class="modal-close" @click="${() => this.communityPasswordPromptId = null}">&times;</button>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
+                            <p style="font-size: 0.9em; color: #475569; margin: 0;">Esta comunidade requer uma senha de acesso para ingressar.</p>
+                            <div class="form-group">
+                                <label for="prompt-pass">Senha</label>
+                                <input type="password" id="prompt-pass" .value="${this.communityPasswordInput}" @input="${(e) => this.communityPasswordInput = e.target.value}" placeholder="Digite a senha" />
+                            </div>
+                            <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px;">
+                                <button @click="${() => this.communityPasswordPromptId = null}" style="padding: 8px 14px; border: 1px solid #cbd5e1; background: white; border-radius: 6px; cursor: pointer; font-size: 0.9em;">Cancelar</button>
+                                <button @click="${() => this._submitJoinRequest(this.communityPasswordPromptId, this.communityPasswordInput)}" style="padding: 8px 14px; border: none; background: #00aeef; color: white; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9em;">Entrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
         `;
     }
 }

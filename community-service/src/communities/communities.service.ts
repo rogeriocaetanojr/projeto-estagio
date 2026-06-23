@@ -51,6 +51,7 @@ export class CommunitiesService {
     const communities = await this.prisma.community.findMany({
       include: {
         owner: true,
+        members: true,
       },
     });
 

@@ -403,6 +403,7 @@ class CommunityApplication extends LitElement {
         this.loading = false;
         this.error = '';
         this.creatingPost = false;
+        this.activeCommentBox = null; // ID do post que tem a caixa de comentário aberta
     }
 
     connectedCallback() {
@@ -490,7 +491,78 @@ class CommunityApplication extends LitElement {
             this.creatingPost = false;
         }
     }
+    async toggleLike(postId) {
+        const user = this.currentUser;
+        if (!user) {
+            alert('Faça login para curtir.');
+            return;
+        }
 
+        const token = localStorage.getItem('portal_token');
+        const userId = user.id || user.userId;
+
+        try {
+            const response = await fetch(`http://localhost:3002/posts/${postId}/likes`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userId })
+            });
+
+            if (!response.ok) throw new Error('Falha ao curtir');
+            await this.fetchPosts(); // Recarrega os posts para atualizar a contagem
+        } catch (err) {
+            console.error(err);
+            alert('Não foi possível curtir a publicação.');
+        }
+    }
+
+    toggleCommentBox(postId) {
+        if (this.activeCommentBox === postId) {
+            this.activeCommentBox = null;
+        } else {
+            this.activeCommentBox = postId;
+        }
+        this.requestUpdate();
+    }
+
+    async handleAddComment(e, postId) {
+        e.preventDefault();
+        const user = this.currentUser;
+        if (!user) {
+            alert('Faça login para comentar.');
+            return;
+        }
+
+        const input = this.shadowRoot.querySelector(`#comment-input-${postId}`);
+        const content = input.value.trim();
+        if (!content) return;
+
+        const token = localStorage.getItem('portal_token');
+        const authorId = user.id || user.userId;
+
+        try {
+            const response = await fetch(`http://localhost:3002/posts/${postId}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ authorId, content })
+            });
+
+            if (!response.ok) throw new Error('Falha ao comentar');
+            
+            input.value = '';
+            this.activeCommentBox = null;
+            await this.fetchPosts();
+        } catch (err) {
+            console.error(err);
+            alert('Não foi possível enviar o comentário.');
+        }
+    }
     get currentUser() {
         try {
             const userRaw = localStorage.getItem('portal_user');
@@ -603,13 +675,31 @@ class CommunityApplication extends LitElement {
                                     <h3 class="post-title">${post.title}</h3>
                                     <p class="post-content">${post.content}</p>
                                     <div class="post-actions">
-                                        <div class="post-action-btn">
-                                            <span>👍</span> Curtir
+                                        <div class="post-action-btn ${post.likes?.some(l => l.userId === (this.currentUser?.id || this.currentUser?.userId)) ? 'liked' : ''}" @click="${() => this.toggleLike(post.id)}">
+                                            <span>👍</span> ${post.likes?.length || 0} Curtidas
                                         </div>
-                                        <div class="post-action-btn">
-                                            <span>💬</span> Comentar
+                                        <div class="post-action-btn" @click="${() => this.toggleCommentBox(post.id)}">
+                                            <span>💬</span> ${post.comments?.length || 0} Comentários
                                         </div>
                                     </div>
+                                    
+                                    ${post.comments && post.comments.length > 0 ? html`
+                                        <div class="comments-list" style="margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                                            ${post.comments.map(comment => html`
+                                                <div style="font-size: 0.85em; margin-bottom: 8px; padding: 8px; background: #f8fafc; border-radius: 6px;">
+                                                    <strong style="color: #0d3168;">${comment.authorId.substring(0,8)}...</strong>
+                                                    <span style="color: #334155;">${comment.content}</span>
+                                                </div>
+                                            `)}
+                                        </div>
+                                    ` : ''}
+
+                                    ${this.activeCommentBox === post.id ? html`
+                                        <form class="comment-form" @submit="${(e) => this.handleAddComment(e, post.id)}" style="display: flex; gap: 8px; margin-top: 10px;">
+                                            <input type="text" id="comment-input-${post.id}" placeholder="Escreva um comentário..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" required />
+                                            <button type="submit" style="background: #00aeef; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Enviar</button>
+                                        </form>
+                                    ` : ''}
                                 </div>
                             `;
                         })

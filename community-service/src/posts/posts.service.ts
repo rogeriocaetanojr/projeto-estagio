@@ -56,6 +56,19 @@ export class PostsService {
       include: {
         author: true,
         attachments: true,
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
+        comments: {
+          include: {
+            author: true,
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
         _count: {
           select: { likes: true, comments: true },
         },

@@ -16,7 +16,17 @@ export class PostsService {
     });
 
     if (!authorExists) {
-      throw new NotFoundException('Autor não encontrado na comunidade');
+      throw new NotFoundException('Autor não encontrado');
+    }
+
+    if (communityId) {
+      const communityExists = await this.prisma.community.findUnique({
+        where: { id: communityId },
+      });
+
+      if (!communityExists) {
+        throw new NotFoundException('Comunidade não encontrada');
+      }
     }
 
     return this.prisma.post.create({
@@ -30,7 +40,7 @@ export class PostsService {
   }
 
   findAll(query: GetPostsDto) {
-    const { profileType } = query;
+    const { profileType, communityId } = query;
 
     return this.prisma.post.findMany({
       where: {
@@ -38,6 +48,9 @@ export class PostsService {
           author: {
             profileType,
           },
+        }),
+        ...(communityId && {
+          communityId,
         }),
       },
       include: {

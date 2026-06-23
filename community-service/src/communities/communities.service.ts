@@ -83,4 +83,56 @@ export class CommunitiesService {
   remove(id: string) {
     return `This action removes a #${id} community`;
   }
+
+  async join(id: string, userId: string, password?: string) {
+    const community = await this.prisma.community.findUnique({
+      where: { id },
+    });
+
+    if (!community) {
+      throw new NotFoundException('Comunidade não encontrada');
+    }
+
+    const userExists = await this.prisma.userMirror.findUnique({
+      where: { id: userId },
+    });
+
+    if (!userExists) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    const existingMember = await this.prisma.communityMember.findUnique({
+      where: {
+        userId_communityId: {
+          userId,
+          communityId: id,
+        },
+      },
+    });
+
+    if (existingMember) {
+      return { message: 'Você já é membro desta comunidade' };
+    }
+
+    if (community.isLocked) {
+      if (!password) {
+        throw new BadRequestException('A comunidade é trancada. Uma senha é necessária para entrar.');
+      }
+
+      const hash = community.passwordHash || '';
+      const isPasswordValid = await bcrypt.compare(password, hash);
+      if (!isPasswordValid) {
+        throw new BadRequestException('Senha incorreta para esta comunidade.');
+      }
+    }
+
+    await this.prisma.communityMember.create({
+      data: {
+        userId,
+        communityId: id,
+      },
+    });
+
+    return { message: 'Você entrou na comunidade com sucesso' };
+  }
 }

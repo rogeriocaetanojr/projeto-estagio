@@ -52,8 +52,8 @@ model Post {
   updatedAt   DateTime     @updatedAt
   authorId    String
   author      UserMirror   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  communityId String
-  community   Community    @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  communityId String?
+  community   Community?   @relation(fields: [communityId], references: [id], onDelete: Cascade)
   attachments Attachment[]
   comments    Comment[]
   likes       Like[]

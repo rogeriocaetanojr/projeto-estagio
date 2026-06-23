@@ -7,4 +7,8 @@ export class GetPostsDto {
     message: 'profileType deve ser "student" ou "professor"',
   })
   profileType?: string;
+
+  @IsOptional()
+  @IsString()
+  communityId?: string;
 }

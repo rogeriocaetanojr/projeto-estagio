@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CommunitiesService } from './communities.service';
 import { CreateCommunityDto } from './dto/create-community.dto';
 import { UpdateCommunityDto } from './dto/update-community.dto';
+import { JoinCommunityDto } from './dto/join-community.dto';
 
 @Controller('communities')
 export class CommunitiesController {
@@ -30,5 +31,17 @@ export class CommunitiesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.communitiesService.remove(id);
+  }
+
+  @Post(':id/join')
+  join(
+    @Param('id') id: string,
+    @Body() joinCommunityDto: JoinCommunityDto,
+  ) {
+    return this.communitiesService.join(
+      id,
+      joinCommunityDto.userId,
+      joinCommunityDto.password,
+    );
   }
 }

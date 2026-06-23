@@ -685,12 +685,15 @@ class CommunityApplication extends LitElement {
                                     
                                     ${post.comments && post.comments.length > 0 ? html`
                                         <div class="comments-list" style="margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 10px;">
-                                            ${post.comments.map(comment => html`
-                                                <div style="font-size: 0.85em; margin-bottom: 8px; padding: 8px; background: #f8fafc; border-radius: 6px;">
-                                                    <strong style="color: #0d3168;">${comment.authorId.substring(0,8)}...</strong>
-                                                    <span style="color: #334155;">${comment.content}</span>
-                                                </div>
-                                            `)}
+                                            ${post.comments.map(comment => {
+                                                const authorName = comment.author?.email ? comment.author.email.split('@')[0] : 'Usuário';
+                                                return html`
+                                                    <div style="font-size: 0.85em; margin-bottom: 8px; padding: 8px; background: #f8fafc; border-radius: 6px;">
+                                                        <strong style="color: #0d3168;">${authorName}:</strong>
+                                                        <span style="color: #334155;">${comment.content}</span>
+                                                    </div>
+                                                `;
+                                            })}
                                         </div>
                                     ` : ''}
 

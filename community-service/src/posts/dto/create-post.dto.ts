@@ -13,5 +13,3 @@ export class CreatePostDto {
   @IsNotEmpty()
   authorId: string;
 }
-
-

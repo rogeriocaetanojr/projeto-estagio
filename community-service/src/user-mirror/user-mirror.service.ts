@@ -15,7 +15,9 @@ export class UserMirrorService {
 
   async upsertUser(data: UserRegisteredPayload) {
     try {
-      this.logger.log(`Processando upsert para o usuário mirror: ${data.email} (${data.id})`);
+      this.logger.log(
+        `Processando upsert para o usuário mirror: ${data.email} (${data.id})`,
+      );
       const user = await this.prisma.userMirror.upsert({
         where: { id: data.id },
         update: {

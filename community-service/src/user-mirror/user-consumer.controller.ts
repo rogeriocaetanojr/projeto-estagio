@@ -15,16 +15,21 @@ export class UserConsumerController {
   constructor(private readonly userMirrorService: UserMirrorService) {}
 
   @EventPattern('user_registered')
-  async handleUserRegistered(@Payload() data: UserRegisteredPayload, @Ctx() context: RmqContext) {
+  async handleUserRegistered(
+    @Payload() data: UserRegisteredPayload,
+    @Ctx() context: RmqContext,
+  ) {
     const channel = context.getChannelRef();
     const originalMsg = context.getMessage();
 
     try {
-      this.logger.log(`Evento 'user_registered' recebido: ${JSON.stringify(data)}`);
+      this.logger.log(
+        `Evento 'user_registered' recebido: ${JSON.stringify(data)}`,
+      );
 
       // GATILHO DE CAOS: Simula uma falha catastrófica no banco se o e-mail contiver "erro"
       if (data.email.includes('erro')) {
-        throw new Error("Simulação de falha catastrófica no banco de dados!");
+        throw new Error('Simulação de falha catastrófica no banco de dados!');
       }
 
       await this.userMirrorService.upsertUser(data);
@@ -32,9 +37,11 @@ export class UserConsumerController {
       // Em caso de sucesso absoluto, confirmamos a mensagem (Ack)
       channel.ack(originalMsg);
     } catch (error) {
-      this.logger.error(`Erro ao processar mensagem. Enviando para DLQ... Motivo: ${error.message}`);
-      
-      // Envia uma rejeição (Nack). 
+      this.logger.error(
+        `Erro ao processar mensagem. Enviando para DLQ... Motivo: ${error.message}`,
+      );
+
+      // Envia uma rejeição (Nack).
       // O false, false significa: (allUpTo = false, requeue = false).
       // Como requeue é false, o RabbitMQ vai rotear a mensagem para a dead-letter-exchange.
       channel.nack(originalMsg, false, false);

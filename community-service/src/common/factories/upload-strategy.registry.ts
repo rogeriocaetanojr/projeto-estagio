@@ -17,9 +17,11 @@ export class UploadStrategyRegistry {
 
   getStrategy(profileType: string): UploadLimitStrategy {
     const strategy = this.strategies.get(profileType.toLowerCase());
-    
+
     if (!strategy) {
-      throw new NotFoundException(`Nenhuma estratégia de limite de upload encontrada para o perfil: ${profileType}`);
+      throw new NotFoundException(
+        `Nenhuma estratégia de limite de upload encontrada para o perfil: ${profileType}`,
+      );
     }
 
     return strategy;

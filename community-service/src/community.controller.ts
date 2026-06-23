@@ -5,6 +5,6 @@ import { EventPattern } from '@nestjs/microservices';
 export class CommunityController {
   @EventPattern('user_logged_in')
   handleUserLoggedIn(data: any) {
-    console.log("Mensagem recebida no módulo de Comunidade:", data);
+    console.log('Mensagem recebida no módulo de Comunidade:', data);
   }
 }

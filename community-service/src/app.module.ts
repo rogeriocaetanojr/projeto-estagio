@@ -12,10 +12,16 @@ import { CommunityController } from './community.controller';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'public'),
-      serveRoot: '/app-bundle',
-    }),
+    ServeStaticModule.forRoot(
+      {
+        rootPath: join(process.cwd(), 'public'),
+        serveRoot: '/app-bundle',
+      },
+      {
+        rootPath: join(process.cwd(), 'uploads'),
+        serveRoot: '/uploads',
+      },
+    ),
     PrismaModule,
     UserMirrorModule,
     PostsModule,

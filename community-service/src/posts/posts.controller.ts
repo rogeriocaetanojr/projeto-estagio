@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -46,14 +58,15 @@ export class PostsController {
     FileInterceptor('file', {
       storage: diskStorage({
         destination: (req, file, cb) => {
-          const uploadPath = './upload';
+          const uploadPath = './uploads';
           if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
           }
           cb(null, uploadPath);
         },
         filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
           cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
         },
       }),
@@ -73,7 +86,9 @@ export class PostsController {
     if (!profileType) {
       // Remove o arquivo pois foi salvo antes da validação
       fs.unlinkSync(file.path);
-      throw new BadRequestException('Não foi possível determinar o perfil do autor do post');
+      throw new BadRequestException(
+        'Não foi possível determinar o perfil do autor do post',
+      );
     }
 
     const strategy = this.uploadRegistry.getStrategy(profileType);
@@ -81,13 +96,17 @@ export class PostsController {
 
     if (file.size > limitInBytes) {
       fs.unlinkSync(file.path);
-      throw new BadRequestException(`O arquivo excede o limite de upload para o perfil ${profileType} (${limitInBytes / 1024 / 1024}MB)`);
+      throw new BadRequestException(
+        `O arquivo excede o limite de upload para o perfil ${profileType} (${limitInBytes / 1024 / 1024}MB)`,
+      );
     }
+
+    const fileUrl = `/uploads/${file.filename}`;
 
     const attachment = await this.postsService.addAttachment(
       id,
       file.originalname,
-      file.path,
+      fileUrl,
     );
 
     return attachment;

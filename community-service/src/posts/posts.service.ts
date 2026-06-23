@@ -9,7 +9,7 @@ export class PostsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createPostDto: CreatePostDto) {
-    const { title, content, authorId } = createPostDto;
+    const { title, content, authorId, communityId } = createPostDto;
 
     const authorExists = await this.prisma.userMirror.findUnique({
       where: { id: authorId },
@@ -25,6 +25,9 @@ export class PostsService {
         content,
         author: {
           connect: { id: authorId },
+        },
+        community: {
+          connect: { id: communityId },
         },
       },
     });

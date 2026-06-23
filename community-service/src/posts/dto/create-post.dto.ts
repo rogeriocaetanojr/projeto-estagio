@@ -12,4 +12,8 @@ export class CreatePostDto {
   @IsString()
   @IsNotEmpty()
   authorId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  communityId: string;
 }

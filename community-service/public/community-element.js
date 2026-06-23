@@ -670,9 +670,33 @@ class CommunityApplication extends LitElement {
                 throw new Error(errData.message || 'Falha ao criar publicação.');
             }
 
+            const createdPost = await response.json();
+
+            // Se houver um arquivo anexado, envia-o agora
+            const fileInput = this.shadowRoot.querySelector('#post-attachment');
+            const file = fileInput.files ? fileInput.files[0] : null;
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const uploadResponse = await fetch(`http://localhost:3002/posts/${createdPost.id}/attachments`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) {
+                    const uploadErr = await uploadResponse.json();
+                    alert(`Post criado, mas falha no anexo: ${uploadErr.message || 'Arquivo muito grande ou inválido'}`);
+                }
+            }
+
             // Limpa o formulário
             titleInput.value = '';
             contentTextarea.value = '';
+            this.clearAttachment();
 
             // Atualiza os posts dinamicamente
             await this.fetchPosts();
@@ -681,6 +705,35 @@ class CommunityApplication extends LitElement {
             alert(`Erro ao publicar: ${err.message}`);
         } finally {
             this.creatingPost = false;
+        }
+    }
+
+    handleAttachmentChange(e) {
+        const fileInput = e.target;
+        const file = fileInput.files ? fileInput.files[0] : null;
+        const label = this.shadowRoot.querySelector('#attachment-label');
+        const clearBtn = this.shadowRoot.querySelector('#clear-attachment-btn');
+        if (file) {
+            label.textContent = file.name;
+            clearBtn.style.display = 'inline-block';
+        } else {
+            label.textContent = 'Anexo';
+            clearBtn.style.display = 'none';
+        }
+    }
+
+    clearAttachment() {
+        const fileInput = this.shadowRoot.querySelector('#post-attachment');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+        const label = this.shadowRoot.querySelector('#attachment-label');
+        if (label) {
+            label.textContent = 'Anexo';
+        }
+        const clearBtn = this.shadowRoot.querySelector('#clear-attachment-btn');
+        if (clearBtn) {
+            clearBtn.style.display = 'none';
         }
     }
     async toggleLike(postId) {
@@ -1083,7 +1136,20 @@ class CommunityApplication extends LitElement {
                                 ></textarea>
                             </div>
                         </div>
-                        <div class="creator-actions">
+                        <div class="creator-actions" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label for="post-attachment" style="cursor: pointer; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 0.9em; font-weight: 600; display: flex; align-items: center; gap: 6px; color: #475569;" title="Adicionar anexo">
+                                    <span>📎</span> <span id="attachment-label">Anexo</span>
+                                </label>
+                                <input 
+                                    type="file" 
+                                    id="post-attachment" 
+                                    style="display: none;" 
+                                    ?disabled="${!user || this.creatingPost}"
+                                    @change="${this.handleAttachmentChange}"
+                                />
+                                <button type="button" id="clear-attachment-btn" style="display: none; background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.1em; padding: 2px;" @click="${this.clearAttachment}" title="Remover anexo">&times;</button>
+                            </div>
                             <button 
                                 type="submit" 
                                 class="publish-btn active" 
@@ -1163,6 +1229,28 @@ class CommunityApplication extends LitElement {
                                     ` : html`
                                         <h3 class="post-title" style="margin-top: 12px; margin-bottom: 8px; color: #0d3168;">${post.title}</h3>
                                         <p class="post-content" style="color: #334155; line-height: 1.5; white-space: pre-wrap;">${post.content}</p>
+                                        ${post.attachments && post.attachments.length > 0 ? html`
+                                            <div class="post-attachments" style="margin-top: 12px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
+                                                <strong style="font-size: 0.85em; color: #475569;">Anexos:</strong>
+                                                ${post.attachments.map(att => {
+                                                    const isImage = att.fileName.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+                                                    const fullUrl = att.fileUrl.startsWith('http') ? att.fileUrl : `http://localhost:3002${att.fileUrl}`;
+                                                    return html`
+                                                        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.9em;">
+                                                            <span>📎</span>
+                                                            ${isImage ? html`
+                                                                <a href="${fullUrl}" target="_blank" style="color: #00aeef; font-weight: 600; text-decoration: none; display: flex; flex-direction: column; gap: 4px;">
+                                                                    <span>${att.fileName}</span>
+                                                                    <img src="${fullUrl}" style="max-width: 200px; max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 4px;" />
+                                                                </a>
+                                                            ` : html`
+                                                                <a href="${fullUrl}" target="_blank" style="color: #00aeef; font-weight: 600; text-decoration: none;">${att.fileName}</a>
+                                                            `}
+                                                        </div>
+                                                    `;
+                                                })}
+                                            </div>
+                                        ` : ''}
                                     `}
 
                                     <div class="post-actions">

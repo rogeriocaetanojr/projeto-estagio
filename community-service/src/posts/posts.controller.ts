@@ -86,8 +86,8 @@ export class PostsController {
 
     const attachment = await this.postsService.addAttachment(
       id,
+      file.originalname,
       file.path,
-      file.mimetype,
     );
 
     return attachment;

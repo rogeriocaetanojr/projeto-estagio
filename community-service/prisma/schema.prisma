@@ -29,8 +29,8 @@ model Post {
 
 model Attachment {
   id       String @id @default(uuid())
-  url      String
-  fileType String
+  fileName String
+  fileUrl  String
   postId   String
   post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 }

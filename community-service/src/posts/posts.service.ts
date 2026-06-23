@@ -43,6 +43,7 @@ export class PostsService {
       },
       include: {
         author: true,
+        attachments: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -85,13 +86,13 @@ export class PostsService {
     return { message: 'Postagem removida com sucesso' };
   }
 
-  async addAttachment(postId: string, url: string, fileType: string) {
+  async addAttachment(postId: string, fileName: string, fileUrl: string) {
     await this.findOne(postId);
 
     return this.prisma.attachment.create({
       data: {
-        url,
-        fileType,
+        fileName,
+        fileUrl,
         postId,
       },
     });

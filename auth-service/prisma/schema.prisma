@@ -25,9 +25,6 @@ model User {
   // Relacionamentos 1:1 para tabelas filhas (Herança)
   student   Student?
   professor Professor?
-
-  // Relacionamentos da comunidade acadêmica
-  posts     Post[]
 }
 
 model Student {
@@ -48,27 +45,4 @@ model Professor {
   // Relacionamento com a tabela pai
   user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String @unique
-}
-
-model Post {
-  id          String       @id @default(uuid())
-  title       String
-  content     String
-  
-  // Relacionamento com User
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
-
-  // Relacionamento com Attachment
-  attachments Attachment[]
-}
-
-model Attachment {
-  id       String @id @default(uuid())
-  fileName String
-  fileUrl  String
-
-  // Relacionamento com Post
-  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId   String
 }

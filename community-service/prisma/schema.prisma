@@ -10,10 +10,36 @@ datasource db {
 }
 
 model UserMirror {
-  id          String   @id
-  email       String   @unique
-  profileType String
-  posts       Post[]
+  id               String            @id
+  email            String            @unique
+  profileType      String
+  posts            Post[]
+  ownedCommunities Community[]       @relation("CommunityOwner")
+  memberships      CommunityMember[]
+}
+
+model Community {
+  id           String            @id @default(uuid())
+  name         String
+  description  String?
+  isLocked     Boolean           @default(false)
+  passwordHash String?
+  ownerId      String
+  owner        UserMirror        @relation("CommunityOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt    DateTime          @default(now())
+  posts        Post[]
+  members      CommunityMember[]
+}
+
+model CommunityMember {
+  id          String     @id @default(uuid())
+  userId      String
+  communityId String
+  joinedAt    DateTime   @default(now())
+  user        UserMirror @relation(fields: [userId], references: [id], onDelete: Cascade)
+  community   Community  @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, communityId])
 }
 
 model Post {
@@ -24,6 +50,8 @@ model Post {
   updatedAt   DateTime     @updatedAt
   authorId    String
   author      UserMirror   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  communityId String
+  community   Community    @relation(fields: [communityId], references: [id], onDelete: Cascade)
   attachments Attachment[]
 }
 

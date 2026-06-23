@@ -1,12 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { GetPostsDto } from './dto/get-posts.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import * as fs from 'fs';
+import { UploadStrategyRegistry } from '../common/factories/upload-strategy.registry';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  constructor(
+    private readonly postsService: PostsService,
+    private readonly uploadRegistry: UploadStrategyRegistry,
+  ) {}
 
   @Post()
   create(@Body() createPostDto: CreatePostDto) {
@@ -31,5 +39,57 @@ export class PostsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.postsService.remove(id);
+  }
+
+  @Post(':id/attachments')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const uploadPath = './upload';
+          if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+          }
+          cb(null, uploadPath);
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  async uploadAttachment(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Nenhum arquivo enviado');
+    }
+
+    const post = await this.postsService.findOne(id);
+    const profileType = post.author?.profileType;
+
+    if (!profileType) {
+      // Remove o arquivo pois foi salvo antes da validação
+      fs.unlinkSync(file.path);
+      throw new BadRequestException('Não foi possível determinar o perfil do autor do post');
+    }
+
+    const strategy = this.uploadRegistry.getStrategy(profileType);
+    const limitInBytes = strategy.getLimitInBytes();
+
+    if (file.size > limitInBytes) {
+      fs.unlinkSync(file.path);
+      throw new BadRequestException(`O arquivo excede o limite de upload para o perfil ${profileType} (${limitInBytes / 1024 / 1024}MB)`);
+    }
+
+    const attachment = await this.postsService.addAttachment(
+      id,
+      file.path,
+      file.mimetype,
+    );
+
+    return attachment;
   }
 }

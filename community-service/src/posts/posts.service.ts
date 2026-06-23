@@ -84,5 +84,17 @@ export class PostsService {
 
     return { message: 'Postagem removida com sucesso' };
   }
+
+  async addAttachment(postId: string, url: string, fileType: string) {
+    await this.findOne(postId);
+
+    return this.prisma.attachment.create({
+      data: {
+        url,
+        fileType,
+        postId,
+      },
+    });
+  }
 }
 

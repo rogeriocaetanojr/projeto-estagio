@@ -47,26 +47,33 @@ export class CommunitiesService {
     return result;
   }
 
-  findAll() {
-    return this.prisma.community.findMany({
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        isLocked: true,
-        ownerId: true,
-        createdAt: true,
+  async findAll() {
+    const communities = await this.prisma.community.findMany({
+      include: {
+        owner: true,
       },
+    });
+
+    return communities.map((community) => {
+      const { passwordHash: _, ...result } = community;
+      return result;
     });
   }
 
-  findOne(id: string) {
-    return this.prisma.community.findUnique({
+  async findOne(id: string) {
+    const community = await this.prisma.community.findUnique({
       where: { id },
       include: {
         owner: true,
       },
     });
+
+    if (!community) {
+      throw new NotFoundException('Comunidade não encontrada');
+    }
+
+    const { passwordHash: _, ...result } = community;
+    return result;
   }
 
   update(id: string, updateCommunityDto: UpdateCommunityDto) {

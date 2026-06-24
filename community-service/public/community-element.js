@@ -786,6 +786,16 @@ class CommunityApplication extends LitElement {
             }
             this.fetchPosts();
         });
+
+        this._scrollToPostListener = (e) => {
+            this.scrollToPost(e.detail.postId);
+        };
+        window.addEventListener('scroll-to-post', this._scrollToPostListener);
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        window.removeEventListener('scroll-to-post', this._scrollToPostListener);
     }
 
     async fetchCommunities() {
@@ -1446,6 +1456,8 @@ class CommunityApplication extends LitElement {
 
         this.clickedPosts = posts;
         localStorage.setItem('portal_clicked_posts', JSON.stringify(posts));
+        // Dispara evento global para o shell atualizar o histórico
+        window.dispatchEvent(new CustomEvent('post-clicked-event'));
     }
 
     scrollToPost(postId) {
@@ -1478,21 +1490,25 @@ class CommunityApplication extends LitElement {
         }));
     }
 
-    renderCommunitySidebarItem(c, isMemberOrOwner = true) {
+    renderCommunitySidebarItem(c, isMemberOrOwner = true, isOwner = false) {
         const isActive = this.selectedCommunityId === c.id;
+        const hostBadge = isOwner ? html`<span class="host-badge" style="font-size: 0.65em; color: #1e3a8a; background-color: #dbeafe; border: 1px solid #bfdbfe; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px;">Criador</span>` : '';
         return html`
             <div class="community-item ${isActive ? 'active' : ''}" @click="${() => isMemberOrOwner ? this.selectCommunity(c.id) : null}">
                 <div class="community-info">
-                    <span class="community-name">
-                        ${c.isLocked ? '🔒' : '💬'} ${c.name}
-                    </span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="community-name">
+                            ${c.isLocked ? '🔒' : '💬'} ${c.name}
+                        </span>
+                        ${hostBadge}
+                    </div>
                     <span class="community-desc">${c.description || 'Sem descrição'}</span>
                 </div>
                 ${!isMemberOrOwner ? html`
                     <button class="community-action-btn" @click="${(e) => { e.stopPropagation(); this.handleJoinCommunity(c.id, c.isLocked); }}">Entrar</button>
-                ` : html`
+                ` : (isOwner ? '' : html`
                     <span style="font-size: 0.75em; color: #10b981; font-weight: 600; padding: 2px 6px; background: #ecfdf5; border-radius: 4px; flex-shrink: 0;">Membro</span>
-                `}
+                `)}
             </div>
         `;
     }
@@ -1794,27 +1810,35 @@ class CommunityApplication extends LitElement {
                     }
                 </main>
 
-                <!-- Coluna Direita: Histórico -->
+                <!-- Coluna Direita: Comunidades -->
                 <aside class="widgets">
-                    <div class="card widget-card history-card">
-                        <h3 class="widget-title">Histórico de Visualização</h3>
-                        <div class="history-list">
-                            ${this.clickedPosts && this.clickedPosts.length > 0 ? this.clickedPosts.map(post => {
-                                const clickTimeStr = post.clickedAt ? new Date(post.clickedAt).toLocaleTimeString('pt-BR', {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                }) : '';
-                                return html`
-                                    <div class="history-item" @click="${() => this.scrollToPost(post.id)}">
-                                        <span class="history-item-title">${post.title}</span>
-                                        <span class="history-item-time">Clicado às ${clickTimeStr}</span>
-                                    </div>
-                                `;
-                            }) : html`
-                                <div style="text-align: center; color: #64748b; font-size: 0.85em; padding: 10px 0; font-style: italic;">
-                                    Nenhum post clicado recentemente.
+                    <div class="card widget-card">
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+                            <h3 class="widget-title" style="margin: 0; border-bottom: none; padding-bottom: 0; text-transform: uppercase;">Comunidades</h3>
+                            <button class="create-comm-btn" @click="${this.openCreateCommunityModal}">
+                                <span>+</span> Criar Comunidade
+                            </button>
+                        </div>
+                        
+                        <div class="widget-list">
+                            <!-- Feed Geral -->
+                            <div class="community-item ${!this.selectedCommunityId ? 'active' : ''}" @click="${() => this.selectCommunity(null)}">
+                                <div class="community-info">
+                                    <span class="community-name">💬 Feed Geral</span>
+                                    <span class="community-desc">Todas as publicações</span>
                                 </div>
-                            `}
+                            </div>
+                            
+                            <div class="nav-section-title" style="font-size: 0.78em; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 12px; margin-bottom: 4px; padding-left: 8px;">Minhas comunidades</div>
+                            ${this.communities && this.communities.length > 0 ? this.communities.filter(c => c.ownerId === (user?.id || user?.userId) || c.members?.some(m => m.userId === (user?.id || user?.userId))).map(c => {
+                                const isOwner = c.ownerId === (user?.id || user?.userId);
+                                return this.renderCommunitySidebarItem(c, true, isOwner);
+                            }) : html`<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma comunidade</div>`}
+                            
+                            <div class="nav-section-title" style="font-size: 0.78em; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 12px; margin-bottom: 4px; padding-left: 8px;">Outras comunidades</div>
+                            ${this.communities && this.communities.length > 0 ? this.communities.filter(c => c.ownerId !== (user?.id || user?.userId) && !c.members?.some(m => m.userId === (user?.id || user?.userId))).map(c => {
+                                return this.renderCommunitySidebarItem(c, false);
+                            }) : html`<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma outra disponível</div>`}
                         </div>
                     </div>
                 </aside>

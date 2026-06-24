@@ -635,6 +635,40 @@
             background-color: var(--item-hover);
             color: var(--text-main);
         }
+
+        /* HISTÓRICO DE VISUALIZAÇÃO NO SHELL */
+        .portal-history-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--inner-card-border, #e2e8f0);
+            background-color: var(--inner-card-bg, #f8fafc);
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        .portal-history-item:hover {
+            background-color: var(--item-hover, #f1f5f9);
+            border-color: var(--accent-btn-hover, #00aeef);
+        }
+
+        .portal-history-item-title {
+            font-size: 0.82em;
+            font-weight: 600;
+            color: var(--text-main, #1e293b);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .portal-history-item-time {
+            font-size: 0.7em;
+            color: var(--text-muted, #94a3b8);
+        }
     </style>
 </head>
 
@@ -738,28 +772,14 @@
                     </div>
                 </div>
 
-                <!-- Seção Comunidades -->
-                <div class="portal-card">
-                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-                        <h3 class="portal-title-sec" style="margin: 0; border-bottom: none; padding-bottom: 0;">Comunidades</h3>
-                        <button class="portal-create-comm-btn" id="btn-create-community">
-                            <span>+</span> Criar Comunidade
-                        </button>
-                    </div>
-                    
-                    <div class="portal-widget-list" id="sidebar-communities-list">
-                        <!-- Feed Geral -->
-                        <div class="portal-community-item active" id="item-comm-general">
-                            <div class="portal-community-info">
-                                <span class="portal-community-name">Feed Geral</span>
-                                <span class="portal-community-desc">Todas as publicações</span>
-                            </div>
+                <!-- Seção Histórico de Visualização -->
+                <div class="portal-card" id="shell-history-card">
+                    <h3 class="portal-title-sec" style="margin: 0 0 12px 0;">Histórico de Visualização</h3>
+                    <div id="shell-history-list" class="portal-widget-list">
+                        <!-- Renderizado dinamicamente via JS -->
+                        <div style="text-align: center; color: #64748b; font-size: 0.85em; padding: 10px 0; font-style: italic;">
+                            Nenhum post clicado recentemente.
                         </div>
-                        
-                        <div class="portal-nav-section-title">Minhas comunidades</div>
-                        <div id="sidebar-communities-mine" class="portal-widget-list"></div>
-
-                        <div id="sidebar-communities-others" class="portal-widget-list" style="margin-top: 16px;"></div>
                     </div>
                 </div>
             </aside>
@@ -957,81 +977,49 @@
             });
         }
 
-        // Renderiza itens de comunidades no menu lateral do shell
-        function renderSidebarCommunities(communities, userId) {
-            const mineContainer = document.getElementById('sidebar-communities-mine');
-            const othersContainer = document.getElementById('sidebar-communities-others');
+        // Renderiza itens do histórico de visualização no menu lateral do shell
+        function renderShellHistory() {
+            const historyListContainer = document.getElementById('shell-history-list');
+            if (!historyListContainer) return;
             
-            if (!mineContainer || !othersContainer) return;
+            let clickedPosts = [];
+            try {
+                const raw = localStorage.getItem('portal_clicked_posts');
+                if (raw) clickedPosts = JSON.parse(raw);
+            } catch (err) {}
             
-            const commApp = document.getElementById('community-app');
-            const selectedId = commApp ? commApp.selectedCommunityId : null;
-
-            // Filtros de comunidade
-            const created = communities.filter(c => c.ownerId === userId);
-            const joined = communities.filter(c => c.members?.some(m => m.userId === userId) && c.ownerId !== userId);
-            const others = communities.filter(c => c.ownerId !== userId && !c.members?.some(m => m.userId === userId));
-
-            const renderItem = (c, isMemberOrOwner, isOwner = false) => {
-                const isActive = selectedId === c.id;
-                const hostBadge = isOwner ? `<span class="host-badge">Criador</span>` : '';
-                return `
-                    <div class="portal-community-item ${isActive ? 'active' : ''}" data-id="${c.id}" data-member="${isMemberOrOwner}">
-                        <div class="portal-community-info">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span class="portal-community-name">${c.name}</span>
-                                ${hostBadge}
-                            </div>
-                            <span class="portal-community-desc">${c.description || 'Sem descrição'}</span>
+            if (clickedPosts && clickedPosts.length > 0) {
+                historyListContainer.innerHTML = clickedPosts.map(post => {
+                    const clickTimeStr = post.clickedAt ? new Date(post.clickedAt).toLocaleTimeString('pt-BR', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }) : '';
+                    return `
+                        <div class="portal-history-item" data-post-id="${post.id}">
+                            <span class="portal-history-item-title">${post.title}</span>
+                            <span class="portal-history-item-time">Clicado às ${clickTimeStr}</span>
                         </div>
-                        ${!isMemberOrOwner ? `
-                            <button class="portal-community-action-btn" data-id="${c.id}" data-locked="${c.isLocked}">Entrar</button>
-                        ` : (isOwner ? '' : `
-                            <span style="font-size: 0.72em; color: #10b981; font-weight: 600; padding: 2px 6px; background: #ecfdf5; border-radius: 4px; flex-shrink: 0;">Membro</span>
-                        `)}
+                    `;
+                }).join('');
+                
+                // Adiciona listeners para focar no post ao clicar no item do histórico
+                historyListContainer.querySelectorAll('.portal-history-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const postId = item.getAttribute('data-post-id');
+                        const commApp = document.getElementById('community-app');
+                        if (commApp) {
+                            switchTab('community');
+                            window.dispatchEvent(new CustomEvent('scroll-to-post', { detail: { postId } }));
+                        }
+                    });
+                });
+            } else {
+                historyListContainer.innerHTML = `
+                    <div style="text-align: center; color: #64748b; font-size: 0.85em; padding: 10px 0; font-style: italic;">
+                        Nenhum post clicado recentemente.
                     </div>
                 `;
-            };
-
-            // Minhas Comunidades (Criadas + Participando)
-            if (created.length === 0 && joined.length === 0) {
-                mineContainer.innerHTML = `<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma comunidade</div>`;
-            } else {
-                const htmlCreated = created.map(c => renderItem(c, true, true));
-                const htmlJoined = joined.map(c => renderItem(c, true, false));
-                mineContainer.innerHTML = [...htmlCreated, ...htmlJoined].join('');
             }
-
-            // Outras
-            othersContainer.innerHTML = others.length === 0
-                ? `<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma outra disponível</div>`
-                : others.map(c => renderItem(c, false)).join('');
-
-            // Adiciona listeners para clique nos itens membros
-            document.querySelectorAll('.portal-community-item').forEach(item => {
-                if (item.id === 'item-comm-general') return;
-                const communityId = item.getAttribute('data-id');
-                const isMember = item.getAttribute('data-member') === 'true';
-                if (isMember) {
-                    item.addEventListener('click', () => {
-                        selectCommunityInApp(communityId);
-                    });
-                }
-            });
-
-            // Adiciona listeners para botões de entrar em comunidades
-            document.querySelectorAll('.portal-community-action-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const communityId = btn.getAttribute('data-id');
-                    const isLocked = btn.getAttribute('data-locked') === 'true';
-                    
-                    if (commApp && typeof commApp.handleJoinCommunity === 'function') {
-                        switchTab('community');
-                        commApp.handleJoinCommunity(communityId, isLocked);
-                    }
-                });
-            });
         }
 
         // Abre a tela de perfil e oculta os demais MFEs
@@ -1100,6 +1088,7 @@
                 // Carrega navegação logada e exibe a aba padrão
                 renderNavigationLinks(true);
                 switchTab('community');
+                renderShellHistory();
             } else {
                 if (publicView) publicView.classList.remove('hidden');
                 if (privateView) privateView.classList.add('hidden');
@@ -1198,16 +1187,9 @@
             switchTab('inventory');
         });
 
-        document.getElementById('btn-create-community').addEventListener('click', () => {
-            const commApp = document.getElementById('community-app');
-            if (commApp && typeof commApp.openCreateCommunityModal === 'function') {
-                switchTab('community');
-                commApp.openCreateCommunityModal();
-            }
-        });
-
-        document.getElementById('item-comm-general').addEventListener('click', () => {
-            selectCommunityInApp(null);
+        // Ouvinte de clique para atualizar o histórico de visualização do Shell
+        window.addEventListener('post-clicked-event', () => {
+            renderShellHistory();
         });
 
         // Logo clicável direciona para a tela de comunidade (Feed Geral)
@@ -1241,14 +1223,9 @@
             switchTab(tab);
         });
 
-        // Escuta as atualizações de comunidades enviadas pelo MFE de comunidade
+        // Escuta as atualizações de comunidades (no-op após a migração do layout de comunidades para dentro do MFE)
         window.addEventListener('communities-updated', (event) => {
-            const { communities } = event.detail;
-            const userRaw = localStorage.getItem('portal_user');
-            if (userRaw) {
-                const user = JSON.parse(userRaw);
-                renderSidebarCommunities(communities, user.id || user.userId);
-            }
+            // As comunidades agora são gerenciadas internamente no Web Component community-element.js
         });
 
         // Gerenciamento de Toasts Globais

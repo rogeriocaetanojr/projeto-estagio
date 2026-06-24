@@ -712,7 +712,7 @@ class CommunityApplication extends LitElement {
         .history-item-title {
             font-size: 0.88em;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--text-main, #1e293b);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -720,7 +720,7 @@ class CommunityApplication extends LitElement {
 
         .history-item-time {
             font-size: 0.72em;
-            color: #94a3b8;
+            color: var(--text-muted, #94a3b8);
         }
     `;
 

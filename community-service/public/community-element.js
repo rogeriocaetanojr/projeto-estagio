@@ -54,9 +54,9 @@ class CommunityApplication extends LitElement {
 
         .container {
             display: grid;
-            grid-template-columns: 280px 1fr 320px;
+            grid-template-columns: 1fr 320px;
             gap: 24px;
-            max-width: 1400px;
+            max-width: 1120px;
             margin: 0 auto;
             padding: 24px;
             box-sizing: border-box;
@@ -400,16 +400,12 @@ class CommunityApplication extends LitElement {
                 padding: 16px;
             }
 
-            .sidebar-left {
+            .feed {
                 order: 1;
             }
 
-            .feed {
-                order: 2;
-            }
-
             .widgets {
-                order: 3;
+                order: 2;
             }
         }
 
@@ -707,6 +703,13 @@ class CommunityApplication extends LitElement {
             });
             if (response.ok) {
                 this.communities = await response.json();
+                
+                // Dispara evento para o shell atualizar a barra lateral
+                this.dispatchEvent(new CustomEvent('communities-updated', {
+                    detail: { communities: this.communities },
+                    bubbles: true,
+                    composed: true
+                }));
             }
         } catch (err) {
             console.error('Erro ao buscar comunidades:', err);
@@ -1310,78 +1313,6 @@ class CommunityApplication extends LitElement {
 
         return html`
             <div class="container">
-                <!-- Coluna Esquerda: Navegação Lateral -->
-                <aside class="sidebar-left">
-                    <!-- Outros Módulos do Portal -->
-                    <div class="card widget-card">
-                        <h3 class="widget-title">Portal</h3>
-                        <div class="nav-section">
-                            <button class="sidebar-nav-item" @click="${() => this.dispatchSwitchTab('education')}">
-                                <span style="font-size: 1.2em; margin-right: 2px;">🧩</span> Jogo de Lógica
-                            </button>
-                            <button class="sidebar-nav-item" @click="${() => this.dispatchSwitchTab('inventory')}">
-                                <span style="font-size: 1.2em; margin-right: 2px;">📦</span> Inventário
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Comunidades -->
-                    <div class="card widget-card">
-                        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-                            <h3 class="widget-title" style="margin: 0; border-bottom: none; padding-bottom: 0;">Comunidades</h3>
-                            <button @click="${() => this.openCreateCommunityModal()}" class="create-comm-btn">
-                                <span>+</span> Criar Comunidade
-                            </button>
-                        </div>
-                        
-                        <div class="widget-list">
-                            <!-- Feed Geral -->
-                            <div class="community-item ${!this.selectedCommunityId ? 'active' : ''}" @click="${() => this.selectCommunity(null)}">
-                                <div class="community-info">
-                                    <span class="community-name">🌐 Feed Geral</span>
-                                    <span class="community-desc">Todas as publicações</span>
-                                </div>
-                            </div>
-
-                            <!-- As que Criei -->
-                            <div class="nav-section-title" style="margin-top: 16px;">As que criei</div>
-                            ${(() => {
-                                const created = this.communities.filter(c => c.ownerId === (this.currentUser?.id || this.currentUser?.userId));
-                                if (created.length === 0) {
-                                    return html`<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic; margin-bottom: 8px;">Nenhuma criada</div>`;
-                                }
-                                return created.map(c => this.renderCommunitySidebarItem(c));
-                            })()}
-
-                            <!-- As que Participo -->
-                            <div class="nav-section-title" style="margin-top: 16px;">As que participo</div>
-                            ${(() => {
-                                const joined = this.communities.filter(c => 
-                                    c.members?.some(m => m.userId === (this.currentUser?.id || this.currentUser?.userId)) &&
-                                    c.ownerId !== (this.currentUser?.id || this.currentUser?.userId)
-                                );
-                                if (joined.length === 0) {
-                                    return html`<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic; margin-bottom: 8px;">Nenhuma participando</div>`;
-                                }
-                                return joined.map(c => this.renderCommunitySidebarItem(c));
-                            })()}
-
-                            <!-- Outras Comunidades -->
-                            <div class="nav-section-title" style="margin-top: 16px;">Outras Comunidades</div>
-                            ${(() => {
-                                const others = this.communities.filter(c => 
-                                    c.ownerId !== (this.currentUser?.id || this.currentUser?.userId) &&
-                                    !c.members?.some(m => m.userId === (this.currentUser?.id || this.currentUser?.userId))
-                                );
-                                if (others.length === 0) {
-                                    return html`<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma outra disponível</div>`;
-                                }
-                                return others.map(c => this.renderCommunitySidebarItem(c, false));
-                            })()}
-                        </div>
-                    </div>
-                </aside>
-
                 <!-- Coluna Central: Feed -->
                 <main class="feed">
                     <!-- Criador de Post -->

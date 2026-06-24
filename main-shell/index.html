@@ -104,9 +104,13 @@
 
         /* CONTAINER DO PORTAL PRIVADO */
         .mfe-grid-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px 0;
+            padding: 24px;
+            box-sizing: border-box;
         }
 
         /* GARANTE QUE OS COMPONENTES NÃO SE SOBROPONHAM */
@@ -257,6 +261,178 @@
             background-color: #e2e8f0;
             margin: 4px 6px;
         }
+
+        /* REDESIGN: BARRA LATERAL PORTAL */
+        .portal-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .portal-card {
+            background-color: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .portal-title-sec {
+            font-size: 0.9em;
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 8px;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+
+        .portal-nav-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .portal-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid transparent;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+            font-size: 0.95em;
+        }
+
+        .portal-nav-item:hover {
+            background-color: #f1f5f9;
+            color: var(--primary-dark);
+        }
+
+        .portal-nav-item.active {
+            background-color: #e0f2fe;
+            border-color: #bae6fd;
+            color: #0369a1;
+        }
+
+        .portal-create-comm-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: var(--primary-dark);
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s ease-in-out;
+            width: 100%;
+        }
+
+        .portal-create-comm-btn:hover {
+            background-color: var(--primary-light);
+        }
+
+        .portal-widget-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .portal-community-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+            border: 1px solid transparent;
+        }
+
+        .portal-community-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .portal-community-item.active {
+            background-color: #e0f2fe;
+            border-color: #bae6fd;
+        }
+
+        .portal-community-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .portal-community-name {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .portal-community-desc {
+            font-size: 0.72em;
+            color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .portal-community-action-btn {
+            background-color: var(--primary-dark);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.78em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .portal-community-action-btn:hover {
+            background-color: var(--primary-light);
+        }
+
+        .portal-nav-section-title {
+            font-size: 0.78em;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-top: 12px;
+            margin-bottom: 4px;
+            padding-left: 8px;
+        }
+
+        .portal-main-content {
+            min-width: 0;
+        }
+
+        .header-logo {
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -327,9 +503,60 @@
 
         <!-- Área Privada do Portal (Abas Dinâmicas) -->
         <div class="mfe-grid-container hidden" id="private-view">
-            <community-application id="community-app"></community-application>
-            <education-application id="education-app" class="hidden"></education-application>
-            <inventory-application id="inventory-app" class="hidden"></inventory-application>
+            <!-- Barra Lateral Esquerda Global do Portal -->
+            <aside class="portal-sidebar" id="portal-sidebar">
+                <!-- Seção Portal -->
+                <div class="portal-card">
+                    <h3 class="portal-title-sec">Portal</h3>
+                    <div class="portal-nav-section">
+                        <button class="portal-nav-item active" id="btn-nav-community">
+                            <span style="font-size: 1.2em; margin-right: 2px;">💬</span> Comunidade
+                        </button>
+                        <button class="portal-nav-item" id="btn-nav-education">
+                            <span style="font-size: 1.2em; margin-right: 2px;">🧩</span> Jogo de Lógica
+                        </button>
+                        <button class="portal-nav-item" id="btn-nav-inventory">
+                            <span style="font-size: 1.2em; margin-right: 2px;">📦</span> Inventário
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Seção Comunidades -->
+                <div class="portal-card">
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+                        <h3 class="portal-title-sec" style="margin: 0; border-bottom: none; padding-bottom: 0;">Comunidades</h3>
+                        <button class="portal-create-comm-btn" id="btn-create-community">
+                            <span>+</span> Criar Comunidade
+                        </button>
+                    </div>
+                    
+                    <div class="portal-widget-list" id="sidebar-communities-list">
+                        <!-- Feed Geral -->
+                        <div class="portal-community-item active" id="item-comm-general">
+                            <div class="portal-community-info">
+                                <span class="portal-community-name">🌐 Feed Geral</span>
+                                <span class="portal-community-desc">Todas as publicações</span>
+                            </div>
+                        </div>
+                        
+                        <div class="portal-nav-section-title">As que criei</div>
+                        <div id="sidebar-communities-created" class="portal-widget-list"></div>
+
+                        <div class="portal-nav-section-title">As que participo</div>
+                        <div id="sidebar-communities-joined" class="portal-widget-list"></div>
+
+                        <div class="portal-nav-section-title">Outras Comunidades</div>
+                        <div id="sidebar-communities-others" class="portal-widget-list"></div>
+                    </div>
+                </div>
+            </aside>
+            
+            <!-- Conteúdo Central Dinâmico (onde os MFEs serão exibidos) -->
+            <div class="portal-main-content">
+                <community-application id="community-app"></community-application>
+                <education-application id="education-app" class="hidden"></education-application>
+                <inventory-application id="inventory-app" class="hidden"></inventory-application>
+            </div>
         </div>
         <profile-application id="profile-view" class="hidden"></profile-application>
     </main>
@@ -415,8 +642,9 @@
             const activeLink = document.getElementById(`link-${tabName}`);
             if (activeLink) activeLink.classList.add('active');
             
-            // Esconde a visualização de perfil
+            // Esconde a visualização de perfil e garante a exibição do container privado
             if (profileView) profileView.classList.add('hidden');
+            if (privateView) privateView.classList.remove('hidden');
             
             // Gerencia os MFEs da área privada
             const communityApp = document.getElementById('community-app');
@@ -427,26 +655,123 @@
             if (educationApp) educationApp.classList.add('hidden');
             if (inventoryApp) inventoryApp.classList.add('hidden');
             
-            if (privateView) privateView.classList.remove('hidden');
-            
             if (tabName === 'community' && communityApp) communityApp.classList.remove('hidden');
             if (tabName === 'education' && educationApp) educationApp.classList.remove('hidden');
             if (tabName === 'inventory' && inventoryApp) inventoryApp.classList.remove('hidden');
+
+            // Atualiza os botões do menu lateral
+            document.querySelectorAll('.portal-nav-item').forEach(btn => btn.classList.remove('active'));
+            const sideBtn = document.getElementById(`btn-nav-${tabName}`);
+            if (sideBtn) sideBtn.classList.add('active');
+        }
+
+        // Seleciona uma comunidade específica no MFE de comunidade
+        function selectCommunityInApp(communityId) {
+            const commApp = document.getElementById('community-app');
+            if (commApp && typeof commApp.selectCommunity === 'function') {
+                commApp.selectCommunity(communityId);
+            }
+            switchTab('community');
+            
+            // Atualiza visualmente o item ativo na barra lateral do shell
+            document.querySelectorAll('.portal-community-item').forEach(item => {
+                if (item.getAttribute('data-id') === String(communityId)) {
+                    item.classList.add('active');
+                } else if (!communityId && item.id === 'item-comm-general') {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // Renderiza itens de comunidades no menu lateral do shell
+        function renderSidebarCommunities(communities, userId) {
+            const createdContainer = document.getElementById('sidebar-communities-created');
+            const joinedContainer = document.getElementById('sidebar-communities-joined');
+            const othersContainer = document.getElementById('sidebar-communities-others');
+            
+            if (!createdContainer || !joinedContainer || !othersContainer) return;
+            
+            const commApp = document.getElementById('community-app');
+            const selectedId = commApp ? commApp.selectedCommunityId : null;
+
+            // Filtros de comunidade
+            const created = communities.filter(c => c.ownerId === userId);
+            const joined = communities.filter(c => c.members?.some(m => m.userId === userId) && c.ownerId !== userId);
+            const others = communities.filter(c => c.ownerId !== userId && !c.members?.some(m => m.userId === userId));
+
+            const renderItem = (c, isMemberOrOwner) => {
+                const isActive = selectedId === c.id;
+                const icon = c.isLocked ? '🔒' : '💬';
+                return `
+                    <div class="portal-community-item ${isActive ? 'active' : ''}" data-id="${c.id}" data-member="${isMemberOrOwner}">
+                        <div class="portal-community-info">
+                            <span class="portal-community-name">${icon} ${c.name}</span>
+                            <span class="portal-community-desc">${c.description || 'Sem descrição'}</span>
+                        </div>
+                        ${!isMemberOrOwner ? `
+                            <button class="portal-community-action-btn" data-id="${c.id}" data-locked="${c.isLocked}">Entrar</button>
+                        ` : `
+                            <span style="font-size: 0.72em; color: #10b981; font-weight: 600; padding: 2px 6px; background: #ecfdf5; border-radius: 4px; flex-shrink: 0;">Membro</span>
+                        `}
+                    </div>
+                `;
+            };
+
+            // Criadas
+            createdContainer.innerHTML = created.length === 0
+                ? `<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma criada</div>`
+                : created.map(c => renderItem(c, true)).join('');
+
+            // Participando
+            joinedContainer.innerHTML = joined.length === 0
+                ? `<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma participando</div>`
+                : joined.map(c => renderItem(c, true)).join('');
+
+            // Outras
+            othersContainer.innerHTML = others.length === 0
+                ? `<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma outra disponível</div>`
+                : others.map(c => renderItem(c, false)).join('');
+
+            // Adiciona listeners para clique nos itens membros
+            document.querySelectorAll('.portal-community-item').forEach(item => {
+                if (item.id === 'item-comm-general') return;
+                const communityId = item.getAttribute('data-id');
+                const isMember = item.getAttribute('data-member') === 'true';
+                if (isMember) {
+                    item.addEventListener('click', () => {
+                        selectCommunityInApp(communityId);
+                    });
+                }
+            });
+
+            // Adiciona listeners para botões de entrar em comunidades
+            document.querySelectorAll('.portal-community-action-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const communityId = btn.getAttribute('data-id');
+                    const isLocked = btn.getAttribute('data-locked') === 'true';
+                    
+                    if (commApp && typeof commApp.handleJoinCommunity === 'function') {
+                        switchTab('community');
+                        commApp.handleJoinCommunity(communityId, isLocked);
+                    }
+                });
+            });
         }
 
         // Abre a tela de perfil e oculta os demais MFEs
         function showUserProfile() {
-            // Oculta abas privadas
+            // Oculta abas privadas e a barra lateral global
+            if (privateView) privateView.classList.add('hidden');
+            
             const communityApp = document.getElementById('community-app');
             const educationApp = document.getElementById('education-app');
             const inventoryApp = document.getElementById('inventory-app');
             if (communityApp) communityApp.classList.add('hidden');
             if (educationApp) educationApp.classList.add('hidden');
             if (inventoryApp) inventoryApp.classList.add('hidden');
-            if (privateView) privateView.classList.add('hidden');
-            
-            // Remove realce das abas
-            document.querySelectorAll('.header-nav a').forEach(a => a.classList.remove('active'));
             
             // Exibe componente de perfil
             if (profileView) {
@@ -553,8 +878,40 @@
                 if (isLoggedIn) {
                     togglePortalState(false);
                 } else {
-                    // Simplesmente garante o foco/exibição da tela pública de login
                     if (publicView) publicView.classList.remove('hidden');
+                }
+            });
+        }
+
+        // Cliques na navegação lateral global do Shell
+        document.getElementById('btn-nav-community').addEventListener('click', () => {
+            switchTab('community');
+        });
+        document.getElementById('btn-nav-education').addEventListener('click', () => {
+            switchTab('education');
+        });
+        document.getElementById('btn-nav-inventory').addEventListener('click', () => {
+            switchTab('inventory');
+        });
+
+        document.getElementById('btn-create-community').addEventListener('click', () => {
+            const commApp = document.getElementById('community-app');
+            if (commApp && typeof commApp.openCreateCommunityModal === 'function') {
+                switchTab('community');
+                commApp.openCreateCommunityModal();
+            }
+        });
+
+        document.getElementById('item-comm-general').addEventListener('click', () => {
+            selectCommunityInApp(null);
+        });
+
+        // Logo clicável direciona para a tela de comunidade (Feed Geral)
+        const logoGroup = document.querySelector('.header-logo');
+        if (logoGroup) {
+            logoGroup.addEventListener('click', () => {
+                if (isLoggedIn) {
+                    selectCommunityInApp(null);
                 }
             });
         }
@@ -570,6 +927,7 @@
         // Escuta o evento customizado close-profile para retornar à aba ativa
         window.addEventListener('close-profile', () => {
             if (profileView) profileView.classList.add('hidden');
+            if (privateView) privateView.classList.remove('hidden');
             switchTab('community');
         });
 
@@ -577,6 +935,16 @@
         window.addEventListener('portal-switch-tab', (event) => {
             const { tab } = event.detail;
             switchTab(tab);
+        });
+
+        // Escuta as atualizações de comunidades enviadas pelo MFE de comunidade
+        window.addEventListener('communities-updated', (event) => {
+            const { communities } = event.detail;
+            const userRaw = localStorage.getItem('portal_user');
+            if (userRaw) {
+                const user = JSON.parse(userRaw);
+                renderSidebarCommunities(communities, user.id || user.userId);
+            }
         });
 
         // Verificação de autenticação inicial ao carregar a página

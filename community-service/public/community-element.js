@@ -1306,6 +1306,64 @@ class CommunityApplication extends LitElement {
         }
     }
 
+    async _handleLeaveCommunity() {
+        const communityId = this.selectedCommunityId;
+        if (!communityId) return;
+
+        if (!confirm('Deseja realmente sair desta comunidade?')) return;
+
+        const token = localStorage.getItem('portal_token');
+        try {
+            const response = await fetch(`http://localhost:3002/communities/${communityId}/leave`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                this.selectedCommunityId = null;
+                await this.fetchCommunities();
+                await this.fetchPosts();
+            } else {
+                const data = await response.json();
+                alert(data.message || 'Falha ao sair da comunidade.');
+            }
+        } catch (err) {
+            console.error('Erro ao sair da comunidade:', err);
+            alert('Erro ao processar requisição.');
+        }
+    }
+
+    async _handleDeleteCommunity() {
+        const communityId = this.selectedCommunityId;
+        if (!communityId) return;
+
+        if (!confirm('Deseja realmente excluir esta comunidade? Todas as postagens e membros serão removidos permanentemente.')) return;
+
+        const token = localStorage.getItem('portal_token');
+        try {
+            const response = await fetch(`http://localhost:3002/communities/${communityId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                this.selectedCommunityId = null;
+                await this.fetchCommunities();
+                await this.fetchPosts();
+            } else {
+                const data = await response.json();
+                alert(data.message || 'Falha ao excluir comunidade.');
+            }
+        } catch (err) {
+            console.error('Erro ao excluir comunidade:', err);
+            alert('Erro ao processar requisição.');
+        }
+    }
+
     get currentUser() {
         try {
             const userRaw = localStorage.getItem('portal_user');
@@ -1483,7 +1541,7 @@ class CommunityApplication extends LitElement {
                                         <button 
                                             type="button" 
                                             class="danger-btn"
-                                            @click="${() => this.handleDeleteCommunity(this.selectedCommunityId)}"
+                                            @click="${this._handleDeleteCommunity}"
                                         >
                                             Excluir Comunidade
                                         </button>
@@ -1491,7 +1549,7 @@ class CommunityApplication extends LitElement {
                                         <button 
                                             type="button" 
                                             class="danger-btn"
-                                            @click="${() => this.handleLeaveCommunity(this.selectedCommunityId)}"
+                                            @click="${this._handleLeaveCommunity}"
                                         >
                                             Sair da Comunidade
                                         </button>

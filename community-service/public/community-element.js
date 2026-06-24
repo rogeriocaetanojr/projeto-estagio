@@ -1694,7 +1694,7 @@ class CommunityApplication extends LitElement {
                                         <h3 class="post-title" style="margin-top: 12px; margin-bottom: 8px; color: var(--title-color, #0d3168);">${post.title}</h3>
                                         <p class="post-content" style="color: var(--text-main, #334155); line-height: 1.5; white-space: pre-wrap;">${post.content}</p>
                                         ${post.attachments && post.attachments.length > 0 ? html`
-                                            <div class="post-attachments" style="margin-top: 12px; padding: 0; background: transparent; border: none; display: flex; flex-direction: column; gap: 8px; color: var(--inner-card-text, #475569);">
+                                            <div class="post-attachments" style="margin-top: 12px; margin-bottom: 12px; padding: 0; background: transparent; border: none; display: flex; flex-direction: column; gap: 8px; color: var(--inner-card-text, #475569);">
                                                 <strong style="font-size: 0.85em; color: var(--inner-card-text, #475569);">Anexos:</strong>
                                                 ${post.attachments.map(att => {
                                                     const isImage = att.fileName.match(/\.(jpg|jpeg|png|gif|webp)$/i);

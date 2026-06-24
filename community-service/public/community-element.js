@@ -991,6 +991,10 @@ class CommunityApplication extends LitElement {
 
             if (!response.ok) throw new Error('Falha ao excluir a publicação');
 
+            // Remove do histórico de visualização local também
+            this.clickedPosts = this.clickedPosts.filter(p => p.id !== postId);
+            localStorage.setItem('portal_clicked_posts', JSON.stringify(this.clickedPosts));
+
             await this.fetchPosts();
         } catch (err) {
             console.error(err);

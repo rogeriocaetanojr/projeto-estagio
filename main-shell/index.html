@@ -161,12 +161,13 @@
         /* CONTAINER DO PORTAL PRIVADO */
         .mfe-grid-container {
             display: grid;
-            grid-template-columns: 280px 1fr;
+            grid-template-columns: 320px 1fr;
             gap: 24px;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 24px;
             box-sizing: border-box;
+            align-items: start;
         }
 
         /* GARANTE QUE OS COMPONENTES NÃO SE SOBROPONHAM */
@@ -334,6 +335,26 @@
             padding: 20px;
             overflow: hidden;
             transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        #shell-portal-card {
+            height: 185px;
+            padding: 12px 16px;
+            box-sizing: border-box;
+        }
+
+        #shell-portal-card .portal-title-sec {
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+        }
+
+        #shell-portal-card .portal-nav-section {
+            gap: 5px;
+        }
+
+        #shell-portal-card .portal-nav-item {
+            padding: 8px 12px;
+            font-size: 0.92em;
         }
 
         .portal-title-sec {
@@ -757,7 +778,7 @@
             <!-- Barra Lateral Esquerda Global do Portal -->
             <aside class="portal-sidebar" id="portal-sidebar">
                 <!-- Seção Portal -->
-                <div class="portal-card">
+                <div class="portal-card" id="shell-portal-card">
                     <h3 class="portal-title-sec">Portal</h3>
                     <div class="portal-nav-section">
                         <button class="portal-nav-item active" id="btn-nav-community">

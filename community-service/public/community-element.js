@@ -63,12 +63,13 @@ class CommunityApplication extends LitElement {
 
         .container {
             display: grid;
-            grid-template-columns: 1fr 320px;
+            grid-template-columns: 1fr 350px;
             gap: 24px;
-            max-width: 1120px;
-            margin: 0 auto;
-            padding: 0 24px 24px;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
+            align-items: start;
         }
 
         .card {
@@ -88,14 +89,16 @@ class CommunityApplication extends LitElement {
         }
 
         .creator-card {
-            padding: 20px;
+            padding: 12px 16px;
+            height: 185px;
+            box-sizing: border-box;
         }
 
         .creator-header {
             display: flex;
             gap: 12px;
             align-items: flex-start;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
         }
 
         .creator-avatar {
@@ -116,13 +119,13 @@ class CommunityApplication extends LitElement {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .creator-title-input {
             border: 1px solid var(--border-color, #e2e8f0);
             border-radius: 8px;
-            padding: 10px 12px;
+            padding: 8px 12px;
             font-size: 0.95em;
             font-family: inherit;
             font-weight: 600;
@@ -135,10 +138,10 @@ class CommunityApplication extends LitElement {
         .creator-textarea {
             border: 1px solid var(--border-color, #e2e8f0);
             border-radius: 8px;
-            padding: 12px;
+            padding: 8px 12px;
             font-size: 0.95em;
             resize: none;
-            height: 80px;
+            height: 50px;
             font-family: inherit;
             color: var(--text-main, #1e293b);
             background-color: var(--card-bg, #ffffff);
@@ -163,7 +166,7 @@ class CommunityApplication extends LitElement {
             display: flex;
             justify-content: flex-end;
             border-top: 1px solid var(--border-color, #f1f5f9);
-            padding-top: 12px;
+            padding-top: 8px;
         }
 
         .publish-btn {
@@ -692,17 +695,32 @@ class CommunityApplication extends LitElement {
             background-color: var(--accent-btn-bg, #0d3168);
             color: white;
             border: none;
-            padding: 10px 14px;
+            padding: 10px 16px;
             border-radius: 8px;
             font-weight: 700;
             cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.2s ease-in-out;
+            font-size: 0.92em;
+            transition: all 0.2s ease-in-out;
             width: 100%;
+            height: 54px;
+            box-sizing: border-box;
+        }
+
+        .create-comm-btn span {
+            font-size: 1.1em;
+            line-height: 1;
         }
 
         .create-comm-btn:hover {
             background-color: var(--accent-btn-hover, #00aeef);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 174, 239, 0.15);
+        }
+
+        .create-comm-wrapper {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         /* HISTÓRICO DE CLIQUES (NOVO) */
@@ -1814,10 +1832,12 @@ class CommunityApplication extends LitElement {
                 </main>
 
                 <!-- Coluna Direita: Comunidades -->
-                <aside class="widgets" style="display: flex; flex-direction: column; gap: 16px;">
-                    <button class="create-comm-btn" @click="${this.openCreateCommunityModal}" style="width: 100%;">
-                        <span>+</span> Criar Comunidade
-                    </button>
+                <aside class="widgets" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="create-comm-wrapper">
+                        <button class="create-comm-btn" @click="${this.openCreateCommunityModal}">
+                            <span>+</span> Criar Comunidade
+                        </button>
+                    </div>
                     
                     <div class="card widget-card">
                         <h3 class="widget-title" style="text-transform: uppercase;">Comunidades</h3>

@@ -303,6 +303,35 @@ class CommunityApplication extends LitElement {
             font-size: 1.1em;
         }
 
+        .post-edit-btn, .post-delete-btn {
+            font-size: 0.82em;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: none;
+            background: none;
+        }
+
+        .post-edit-btn {
+            color: #64748b;
+        }
+
+        .post-edit-btn:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .post-delete-btn {
+            color: #ef4444;
+        }
+
+        .post-delete-btn:hover {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
         /* WIDGETS (COLUNA DIREITA) */
         .widgets {
             display: flex;
@@ -1427,8 +1456,8 @@ class CommunityApplication extends LitElement {
                                         </div>
                                         ${post.authorId === (this.currentUser?.id || this.currentUser?.userId) ? html`
                                             <div class="post-actions-menu" style="display: flex; gap: 8px;">
-                                                <button @click="${() => this.startEditPost(post)}" style="background: none; border: none; cursor: pointer; font-size: 1.1em; color: #64748b;" title="Editar Publicação">✏️</button>
-                                                <button @click="${() => this.handleDeletePost(post.id)}" style="background: none; border: none; cursor: pointer; font-size: 1.1em; color: #ef4444;" title="Excluir Publicação">🗑️</button>
+                                                <button @click="${() => this.startEditPost(post)}" class="post-edit-btn" title="Editar Publicação">Editar</button>
+                                                <button @click="${() => this.handleDeletePost(post.id)}" class="post-delete-btn" title="Excluir Publicação">Excluir</button>
                                             </div>
                                         ` : ''}
                                     </div>
@@ -1506,10 +1535,10 @@ class CommunityApplication extends LitElement {
                                                                      `}
                                                                  </div>
                                                                  <div style="display: flex; gap: 4px; flex-shrink: 0; align-items: center;">
-                                                                     <button @click="${() => this.toggleReplyBox(comment.id)}" style="background: none; border: none; cursor: pointer; font-size: 1.1em; color: #00aeef; padding: 2px;" title="Responder">💬</button>
+                                                                     <button @click="${() => this.toggleReplyBox(comment.id)}" class="post-edit-btn" style="color: #00aeef;" title="Responder">Responder</button>
                                                                      ${isCommentAuthor && this.editingCommentId !== comment.id ? html`
-                                                                         <button @click="${() => this.startEditComment(comment)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #64748b; padding: 2px;" title="Editar Comentário">✏️</button>
-                                                                         <button @click="${() => this.handleDeleteComment(post.id, comment.id)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #ef4444; padding: 2px;" title="Excluir Comentário">🗑️</button>
+                                                                         <button @click="${() => this.startEditComment(comment)}" class="post-edit-btn" title="Editar Comentário">Editar</button>
+                                                                         <button @click="${() => this.handleDeleteComment(post.id, comment.id)}" class="post-delete-btn" title="Excluir Comentário">Excluir</button>
                                                                      ` : ''}
                                                                  </div>
                                                              </div>
@@ -1548,8 +1577,8 @@ class CommunityApplication extends LitElement {
                                                                              </div>
                                                                              ${isReplyAuthor && this.editingCommentId !== reply.id ? html`
                                                                                  <div style="display: flex; gap: 4px; flex-shrink: 0;">
-                                                                                     <button @click="${() => this.startEditComment(reply)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #64748b; padding: 2px;" title="Editar Resposta">✏️</button>
-                                                                                     <button @click="${() => this.handleDeleteComment(post.id, reply.id)}" style="background: none; border: none; cursor: pointer; font-size: 1em; color: #ef4444; padding: 2px;" title="Excluir Resposta">🗑️</button>
+                                                                                     <button @click="${() => this.startEditComment(reply)}" class="post-edit-btn" title="Editar Resposta">Editar</button>
+                                                                                     <button @click="${() => this.handleDeleteComment(post.id, reply.id)}" class="post-delete-btn" title="Excluir Resposta">Excluir</button>
                                                                                  </div>
                                                                              ` : ''}
                                                                          </div>

@@ -11,7 +11,7 @@ class EducationApplication extends LitElement {
             display: block;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 40px 20px;
-            background-color: #f4f6f9;
+            background-color: transparent;
             box-sizing: border-box;
             width: 100%;
             min-height: 100vh;
@@ -20,17 +20,17 @@ class EducationApplication extends LitElement {
         .game-container {
             max-width: 800px;
             margin: 0 auto;
-            background: white;
+            background: var(--card-bg, white);
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            border: 1px solid var(--border-color, rgba(226, 232, 240, 0.8));
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
         .game-header {
-            background-color: #0d3168;
+            background-color: var(--primary-dark, #0d3168);
             color: white;
             padding: 20px 30px;
             display: flex;
@@ -64,7 +64,7 @@ class EducationApplication extends LitElement {
         }
 
         .game-message {
-            color: #64748b;
+            color: var(--text-muted, #64748b);
             font-size: 1.1em;
             max-width: 500px;
             line-height: 1.5;
@@ -72,7 +72,7 @@ class EducationApplication extends LitElement {
         }
 
         .btn-start {
-            background-color: #00aeef;
+            background-color: var(--primary-light, #00aeef);
             color: white;
             border: none;
             padding: 12px 32px;
@@ -86,7 +86,7 @@ class EducationApplication extends LitElement {
         }
 
         .btn-start:hover {
-            background-color: #0096ce;
+            background-color: var(--accent-btn-hover, #0096ce);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 174, 239, 0.3);
         }
@@ -120,7 +120,7 @@ class EducationApplication extends LitElement {
 
                 <main class="game-area">
                     ${this.gameStatus === 'idle' ? html`
-                        <h3 style="color: #0d3168; margin: 0; font-size: 1.3em;">Bem-vindo ao Modo Interativo</h3>
+                        <h3 style="color: var(--title-color, #0d3168); margin: 0; font-size: 1.3em;">Bem-vindo ao Modo Interativo</h3>
                         <p class="game-message">
                             Teste seus conhecimentos em Tabela-Verdade e Portas Lógicas. 
                             Preencha as saídas corretamente para acumular pontos.
@@ -129,7 +129,7 @@ class EducationApplication extends LitElement {
                             Iniciar Jogo
                         </button>
                     ` : html`
-                        <h3 style="color: #0d3168; margin: 0; font-size: 1.3em;">Fase 1: Preparando...</h3>
+                        <h3 style="color: var(--title-color, #0d3168); margin: 0; font-size: 1.3em;">Fase 1: Preparando...</h3>
                         <p class="game-message">
                             (A interface do jogo será injetada aqui)
                         </p>

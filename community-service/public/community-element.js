@@ -548,7 +548,7 @@ class CommunityApplication extends LitElement {
         }
 
         .modal-container {
-            background: white;
+            background: var(--card-bg, white);
             padding: 24px;
             border-radius: 12px;
             width: 100%;
@@ -557,13 +557,14 @@ class CommunityApplication extends LitElement {
             display: flex;
             flex-direction: column;
             gap: 16px;
+            border: 1px solid var(--border-color, transparent);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
             padding-bottom: 12px;
         }
 
@@ -578,7 +579,7 @@ class CommunityApplication extends LitElement {
             border: none;
             font-size: 1.5em;
             cursor: pointer;
-            color: #64748b;
+            color: var(--text-muted, #64748b);
         }
 
         .modal-form {
@@ -596,15 +597,17 @@ class CommunityApplication extends LitElement {
         .form-group label {
             font-size: 0.9em;
             font-weight: 600;
-            color: #475569;
+            color: var(--text-main, #475569);
         }
 
         .form-group input, .form-group textarea {
             padding: 8px 12px;
-            border: 1px solid #cbd5e1;
+            border: 1px solid var(--border-color, #cbd5e1);
             border-radius: 6px;
             font-size: 0.95em;
             font-family: inherit;
+            background: var(--bg-color, white);
+            color: var(--text-main, #1e293b);
         }
 
         .form-row {

@@ -1091,13 +1091,24 @@ class CommunityApplication extends LitElement {
         }
     }
 
-    toggleReplyBox(commentId) {
-        if (this.activeReplyBox === commentId) {
+    toggleReplyBox(commentId, mentionEmail = '') {
+        if (this.activeReplyBox === commentId && !mentionEmail) {
             this.activeReplyBox = null;
             this.replyContent = '';
         } else {
             this.activeReplyBox = commentId;
             this.replyContent = '';
+            
+            setTimeout(() => {
+                const input = this.shadowRoot.querySelector(`#reply-input-${commentId}`);
+                if (input) {
+                    if (mentionEmail) {
+                        const mentionName = mentionEmail.split('@')[0];
+                        input.value = `@${mentionName} `;
+                    }
+                    input.focus();
+                }
+            }, 50);
         }
     }
 
@@ -1575,12 +1586,13 @@ class CommunityApplication extends LitElement {
                                                                                      <span style="color: #334155; white-space: pre-wrap;">${reply.content}</span>
                                                                                  `}
                                                                              </div>
-                                                                             ${isReplyAuthor && this.editingCommentId !== reply.id ? html`
-                                                                                 <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                                                                             <div style="display: flex; gap: 4px; flex-shrink: 0; align-items: center;">
+                                                                                 <button @click="${() => this.toggleReplyBox(comment.id, reply.author?.email)}" class="post-edit-btn" style="color: #00aeef;" title="Responder">Responder</button>
+                                                                                 ${isReplyAuthor && this.editingCommentId !== reply.id ? html`
                                                                                      <button @click="${() => this.startEditComment(reply)}" class="post-edit-btn" title="Editar Resposta">Editar</button>
                                                                                      <button @click="${() => this.handleDeleteComment(post.id, reply.id)}" class="post-delete-btn" title="Excluir Resposta">Excluir</button>
-                                                                                 </div>
-                                                                             ` : ''}
+                                                                                 ` : ''}
+                                                                             </div>
                                                                          </div>
                                                                      `;
                                                                  })}

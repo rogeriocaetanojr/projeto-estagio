@@ -1513,23 +1513,21 @@ class CommunityApplication extends LitElement {
 
     renderCommunitySidebarItem(c, isMemberOrOwner = true, isOwner = false) {
         const isActive = this.selectedCommunityId === c.id;
-        const hostBadge = isOwner ? html`<span class="host-badge" style="font-size: 0.65em; color: #1e3a8a; background-color: #dbeafe; border: 1px solid #bfdbfe; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px;">Criador</span>` : '';
         return html`
             <div class="community-item ${isActive ? 'active' : ''}" @click="${() => isMemberOrOwner ? this.selectCommunity(c.id) : null}">
                 <div class="community-info">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="community-name">
-                            ${c.isLocked ? '🔒' : '💬'} ${c.name}
-                        </span>
-                        ${hostBadge}
-                    </div>
+                    <span class="community-name">
+                        ${c.isLocked ? '🔒' : '💬'} ${c.name}
+                    </span>
                     <span class="community-desc">${c.description || 'Sem descrição'}</span>
                 </div>
-                ${!isMemberOrOwner ? html`
-                    <button class="community-action-btn" @click="${(e) => { e.stopPropagation(); this.handleJoinCommunity(c.id, c.isLocked); }}">Entrar</button>
-                ` : (isOwner ? '' : html`
-                    <span style="font-size: 0.75em; color: #10b981; font-weight: 600; padding: 2px 6px; background: #ecfdf5; border-radius: 4px; flex-shrink: 0;">Membro</span>
-                `)}
+                ${isOwner ? html`
+                    <span style="font-size: 0.65em; color: #1e3a8a; background-color: #dbeafe; border: 1px solid #bfdbfe; padding: 1px 6px; border-radius: 4px; font-weight: 600; flex-shrink: 0; margin-left: auto;">Dono</span>
+                ` : !isMemberOrOwner ? html`
+                    <span style="font-size: 0.65em; color: #9a3412; background-color: #fff7ed; border: 1px solid #fed7aa; padding: 1px 6px; border-radius: 4px; font-weight: 600; flex-shrink: 0; margin-left: auto; cursor: pointer;" @click="${(e) => { e.stopPropagation(); this.handleJoinCommunity(c.id, c.isLocked); }}">Entrar</span>
+                ` : html`
+                    <span style="font-size: 0.75em; color: #10b981; font-weight: 600; padding: 2px 6px; background: #ecfdf5; border-radius: 4px; flex-shrink: 0; margin-left: auto;">Membro</span>
+                `}
             </div>
         `;
     }

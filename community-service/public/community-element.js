@@ -383,6 +383,8 @@ class CommunityApplication extends LitElement {
             text-transform: uppercase;
             letter-spacing: 0.5px;
             transition: color 0.3s ease, border-color 0.3s ease;
+            box-shadow: none !important;
+            text-shadow: none !important;
         }
 
         .widget-list {
@@ -717,16 +719,17 @@ class CommunityApplication extends LitElement {
             gap: 2px;
             padding: 8px 10px;
             border-radius: 6px;
-            border: 1px solid var(--inner-card-border, transparent);
-            border-left: 3px solid var(--title-color, #0d3168);
+            border: 1px solid var(--inner-card-border, #e2e8f0);
             background-color: var(--inner-card-bg, #f8fafc);
             cursor: pointer;
             transition: all 0.15s ease-in-out;
+            box-shadow: none !important;
+            text-shadow: none !important;
         }
 
         .history-item:hover {
             background-color: var(--item-hover, #f1f5f9);
-            border-left-color: var(--title-color, #00aeef);
+            border-color: var(--accent-btn-hover, #00aeef);
         }
 
         .history-item-title {
@@ -1450,15 +1453,18 @@ class CommunityApplication extends LitElement {
         if (postElement) {
             postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
-            // Efeito visual de destaque no post scrollado
-            const originalShadow = postElement.style.boxShadow;
+            // Efeito visual de destaque no post scrollado (flat & elegante)
+            const originalBorderColor = postElement.style.borderColor;
+            const originalBg = postElement.style.backgroundColor;
             const originalTransition = postElement.style.transition;
             
             postElement.style.transition = 'all 0.3s ease';
-            postElement.style.boxShadow = '0 0 15px rgba(0, 174, 239, 0.5)';
+            postElement.style.borderColor = 'var(--accent-btn-hover, #0056b3)';
+            postElement.style.backgroundColor = 'var(--item-hover, #f1f5f9)';
             
             setTimeout(() => {
-                postElement.style.boxShadow = originalShadow;
+                postElement.style.borderColor = originalBorderColor;
+                postElement.style.backgroundColor = originalBg;
                 postElement.style.transition = originalTransition;
             }, 1500);
         }

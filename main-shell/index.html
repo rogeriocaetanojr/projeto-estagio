@@ -13,8 +13,53 @@
             --primary-light: #00aeef;
             --white: #ffffff;
             --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
             --text-main: #1e293b;
+            --text-muted: #64748b;
             --border-color: rgba(226, 232, 240, 0.8);
+            --header-bg: #ffffff;
+            --dropdown-bg: rgba(255, 255, 255, 0.95);
+            --item-hover: #f1f5f9;
+            --title-color: #0d3168;
+
+            /* Novo Design System */
+            --accent-btn-bg: #0d3168;
+            --accent-btn-hover: #00aeef;
+            --active-item-bg: #e0f2fe;
+            --active-item-border: #bae6fd;
+            --active-item-text: #0369a1;
+            --inner-card-bg: #f8fafc;
+            --inner-card-border: #e2e8f0;
+            --inner-card-text: #475569;
+            --button-attachment-bg: #f1f5f9;
+            --button-attachment-border: #cbd5e1;
+            --button-attachment-text: #475569;
+        }
+
+        body.dark-theme {
+            --bg-color: #121214;
+            --card-bg: #1e1e24;
+            --header-bg: #1e1e24;
+            --white: #1e1e24;
+            --text-main: #f5f5f7;
+            --text-muted: #9696a0;
+            --border-color: #2a2a32;
+            --dropdown-bg: rgba(30, 30, 36, 0.95);
+            --item-hover: #2a2a32;
+            --title-color: #4dadff;
+
+            /* Novo Design System Escuro */
+            --accent-btn-bg: #0076df;
+            --accent-btn-hover: #1d90ff;
+            --active-item-bg: rgba(77, 173, 255, 0.15);
+            --active-item-border: rgba(77, 173, 255, 0.3);
+            --active-item-text: #4dadff;
+            --inner-card-bg: #25252f;
+            --inner-card-border: #2a2a32;
+            --inner-card-text: #f5f5f7;
+            --button-attachment-bg: #25252f;
+            --button-attachment-border: #2a2a32;
+            --button-attachment-text: #f5f5f7;
         }
 
         body {
@@ -22,6 +67,16 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Ajustes adicionais de logo e hover no tema escuro */
+        body.dark-theme .header-logo svg g[fill="#0d3168"] {
+            fill: #ffffff;
+        }
+
+        body.dark-theme .dropdown-item:hover {
+            color: #ffffff !important;
         }
 
         /* HEADER STYLES */
@@ -30,10 +85,11 @@
             justify-content: space-between;
             align-items: center;
             padding: 12px 50px;
-            background-color: var(--white);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background-color: var(--header-bg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             position: relative;
             z-index: 1000;
+            transition: background-color 0.3s ease;
         }
 
         .header-logo {
@@ -55,7 +111,7 @@
 
         .header-nav a {
             text-decoration: none;
-            color: #475569;
+            color: var(--text-muted);
             font-weight: 600;
             font-size: 1em;
             transition: color 0.2s ease, border-color 0.2s ease;
@@ -69,7 +125,7 @@
 
         /* Destaque da Aba Ativa (Padrão UI/UX Moderno) */
         .header-nav a.active {
-            color: var(--primary-dark);
+            color: var(--title-color);
             font-weight: 700;
         }
 
@@ -159,13 +215,13 @@
         }
 
         .user-trigger:hover {
-            background-color: #f1f5f9;
+            background-color: var(--item-hover);
         }
 
         .user-name {
             font-weight: 600;
             font-size: 0.92em;
-            color: var(--primary-dark);
+            color: var(--text-main);
         }
 
         .user-avatar {
@@ -199,7 +255,7 @@
             right: 0;
             margin-top: 8px;
             width: 200px;
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: var(--dropdown-bg);
             backdrop-filter: blur(8px);
             border: 1px solid var(--border-color);
             border-radius: 10px;
@@ -211,6 +267,7 @@
             gap: 2px;
             transform-origin: top right;
             animation: dropdownFadeIn 0.15s ease-out;
+            transition: background-color 0.3s ease;
         }
 
         @keyframes dropdownFadeIn {
@@ -235,7 +292,7 @@
             padding: 10px 12px;
             font-size: 0.88em;
             font-weight: 600;
-            color: #475569;
+            color: var(--text-main);
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.15s ease, color 0.15s ease;
@@ -243,7 +300,7 @@
         }
 
         .dropdown-item:hover {
-            background-color: #f1f5f9;
+            background-color: var(--item-hover);
             color: var(--primary-dark);
         }
 
@@ -270,12 +327,13 @@
         }
 
         .portal-card {
-            background-color: var(--white);
+            background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             padding: 20px;
             overflow: hidden;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .portal-title-sec {
@@ -304,7 +362,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            color: #475569;
+            color: var(--text-muted);
             transition: all 0.2s ease-in-out;
             border: 1px solid transparent;
             background: none;
@@ -315,14 +373,14 @@
         }
 
         .portal-nav-item:hover {
-            background-color: #f1f5f9;
-            color: var(--primary-dark);
+            background-color: var(--item-hover);
+            color: var(--text-main);
         }
 
         .portal-nav-item.active {
-            background-color: #e0f2fe;
-            border-color: #bae6fd;
-            color: #0369a1;
+            background-color: var(--active-item-bg, #e0f2fe);
+            border-color: var(--active-item-border, #bae6fd);
+            color: var(--active-item-text, #0369a1);
         }
 
         .portal-create-comm-btn {
@@ -330,7 +388,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            background-color: var(--primary-dark);
+            background-color: var(--accent-btn-bg, var(--primary-dark));
             color: white;
             border: none;
             padding: 10px 14px;
@@ -343,7 +401,7 @@
         }
 
         .portal-create-comm-btn:hover {
-            background-color: var(--primary-light);
+            background-color: var(--accent-btn-hover, var(--primary-light));
         }
 
         .portal-widget-list {
@@ -364,12 +422,12 @@
         }
 
         .portal-community-item:hover {
-            background-color: #f8fafc;
+            background-color: var(--item-hover, #f8fafc);
         }
 
         .portal-community-item.active {
-            background-color: #e0f2fe;
-            border-color: #bae6fd;
+            background-color: var(--active-item-bg, #e0f2fe);
+            border-color: var(--active-item-border, #bae6fd);
         }
 
         .portal-community-info {
@@ -383,7 +441,7 @@
         .portal-community-name {
             font-size: 0.9em;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--text-main, #1e293b);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -391,7 +449,7 @@
 
         .portal-community-desc {
             font-size: 0.72em;
-            color: #64748b;
+            color: var(--text-muted, #64748b);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -496,11 +554,26 @@
                 
                 <div class="profile-dropdown hidden" id="profile-dropdown">
                     <button class="dropdown-item" id="dropdown-profile-btn">
-                        <span>👤</span> Meu Perfil
+                        Meu Perfil
                     </button>
+                    
+                    <button class="dropdown-item" id="dropdown-theme-toggle-btn" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <span style="display: flex; align-items: center; gap: 10px;">Modo de Visualização</span>
+                        <span id="theme-arrow" style="font-size: 0.7em; transition: transform 0.2s ease;">▼</span>
+                    </button>
+                    
+                    <div id="theme-submenu" class="hidden" style="display: flex; flex-direction: column; gap: 2px; padding-left: 12px; transition: all 0.2s ease;">
+                        <button class="dropdown-item" id="theme-light-btn" style="font-size: 0.85em; padding: 6px 12px;">
+                            Modo Claro
+                        </button>
+                        <button class="dropdown-item" id="theme-dark-btn" style="font-size: 0.85em; padding: 6px 12px;">
+                            Modo Noturno
+                        </button>
+                    </div>
+
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item logout" id="dropdown-logout-btn">
-                        <span>🚪</span> Sair do Portal
+                        Sair do Portal
                     </button>
                 </div>
             </div>
@@ -587,6 +660,12 @@
     <script type="module" src="http://localhost:3001/app-bundle/profile-element.js"></script>
 
     <script>
+        // Inicializa o tema salvo antes de renderizar
+        const savedTheme = localStorage.getItem('portal_theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
         const authBtn = document.getElementById('auth-btn');
         const publicView = document.getElementById('public-view');
         const privateView = document.getElementById('private-view');
@@ -599,6 +678,13 @@
         const avatarInitials = document.getElementById('avatar-initials');
         const dropdownProfileBtn = document.getElementById('dropdown-profile-btn');
         const dropdownLogoutBtn = document.getElementById('dropdown-logout-btn');
+        
+        // Elementos de tema
+        const dropdownThemeToggleBtn = document.getElementById('dropdown-theme-toggle-btn');
+        const themeSubmenu = document.getElementById('theme-submenu');
+        const themeArrow = document.getElementById('theme-arrow');
+        const themeLightBtn = document.getElementById('theme-light-btn');
+        const themeDarkBtn = document.getElementById('theme-dark-btn');
         
         let isLoggedIn = false;
         let activeTab = 'community'; // Aba ativa padrão
@@ -804,6 +890,8 @@
         function closeDropdown() {
             if (profileDropdown) profileDropdown.classList.add('hidden');
             if (userMenuContainer) userMenuContainer.classList.remove('open');
+            if (themeSubmenu) themeSubmenu.classList.add('hidden');
+            if (themeArrow) themeArrow.style.transform = 'rotate(0deg)';
         }
 
         // Alterna o estado visual do Shell (esconder/exibir as seções)
@@ -874,6 +962,35 @@
             dropdownLogoutBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 togglePortalState(false);
+            });
+        }
+
+        // Controle e alternância do menu de temas
+        if (dropdownThemeToggleBtn) {
+            dropdownThemeToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = themeSubmenu.classList.toggle('hidden');
+                themeArrow.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        }
+
+        if (themeLightBtn) {
+            themeLightBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.body.classList.remove('dark-theme');
+                localStorage.setItem('portal_theme', 'light');
+                window.dispatchEvent(new CustomEvent('portal-theme-changed', { detail: { theme: 'light' } }));
+                closeDropdown();
+            });
+        }
+
+        if (themeDarkBtn) {
+            themeDarkBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.body.classList.add('dark-theme');
+                localStorage.setItem('portal_theme', 'dark');
+                window.dispatchEvent(new CustomEvent('portal-theme-changed', { detail: { theme: 'dark' } }));
+                closeDropdown();
             });
         }
 

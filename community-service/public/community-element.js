@@ -29,9 +29,18 @@ class CommunityApplication extends LitElement {
         :host {
             display: block;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f6f9;
-            color: #1e293b;
+            background-color: var(--bg-color, #f4f6f9);
+            color: var(--text-main, #1e293b);
             min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Inputs e textareas dinâmicos baseados no tema */
+        input[type="text"], textarea {
+            background-color: var(--card-bg, #ffffff) !important;
+            color: var(--text-main, #1e293b) !important;
+            border: 1px solid var(--border-color, #cbd5e1) !important;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         /* Scrollbars customizadas */
@@ -63,12 +72,12 @@ class CommunityApplication extends LitElement {
         }
 
         .card {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
+            background-color: var(--card-bg, #ffffff);
+            border: 1px solid var(--border-color, #e2e8f0);
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             overflow: hidden;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.3s ease, border-color 0.3s ease;
         }
 
         /* FEED (COLUNA CENTRAL) */
@@ -111,30 +120,30 @@ class CommunityApplication extends LitElement {
         }
 
         .creator-title-input {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-color, #e2e8f0);
             border-radius: 8px;
             padding: 10px 12px;
             font-size: 0.95em;
             font-family: inherit;
             font-weight: 600;
-            color: #1e293b;
-            background-color: #ffffff;
+            color: var(--text-main, #1e293b);
+            background-color: var(--card-bg, #ffffff);
             outline: none;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease;
         }
 
         .creator-textarea {
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-color, #e2e8f0);
             border-radius: 8px;
             padding: 12px;
             font-size: 0.95em;
             resize: none;
             height: 80px;
             font-family: inherit;
-            color: #1e293b;
-            background-color: #ffffff;
+            color: var(--text-main, #1e293b);
+            background-color: var(--card-bg, #ffffff);
             outline: none;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease;
         }
 
         .creator-title-input:focus,
@@ -145,15 +154,15 @@ class CommunityApplication extends LitElement {
 
         .creator-title-input:disabled,
         .creator-textarea:disabled {
-            background-color: #f8fafc;
-            color: #94a3b8;
+            background-color: var(--bg-color, #f8fafc);
+            color: var(--text-muted, #94a3b8);
             cursor: not-allowed;
         }
 
         .creator-actions {
             display: flex;
             justify-content: flex-end;
-            border-top: 1px solid #f1f5f9;
+            border-top: 1px solid var(--border-color, #f1f5f9);
             padding-top: 12px;
         }
 
@@ -170,14 +179,14 @@ class CommunityApplication extends LitElement {
         }
 
         .publish-btn.active {
-            background-color: #0d3168;
+            background-color: var(--accent-btn-bg, #0d3168);
             color: #ffffff;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
         }
 
         .publish-btn.active:hover:not(:disabled) {
-            background-color: #00aeef;
+            background-color: var(--accent-btn-hover, #00aeef);
             transform: translateY(-1px);
         }
 
@@ -225,50 +234,54 @@ class CommunityApplication extends LitElement {
 
         .post-author-name {
             font-weight: 700;
-            color: #0d3168;
+            color: var(--title-color, #0d3168);
             margin: 0;
             font-size: 0.95em;
+            transition: color 0.3s ease;
         }
 
         .post-author-badge {
             font-size: 0.75em;
             font-weight: 600;
-            color: #64748b;
-            background-color: #f1f5f9;
+            color: var(--text-muted, #64748b);
+            background-color: var(--bg-color, #f1f5f9);
             padding: 2px 8px;
             border-radius: 12px;
             margin-left: 6px;
             vertical-align: middle;
             text-transform: uppercase;
+            transition: color 0.3s ease, background-color 0.3s ease;
         }
 
         .post-time {
             font-size: 0.75em;
-            color: #64748b;
+            color: var(--text-muted, #64748b);
             margin-top: 2px;
         }
 
         .post-title {
             font-size: 1.15em;
             font-weight: 700;
-            color: #0d3168;
+            color: var(--title-color, #0d3168);
             margin: 0 0 10px 0;
             line-height: 1.3;
+            transition: color 0.3s ease;
         }
 
         .post-content {
             font-size: 0.95em;
-            color: #334155;
+            color: var(--text-main, #334155);
             line-height: 1.6;
             margin: 0 0 16px 0;
+            transition: color 0.3s ease;
         }
 
         .post-actions {
             display: flex;
             gap: 16px;
-            border-top: 1px solid #f1f5f9;
+            border-top: 1px solid var(--border-color, #f1f5f9);
             padding-top: 12px;
-            color: #64748b;
+            color: var(--text-muted, #64748b);
             font-size: 0.85em;
             font-weight: 600;
         }
@@ -285,8 +298,8 @@ class CommunityApplication extends LitElement {
         }
 
         .post-action-btn:hover {
-            color: #00aeef;
-            background-color: #f1f5f9;
+            color: var(--title-color, #00aeef);
+            background-color: var(--item-hover, #f1f5f9);
         }
 
         .post-action-btn.liked {
@@ -315,12 +328,12 @@ class CommunityApplication extends LitElement {
         }
 
         .post-edit-btn {
-            color: #64748b;
+            color: var(--text-muted, #64748b);
         }
 
         .post-edit-btn:hover {
-            background-color: #f1f5f9;
-            color: #0f172a;
+            background-color: var(--item-hover, #f1f5f9);
+            color: var(--text-main, #0f172a);
         }
 
         .post-delete-btn {
@@ -346,12 +359,13 @@ class CommunityApplication extends LitElement {
         .widget-title {
             font-size: 1em;
             font-weight: 700;
-            color: #0d3168;
+            color: var(--title-color, #0d3168);
             margin: 0 0 16px 0;
-            border-bottom: 2px solid #f1f5f9;
+            border-bottom: 2px solid var(--border-color, #f1f5f9);
             padding-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            transition: color 0.3s ease, border-color 0.3s ease;
         }
 
         .widget-list {
@@ -364,19 +378,25 @@ class CommunityApplication extends LitElement {
             display: flex;
             flex-direction: column;
             gap: 4px;
-            border-left: 3px solid #00aeef;
-            padding-left: 10px;
+            border: 1px solid var(--inner-card-border, transparent);
+            border-left: 3px solid var(--title-color, #00aeef);
+            padding: 8px 12px;
+            background-color: var(--inner-card-bg, transparent);
+            border-radius: 6px;
+            transition: all 0.3s ease;
         }
 
         .widget-item-title {
             font-size: 0.9em;
             font-weight: 700;
-            color: #1e293b;
+            color: var(--text-main, #1e293b);
+            transition: color 0.3s ease;
         }
 
         .widget-item-desc {
             font-size: 0.8em;
-            color: #64748b;
+            color: var(--text-muted, #64748b);
+            transition: color 0.3s ease;
         }
 
         /* ESTADOS DE CARREGAMENTO E ERRO */
@@ -414,7 +434,7 @@ class CommunityApplication extends LitElement {
         }
 
         .retry-btn {
-            background-color: #0d3168;
+            background-color: var(--accent-btn-bg, #0d3168);
             color: #ffffff;
             border: none;
             padding: 8px 16px;
@@ -426,7 +446,7 @@ class CommunityApplication extends LitElement {
         }
 
         .retry-btn:hover {
-            background-color: #00aeef;
+            background-color: var(--accent-btn-hover, #00aeef);
         }
 
         .no-posts {
@@ -498,7 +518,7 @@ class CommunityApplication extends LitElement {
         }
 
         .community-action-btn {
-            background-color: #00aeef;
+            background-color: var(--title-color, #00aeef);
             color: white;
             border: none;
             padding: 4px 8px;
@@ -509,7 +529,7 @@ class CommunityApplication extends LitElement {
         }
 
         .community-action-btn:hover {
-            background-color: #0d3168;
+            background-color: var(--accent-btn-bg, #0d3168);
         }
 
         /* Modal / Form overlay */
@@ -550,7 +570,7 @@ class CommunityApplication extends LitElement {
         .modal-title {
             font-size: 1.2em;
             font-weight: 700;
-            color: #0d3168;
+            color: var(--title-color, #0d3168);
         }
 
         .modal-close {
@@ -635,8 +655,8 @@ class CommunityApplication extends LitElement {
         }
 
         .sidebar-nav-item:hover {
-            background-color: #f1f5f9;
-            color: #0d3168;
+            background-color: var(--item-hover, #f1f5f9);
+            color: var(--accent-btn-bg, #0d3168);
         }
 
         .create-comm-btn {
@@ -644,7 +664,7 @@ class CommunityApplication extends LitElement {
             align-items: center;
             justify-content: center;
             gap: 8px;
-            background-color: #0d3168;
+            background-color: var(--accent-btn-bg, #0d3168);
             color: white;
             border: none;
             padding: 10px 14px;
@@ -657,7 +677,7 @@ class CommunityApplication extends LitElement {
         }
 
         .create-comm-btn:hover {
-            background-color: #00aeef;
+            background-color: var(--accent-btn-hover, #00aeef);
         }
 
         /* HISTÓRICO DE CLIQUES (NOVO) */
@@ -677,15 +697,16 @@ class CommunityApplication extends LitElement {
             gap: 2px;
             padding: 8px 10px;
             border-radius: 6px;
-            border-left: 3px solid #0d3168;
-            background-color: #f8fafc;
+            border: 1px solid var(--inner-card-border, transparent);
+            border-left: 3px solid var(--title-color, #0d3168);
+            background-color: var(--inner-card-bg, #f8fafc);
             cursor: pointer;
             transition: all 0.15s ease-in-out;
         }
 
         .history-item:hover {
-            background-color: #f1f5f9;
-            border-left-color: #00aeef;
+            background-color: var(--item-hover, #f1f5f9);
+            border-left-color: var(--title-color, #00aeef);
         }
 
         .history-item-title {
@@ -1395,7 +1416,7 @@ class CommunityApplication extends LitElement {
                         </div>
                         <div class="creator-actions" style="display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <label for="post-attachment" style="cursor: pointer; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 0.9em; font-weight: 600; display: flex; align-items: center; gap: 6px; color: #475569;" title="Adicionar anexo">
+                                <label for="post-attachment" style="cursor: pointer; background: var(--button-attachment-bg, #f1f5f9); border: 1px solid var(--button-attachment-border, #cbd5e1); padding: 6px 12px; border-radius: 6px; font-size: 0.9em; font-weight: 600; display: flex; align-items: center; gap: 6px; color: var(--button-attachment-text, #475569);" title="Adicionar anexo">
                                     <span>📎</span> <span id="attachment-label">Anexo</span>
                                 </label>
                                 <input 
@@ -1475,20 +1496,20 @@ class CommunityApplication extends LitElement {
                                     </div>
 
                                     ${this.editingPostId === post.id ? html`
-                                        <div class="edit-post-form" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                            <input type="text" .value="${this.editingPostTitle}" @input="${(e) => this.editingPostTitle = e.target.value}" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600;" placeholder="Título..." />
-                                            <textarea @input="${(e) => this.editingPostContent = e.target.value}" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; min-height: 85px; font-family: inherit;" placeholder="Conteúdo...">${this.editingPostContent}</textarea>
+                                        <div class="edit-post-form" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px; padding: 12px; background: var(--inner-card-bg, #f8fafc); border-radius: 8px; border: 1px solid var(--inner-card-border, #e2e8f0); color: var(--inner-card-text, #475569);">
+                                            <input type="text" .value="${this.editingPostTitle}" @input="${(e) => this.editingPostTitle = e.target.value}" style="padding: 8px; border: 1px solid var(--border-color, #cbd5e1); border-radius: 6px; font-weight: 600;" placeholder="Título..." />
+                                            <textarea @input="${(e) => this.editingPostContent = e.target.value}" style="padding: 8px; border: 1px solid var(--border-color, #cbd5e1); border-radius: 6px; min-height: 85px; font-family: inherit;" placeholder="Conteúdo...">${this.editingPostContent}</textarea>
                                             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
-                                                <button @click="${() => this.cancelEditPost()}" style="padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; cursor: pointer; font-size: 0.9em;">Cancelar</button>
-                                                <button @click="${() => this.handleSavePost(post.id)}" style="padding: 6px 12px; border: none; border-radius: 6px; background: #0d3168; color: white; cursor: pointer; font-weight: 600; font-size: 0.9em;">Salvar</button>
+                                                <button @click="${() => this.cancelEditPost()}" style="padding: 6px 12px; border: 1px solid var(--border-color, #cbd5e1); border-radius: 6px; background: var(--card-bg, white); color: var(--text-main, #334155); cursor: pointer; font-size: 0.9em;">Cancelar</button>
+                                                <button @click="${() => this.handleSavePost(post.id)}" style="padding: 6px 12px; border: none; border-radius: 6px; background: var(--accent-btn-bg, #0d3168); color: white; cursor: pointer; font-weight: 600; font-size: 0.9em;">Salvar</button>
                                             </div>
                                         </div>
                                     ` : html`
-                                        <h3 class="post-title" style="margin-top: 12px; margin-bottom: 8px; color: #0d3168;">${post.title}</h3>
-                                        <p class="post-content" style="color: #334155; line-height: 1.5; white-space: pre-wrap;">${post.content}</p>
+                                        <h3 class="post-title" style="margin-top: 12px; margin-bottom: 8px; color: var(--title-color, #0d3168);">${post.title}</h3>
+                                        <p class="post-content" style="color: var(--text-main, #334155); line-height: 1.5; white-space: pre-wrap;">${post.content}</p>
                                         ${post.attachments && post.attachments.length > 0 ? html`
-                                            <div class="post-attachments" style="margin-top: 12px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 8px;">
-                                                <strong style="font-size: 0.85em; color: #475569;">Anexos:</strong>
+                                            <div class="post-attachments" style="margin-top: 12px; padding: 10px; background: var(--inner-card-bg, #f8fafc); border-radius: 8px; border: 1px solid var(--inner-card-border, #e2e8f0); display: flex; flex-direction: column; gap: 8px; color: var(--inner-card-text, #475569);">
+                                                <strong style="font-size: 0.85em; color: var(--inner-card-text, #475569);">Anexos:</strong>
                                                 ${post.attachments.map(att => {
                                                     const isImage = att.fileName.match(/\.(jpg|jpeg|png|gif|webp)$/i);
                                                     const fullUrl = att.fileUrl.startsWith('http') ? att.fileUrl : `http://localhost:3002${att.fileUrl}`;
@@ -1496,12 +1517,12 @@ class CommunityApplication extends LitElement {
                                                         <div style="display: flex; align-items: center; gap: 8px; font-size: 0.9em;">
                                                             <span>📎</span>
                                                             ${isImage ? html`
-                                                                <a href="${fullUrl}" target="_blank" style="color: #00aeef; font-weight: 600; text-decoration: none; display: flex; flex-direction: column; gap: 4px;">
+                                                                <a href="${fullUrl}" target="_blank" style="color: var(--title-color, #00aeef); font-weight: 600; text-decoration: none; display: flex; flex-direction: column; gap: 4px;">
                                                                     <span>${att.fileName}</span>
-                                                                    <img src="${fullUrl}" style="max-width: 200px; max-height: 120px; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 4px;" />
+                                                                    <img src="${fullUrl}" style="max-width: 200px; max-height: 120px; border-radius: 6px; border: 1px solid var(--border-color, #cbd5e1); margin-top: 4px;" />
                                                                 </a>
                                                             ` : html`
-                                                                <a href="${fullUrl}" target="_blank" style="color: #00aeef; font-weight: 600; text-decoration: none;">${att.fileName}</a>
+                                                                <a href="${fullUrl}" target="_blank" style="color: var(--title-color, #00aeef); font-weight: 600; text-decoration: none;">${att.fileName}</a>
                                                             `}
                                                         </div>
                                                     `;
@@ -1520,7 +1541,7 @@ class CommunityApplication extends LitElement {
                                     </div>
                                     
                                     ${post.comments && post.comments.length > 0 ? html`
-                                        <div class="comments-list" style="margin-top: 15px; border-left: 3px solid #e2e8f0; padding-left: 16px; margin-left: 16px;">
+                                        <div class="comments-list" style="margin-top: 15px; border-left: 3px solid var(--border-color, #e2e8f0); padding-left: 16px; margin-left: 16px;">
                                             ${(() => {
                                                  const rootComments = post.comments.filter(c => !c.parentId);
                                                  return rootComments.map(comment => {
@@ -1530,24 +1551,24 @@ class CommunityApplication extends LitElement {
 
                                                      return html`
                                                          <!-- Comentário Principal (Root) -->
-                                                         <div style="font-size: 0.85em; margin-bottom: 8px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 6px;">
+                                                         <div style="font-size: 0.85em; margin-bottom: 8px; padding: 10px; background: var(--bg-color, #f8fafc); border-radius: 8px; border: 1px solid var(--border-color, #f1f5f9); display: flex; flex-direction: column; gap: 6px;">
                                                              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
                                                                  <div style="flex: 1;">
-                                                                     <strong style="color: #0d3168; display: block; margin-bottom: 2px;">${authorName}</strong>
+                                                                     <strong style="color: var(--title-color, #0d3168); display: block; margin-bottom: 2px;">${authorName}</strong>
                                                                      ${this.editingCommentId === comment.id ? html`
                                                                          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
-                                                                             <input type="text" .value="${this.editingCommentContent}" @input="${(e) => this.editingCommentContent = e.target.value}" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; box-sizing: border-box;" />
+                                                                             <input type="text" .value="${this.editingCommentContent}" @input="${(e) => this.editingCommentContent = e.target.value}" style="padding: 6px; border: 1px solid var(--border-color, #cbd5e1); border-radius: 4px; width: 100%; box-sizing: border-box;" />
                                                                              <div style="display: flex; gap: 4px; justify-content: flex-end;">
-                                                                                 <button @click="${() => this.cancelEditComment()}" style="padding: 3px 8px; border: 1px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Cancelar</button>
-                                                                                 <button @click="${() => this.handleSaveComment(post.id, comment.id)}" style="padding: 3px 8px; border: none; background: #0d3168; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
+                                                                                 <button @click="${() => this.cancelEditComment()}" style="padding: 3px 8px; border: 1px solid var(--border-color, #cbd5e1); background: var(--card-bg, white); color: var(--text-main, #334155); border-radius: 4px; cursor: pointer; font-size: 0.85em;">Cancelar</button>
+                                                                                 <button @click="${() => this.handleSaveComment(post.id, comment.id)}" style="padding: 3px 8px; border: none; background: var(--accent-btn-bg, #0d3168); color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
                                                                              </div>
                                                                          </div>
                                                                      ` : html`
-                                                                         <span style="color: #334155; white-space: pre-wrap;">${comment.content}</span>
+                                                                         <span style="color: var(--text-main, #334155); white-space: pre-wrap;">${comment.content}</span>
                                                                      `}
                                                                  </div>
                                                                  <div style="display: flex; gap: 4px; flex-shrink: 0; align-items: center;">
-                                                                     <button @click="${() => this.toggleReplyBox(comment.id)}" class="post-edit-btn" style="color: #0d3168;" title="Responder">Responder</button>
+                                                                     <button @click="${() => this.toggleReplyBox(comment.id)}" class="post-edit-btn" style="color: var(--title-color, #0d3168);" title="Responder">Responder</button>
                                                                      ${isCommentAuthor && this.editingCommentId !== comment.id ? html`
                                                                          <button @click="${() => this.startEditComment(comment)}" class="post-edit-btn" title="Editar Comentário">Editar</button>
                                                                          <button @click="${() => this.handleDeleteComment(post.id, comment.id)}" class="post-delete-btn" title="Excluir Comentário">Excluir</button>
@@ -1558,37 +1579,37 @@ class CommunityApplication extends LitElement {
                                                              <!-- Caixa de Resposta (Reply Form) -->
                                                              ${this.activeReplyBox === comment.id ? html`
                                                                  <form @submit="${(e) => this.handleAddReply(e, post.id, comment.id)}" style="display: flex; gap: 8px; margin-top: 6px;">
-                                                                     <input type="text" id="reply-input-${comment.id}" placeholder="Escreva uma resposta..." style="flex: 1; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.95em;" required />
-                                                                     <button type="submit" style="background: #0d3168; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 600;">Responder</button>
+                                                                     <input type="text" id="reply-input-${comment.id}" placeholder="Escreva uma resposta..." style="flex: 1; padding: 6px; border: 1px solid var(--border-color, #cbd5e1); border-radius: 4px; font-size: 0.95em;" required />
+                                                                     <button type="submit" style="background: var(--accent-btn-bg, #0d3168); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 600;">Responder</button>
                                                                  </form>
                                                              ` : ''}
                                                          </div>
 
                                                          <!-- Respostas Indentadas (Replies) -->
                                                          ${replies.length > 0 ? html`
-                                                             <div class="replies-list" style="margin-left: 24px; border-left: 2px dashed #cbd5e1; padding-left: 12px; margin-bottom: 12px;">
+                                                             <div class="replies-list" style="margin-left: 24px; border-left: 2px dashed var(--border-color, #cbd5e1); padding-left: 12px; margin-bottom: 12px;">
                                                                  ${replies.map(reply => {
                                                                      const replyAuthorName = reply.author?.email ? reply.author.email.split('@')[0] : 'Usuário';
                                                                      const isReplyAuthor = reply.authorId === (this.currentUser?.id || this.currentUser?.userId);
 
                                                                      return html`
-                                                                         <div style="font-size: 0.85em; margin-bottom: 6px; padding: 8px; background: #f8fafc; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start; border: 1px solid #f1f5f9; gap: 8px;">
+                                                                         <div style="font-size: 0.85em; margin-bottom: 6px; padding: 8px; background: var(--bg-color, #f8fafc); border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start; border: 1px solid var(--border-color, #f1f5f9); gap: 8px;">
                                                                              <div style="flex: 1;">
-                                                                                 <strong style="color: #0d3168; display: block; margin-bottom: 2px;">${replyAuthorName} <span style="font-weight: normal; color: #64748b; font-size: 0.9em;">(resposta)</span></strong>
+                                                                                 <strong style="color: var(--title-color, #0d3168); display: block; margin-bottom: 2px;">${replyAuthorName} <span style="font-weight: normal; color: var(--text-muted, #64748b); font-size: 0.9em;">(resposta)</span></strong>
                                                                                  ${this.editingCommentId === reply.id ? html`
                                                                                      <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
                                                                                          <input type="text" .value="${this.editingCommentContent}" @input="${(e) => this.editingCommentContent = e.target.value}" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; box-sizing: border-box;" />
                                                                                          <div style="display: flex; gap: 4px; justify-content: flex-end;">
                                                                                              <button @click="${() => this.cancelEditComment()}" style="padding: 3px 8px; border: 1px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Cancelar</button>
-                                                                                             <button @click="${() => this.handleSaveComment(post.id, reply.id)}" style="padding: 3px 8px; border: none; background: #0d3168; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
+                                                                                             <button @click="${() => this.handleSaveComment(post.id, reply.id)}" style="padding: 3px 8px; border: none; background: var(--accent-btn-bg, #0d3168); color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
                                                                                          </div>
                                                                                      </div>
                                                                                  ` : html`
-                                                                                     <span style="color: #334155; white-space: pre-wrap;">${reply.content}</span>
+                                                                                     <span style="color: var(--text-main, #334155); white-space: pre-wrap;">${reply.content}</span>
                                                                                  `}
                                                                              </div>
                                                                              <div style="display: flex; gap: 4px; flex-shrink: 0; align-items: center;">
-                                                                                 <button @click="${() => this.toggleReplyBox(reply.id, reply.author?.email)}" class="post-edit-btn" style="color: #0d3168;" title="Responder">Responder</button>
+                                                                                 <button @click="${() => this.toggleReplyBox(reply.id, reply.author?.email)}" class="post-edit-btn" style="color: var(--title-color, #0d3168);" title="Responder">Responder</button>
                                                                                  ${isReplyAuthor && this.editingCommentId !== reply.id ? html`
                                                                                      <button @click="${() => this.startEditComment(reply)}" class="post-edit-btn" title="Editar Resposta">Editar</button>
                                                                                      <button @click="${() => this.handleDeleteComment(post.id, reply.id)}" class="post-delete-btn" title="Excluir Resposta">Excluir</button>
@@ -1598,8 +1619,8 @@ class CommunityApplication extends LitElement {
                                                                          <!-- Caixa de Resposta para a Resposta (Reply Form) -->
                                                                          ${this.activeReplyBox === reply.id ? html`
                                                                              <form @submit="${(e) => this.handleAddReply(e, post.id, comment.id, reply.id)}" style="display: flex; gap: 8px; margin-top: 4px; margin-bottom: 8px;">
-                                                                                 <input type="text" id="reply-input-${reply.id}" placeholder="Escreva uma resposta..." style="flex: 1; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.95em;" required />
-                                                                                 <button type="submit" style="background: #0d3168; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 600;">Responder</button>
+                                                                                 <input type="text" id="reply-input-${reply.id}" placeholder="Escreva uma resposta..." style="flex: 1; padding: 6px; border: 1px solid var(--border-color, #cbd5e1); border-radius: 4px; font-size: 0.95em;" required />
+                                                                                 <button type="submit" style="background: var(--accent-btn-bg, #0d3168); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 600;">Responder</button>
                                                                              </form>
                                                                          ` : ''}
                                                                      `;
@@ -1612,9 +1633,9 @@ class CommunityApplication extends LitElement {
                                         </div>
                                      ` : ''}
 
-                                    <form class="comment-form" @submit="${(e) => this.handleAddComment(e, post.id)}" style="display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9;">
-                                        <input type="text" id="comment-input-${post.id}" placeholder="Escreva um comentário..." style="flex: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9em; outline: none;" required />
-                                        <button type="submit" style="background: #0d3168; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.95em; font-weight: 600;">Comentar</button>
+                                    <form class="comment-form" @submit="${(e) => this.handleAddComment(e, post.id)}" style="display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color, #f1f5f9);">
+                                        <input type="text" id="comment-input-${post.id}" placeholder="Escreva um comentário..." style="flex: 1; padding: 8px 12px; border: 1px solid var(--border-color, #cbd5e1); border-radius: 8px; font-size: 0.9em; outline: none;" required />
+                                        <button type="submit" style="background: var(--accent-btn-bg, #0d3168); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.95em; font-weight: 600;">Comentar</button>
                                     </form>
                                 </div>
                             `;

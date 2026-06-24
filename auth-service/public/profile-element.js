@@ -15,8 +15,9 @@ export class ProfileApplication extends LitElement {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 0;
       box-sizing: border-box;
-      --primary-dark: #0d3168;
-      --primary-light: #00aeef;
+      background-color: var(--bg-color, #f4f6f9);
+      color: var(--text-main, #1e293b);
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     /* Scrollbars customizadas */
@@ -60,12 +61,14 @@ export class ProfileApplication extends LitElement {
     }
 
     .card {
-      background: white;
+      background: var(--card-bg, white);
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(226, 232, 240, 0.8);
+      border: 1px solid var(--border-color, rgba(226, 232, 240, 0.8));
       overflow: hidden;
       box-sizing: border-box;
+      color: var(--text-main, #1e293b);
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     }
 
     /* COLUNA ESQUERDA: PERFIL E DETALHES */
@@ -112,28 +115,28 @@ export class ProfileApplication extends LitElement {
     .profile-name-display {
       font-size: 1.2em;
       font-weight: 700;
-      color: #0d3168;
+      color: var(--title-color, #0d3168);
       margin: 0;
     }
 
     .profile-email-display {
       font-size: 0.88em;
-      color: #64748b;
+      color: var(--text-muted, #64748b);
       margin: 0 0 4px 0;
       word-break: break-all;
     }
 
     .profile-badge {
       display: inline-block;
-      background: #f1f5f9;
-      color: #0d3168;
+      background: var(--inner-card-bg, #f1f5f9);
+      color: var(--title-color, #0d3168);
       padding: 2px 10px;
       border-radius: 12px;
       font-size: 0.72em;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.6px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--inner-card-border, #e2e8f0);
     }
 
     /* CARD DE DADOS ACADÊMICOS (INFERIOR) */
@@ -147,9 +150,9 @@ export class ProfileApplication extends LitElement {
     .details-title {
       font-size: 1.1em;
       font-weight: 700;
-      color: #0d3168;
+      color: var(--title-color, #0d3168);
       margin: 0;
-      border-bottom: 2px solid #f1f5f9;
+      border-bottom: 2px solid var(--border-color, #f1f5f9);
       padding-bottom: 8px;
     }
 
@@ -161,7 +164,7 @@ export class ProfileApplication extends LitElement {
 
     .info-group {
       padding: 8px 0;
-      border-bottom: 1px solid #f1f5f9;
+      border-bottom: 1px solid var(--border-color, #f1f5f9);
     }
 
     .info-group:last-child {
@@ -170,7 +173,7 @@ export class ProfileApplication extends LitElement {
 
     .info-label {
       font-size: 0.7em;
-      color: #64748b;
+      color: var(--text-muted, #64748b);
       text-transform: uppercase;
       letter-spacing: 0.6px;
       margin-bottom: 4px;
@@ -179,7 +182,7 @@ export class ProfileApplication extends LitElement {
 
     .info-value {
       font-size: 1em;
-      color: #1e293b;
+      color: var(--text-main, #1e293b);
       font-weight: 600;
     }
 
@@ -189,15 +192,15 @@ export class ProfileApplication extends LitElement {
       display: flex;
       flex-direction: column;
       gap: 20px;
-      background: white;
+      background: var(--card-bg, white);
     }
 
     .posts-title {
       font-size: 1.25em;
       font-weight: 700;
-      color: #0d3168;
+      color: var(--title-color, #0d3168);
       margin: 0;
-      border-bottom: 2px solid #f1f5f9;
+      border-bottom: 2px solid var(--border-color, #f1f5f9);
       padding-bottom: 12px;
     }
 
@@ -208,7 +211,7 @@ export class ProfileApplication extends LitElement {
 
     .post-item {
       padding: 16px 0;
-      border-bottom: 1px solid #f1f5f9;
+      border-bottom: 1px solid var(--border-color, #f1f5f9);
     }
 
     .post-item:last-child {
@@ -222,14 +225,14 @@ export class ProfileApplication extends LitElement {
 
     .post-meta {
       font-size: 0.85em;
-      color: #94a3b8;
+      color: var(--text-muted, #94a3b8);
       margin-bottom: 6px;
       font-weight: 500;
     }
 
     .post-content {
       font-size: 0.95em;
-      color: #334155;
+      color: var(--text-main, #334155);
       line-height: 1.5;
       word-break: break-word;
     }
@@ -254,13 +257,13 @@ export class ProfileApplication extends LitElement {
     .empty-message {
       font-size: 1.05em;
       font-weight: 700;
-      color: #0d3168;
+      color: var(--title-color, #0d3168);
       margin: 0 0 6px 0;
     }
 
     .empty-submessage {
       font-size: 0.85em;
-      color: #64748b;
+      color: var(--text-muted, #64748b);
       margin: 0;
       max-width: 320px;
       line-height: 1.5;
@@ -272,16 +275,16 @@ export class ProfileApplication extends LitElement {
       display: flex;
       flex-direction: column;
       gap: 16px;
-      background: white;
+      background: var(--card-bg, white);
       min-height: 300px;
     }
 
     .progress-title {
       font-size: 1.1em;
       font-weight: 700;
-      color: #0d3168;
+      color: var(--title-color, #0d3168);
       margin: 0;
-      border-bottom: 2px solid #f1f5f9;
+      border-bottom: 2px solid var(--border-color, #f1f5f9);
       padding-bottom: 8px;
     }
 
@@ -292,7 +295,7 @@ export class ProfileApplication extends LitElement {
     .loading-state, .error-state {
       text-align: center;
       padding: 60px;
-      color: #64748b;
+      color: var(--text-muted, #64748b);
       font-size: 1.1em;
       font-weight: 500;
     }

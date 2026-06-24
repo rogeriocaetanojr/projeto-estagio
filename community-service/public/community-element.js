@@ -374,14 +374,14 @@ class CommunityApplication extends LitElement {
         }
 
         .widget-title {
-            font-size: 1em;
+            font-size: 0.9em;
             font-weight: 700;
             color: var(--title-color, #0d3168);
             margin: 0 0 16px 0;
-            border-bottom: 2px solid var(--border-color, #f1f5f9);
+            border-bottom: 2px solid var(--primary-light, #00aeef);
             padding-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             transition: color 0.3s ease, border-color 0.3s ease;
             box-shadow: none !important;
             text-shadow: none !important;
@@ -499,20 +499,21 @@ class CommunityApplication extends LitElement {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, border-color 0.2s;
             margin-bottom: 6px;
-            border: 1px solid transparent;
+            border: 1px solid var(--inner-card-border, transparent);
+            background-color: var(--inner-card-bg, transparent);
         }
 
         .community-item:hover {
-            background-color: #f1f5f9;
+            background-color: var(--item-hover, #f1f5f9);
         }
 
         .community-item.active {
-            background-color: #e0f2fe;
-            border-color: #bae6fd;
+            background-color: var(--active-item-bg, #e0f2fe);
+            border-color: var(--active-item-border, #bae6fd);
             font-weight: 600;
-            color: #0369a1;
+            color: var(--active-item-text, #0369a1);
         }
 
         .community-info {
@@ -524,16 +525,18 @@ class CommunityApplication extends LitElement {
 
         .community-name {
             font-size: 0.95em;
-            color: #0f172a;
+            color: var(--text-main, #1e293b);
+            transition: color 0.2s ease;
         }
 
         .community-item.active .community-name {
-            color: #0369a1;
+            color: var(--active-item-text, #0369a1);
         }
 
         .community-desc {
             font-size: 0.8em;
-            color: #64748b;
+            color: var(--text-muted, #64748b);
+            transition: color 0.2s ease;
         }
 
         .community-action-btn {
@@ -1811,14 +1814,13 @@ class CommunityApplication extends LitElement {
                 </main>
 
                 <!-- Coluna Direita: Comunidades -->
-                <aside class="widgets">
+                <aside class="widgets" style="display: flex; flex-direction: column; gap: 16px;">
+                    <button class="create-comm-btn" @click="${this.openCreateCommunityModal}" style="width: 100%;">
+                        <span>+</span> Criar Comunidade
+                    </button>
+                    
                     <div class="card widget-card">
-                        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-                            <h3 class="widget-title" style="margin: 0; border-bottom: none; padding-bottom: 0; text-transform: uppercase;">Comunidades</h3>
-                            <button class="create-comm-btn" @click="${this.openCreateCommunityModal}">
-                                <span>+</span> Criar Comunidade
-                            </button>
-                        </div>
+                        <h3 class="widget-title" style="text-transform: uppercase;">Comunidades</h3>
                         
                         <div class="widget-list">
                             <!-- Feed Geral -->

@@ -413,37 +413,6 @@ export class ProfileApplication extends LitElement {
       cursor: not-allowed;
     }
 
-    .edit-toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      padding: 12px 20px;
-      border-radius: 8px;
-      color: white;
-      font-size: 0.9em;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transform: translateY(100px);
-      opacity: 0;
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-    }
-
-    .edit-toast.show {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    .edit-toast-success {
-      background-color: #10b981;
-    }
-
-    .edit-toast-error {
-      background-color: #ef4444;
-    }
   `;
 
   constructor() {
@@ -544,7 +513,7 @@ export class ProfileApplication extends LitElement {
   async _saveProfile() {
     const trimmedName = this.editName.trim();
     if (!trimmedName) {
-      this._showToast('O nome não pode estar vazio.', 'error');
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: 'O nome não pode estar vazio.', type: 'error' } }));
       return;
     }
 
@@ -585,7 +554,7 @@ export class ProfileApplication extends LitElement {
       };
 
       this.isEditing = false;
-      this._showToast('Perfil atualizado com sucesso!', 'success');
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: 'Perfil atualizado com sucesso!', type: 'success' } }));
 
       window.dispatchEvent(new CustomEvent('profile-updated', {
         detail: { name: updatedUser.name },
@@ -594,22 +563,10 @@ export class ProfileApplication extends LitElement {
       }));
 
     } catch (err) {
-      this._showToast(err.message, 'error');
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: err.message, type: 'error' } }));
     } finally {
       this.saving = false;
     }
-  }
-
-  _showToast(message, type = 'success') {
-    const toast = this.shadowRoot.querySelector('.edit-toast');
-    if (!toast) return;
-    
-    toast.textContent = message;
-    toast.className = `edit-toast edit-toast-${type} show`;
-    
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 3000);
   }
 
   // Formata o e-mail em um nome de exibição amigável
@@ -799,7 +756,6 @@ export class ProfileApplication extends LitElement {
           </div>
         </div>
       </div>
-      <div class="edit-toast"></div>
     `;
   }
 }

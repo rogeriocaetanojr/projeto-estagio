@@ -504,6 +504,137 @@
             letter-spacing: 0.4px;
             display: inline-block;
         }
+
+        /* TOAST GLOBAL */
+        .global-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9em;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+        }
+
+        .global-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .global-toast-success {
+            background-color: #10b981;
+        }
+
+        .global-toast-error {
+            background-color: #ef4444;
+        }
+
+        /* MODAL DE CONFIRMAÇÃO GLOBAL */
+        .global-confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .global-confirm-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .global-confirm-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            color: var(--text-main);
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
+        }
+
+        .global-confirm-overlay.show .global-confirm-container {
+            transform: scale(1);
+        }
+
+        .global-confirm-title {
+            font-size: 1.15em;
+            font-weight: 700;
+            color: var(--title-color);
+            margin: 0;
+        }
+
+        .global-confirm-body {
+            font-size: 0.95em;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .global-confirm-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .global-confirm-btn-yes {
+            background-color: #ef4444;
+            color: white;
+            border: 1px solid #ef4444;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .global-confirm-btn-yes:hover {
+            background-color: #dc2626;
+            border-color: #dc2626;
+        }
+
+        .global-confirm-btn-cancel {
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .global-confirm-btn-cancel:hover {
+            background-color: var(--item-hover);
+            color: var(--text-main);
+        }
     </style>
 </head>
 
@@ -642,6 +773,24 @@
         </div>
         <profile-application id="profile-view" class="hidden"></profile-application>
     </main>
+
+    <!-- Elementos Globais do Shell (Toast e Confirm Customizados) -->
+    <div id="global-toast" class="global-toast"></div>
+
+    <div id="global-confirm-modal" class="global-confirm-overlay">
+        <div class="global-confirm-container">
+            <h3 class="global-confirm-title">Confirmação</h3>
+            <p class="global-confirm-body" id="global-confirm-body"></p>
+            <div class="global-confirm-actions">
+                <button class="global-confirm-btn-cancel" id="global-confirm-btn-cancel">
+                    Cancelar
+                </button>
+                <button class="global-confirm-btn-yes" id="global-confirm-btn-yes">
+                    Sim, confirmar
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Import Map para resolver dependências nativamente no navegador (Frameworkless) -->
     <script type="importmap">
@@ -1101,6 +1250,60 @@
                 renderSidebarCommunities(communities, user.id || user.userId);
             }
         });
+
+        // Gerenciamento de Toasts Globais
+        const globalToast = document.getElementById('global-toast');
+        let toastTimeout;
+        window.addEventListener('show-toast', (e) => {
+            const { message, type } = e.detail;
+            if (!globalToast) return;
+            
+            clearTimeout(toastTimeout);
+            globalToast.textContent = message;
+            globalToast.className = `global-toast global-toast-${type || 'success'} show`;
+            
+            toastTimeout = setTimeout(() => {
+                globalToast.classList.remove('show');
+            }, 3000);
+        });
+
+        // Gerenciamento de Modal de Confirmação Global
+        const confirmModal = document.getElementById('global-confirm-modal');
+        const confirmBody = document.getElementById('global-confirm-body');
+        const confirmBtnYes = document.getElementById('global-confirm-btn-yes');
+        const confirmBtnCancel = document.getElementById('global-confirm-btn-cancel');
+        let currentOnConfirmCallback = null;
+
+        window.addEventListener('show-confirm', (e) => {
+            const { message, onConfirm } = e.detail;
+            if (!confirmModal || !confirmBody) return;
+
+            confirmBody.textContent = message;
+            currentOnConfirmCallback = onConfirm;
+            confirmModal.classList.add('show');
+        });
+
+        const closeConfirmModal = () => {
+            if (confirmModal) {
+                confirmModal.classList.remove('show');
+            }
+            currentOnConfirmCallback = null;
+        };
+
+        if (confirmBtnYes) {
+            confirmBtnYes.addEventListener('click', () => {
+                if (typeof currentOnConfirmCallback === 'function') {
+                    currentOnConfirmCallback();
+                }
+                closeConfirmModal();
+            });
+        }
+
+        if (confirmBtnCancel) {
+            confirmBtnCancel.addEventListener('click', () => {
+                closeConfirmModal();
+            });
+        }
 
         // Verificação de autenticação inicial ao carregar a página
         window.addEventListener('DOMContentLoaded', () => {

@@ -1219,7 +1219,7 @@ class CommunityApplication extends LitElement {
         e.preventDefault();
         const user = this.currentUser;
         if (!user) {
-            alert('Você precisa estar logado para criar uma comunidade.');
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: 'Você precisa estar logado para criar uma comunidade.', type: 'error' } }));
             return;
         }
 
@@ -1249,17 +1249,17 @@ class CommunityApplication extends LitElement {
 
             this.closeCreateCommunityModal();
             await this.fetchCommunities();
-            alert('Comunidade criada com sucesso!');
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: 'Comunidade criada com sucesso!', type: 'success' } }));
         } catch (err) {
             console.error('Erro ao criar comunidade:', err);
-            alert(err.message);
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: err.message, type: 'error' } }));
         }
     }
 
     async handleJoinCommunity(communityId, isLocked) {
         const user = this.currentUser;
         if (!user) {
-            alert('Você precisa estar logado para entrar em uma comunidade.');
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: 'Você precisa estar logado para entrar em uma comunidade.', type: 'error' } }));
             return;
         }
 
@@ -1295,23 +1295,42 @@ class CommunityApplication extends LitElement {
                 throw new Error(data.message || 'Falha ao entrar na comunidade.');
             }
 
-            alert(data.message || 'Você entrou na comunidade!');
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: data.message || 'Você entrou na comunidade!', type: 'success' } }));
             this.communityPasswordPromptId = null;
             this.communityPasswordInput = '';
             await this.fetchCommunities();
             this.selectCommunity(communityId);
         } catch (err) {
             console.error('Erro ao entrar na comunidade:', err);
-            alert(err.message);
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: err.message, type: 'error' } }));
         }
     }
 
-    async _handleLeaveCommunity() {
+    _handleLeaveCommunity() {
         const communityId = this.selectedCommunityId;
         if (!communityId) return;
 
-        if (!confirm('Deseja realmente sair desta comunidade?')) return;
+        window.dispatchEvent(new CustomEvent('show-confirm', {
+            detail: {
+                message: 'Deseja realmente sair desta comunidade?',
+                onConfirm: () => this._executeLeaveCommunity(communityId)
+            }
+        }));
+    }
 
+    _handleDeleteCommunity() {
+        const communityId = this.selectedCommunityId;
+        if (!communityId) return;
+
+        window.dispatchEvent(new CustomEvent('show-confirm', {
+            detail: {
+                message: 'Deseja realmente excluir esta comunidade? Todas as postagens e membros serão removidos permanentemente.',
+                onConfirm: () => this._executeDeleteCommunity(communityId)
+            }
+        }));
+    }
+
+    async _executeLeaveCommunity(communityId) {
         const token = localStorage.getItem('portal_token');
         try {
             const response = await fetch(`http://localhost:3002/communities/${communityId}/leave`, {
@@ -1322,25 +1341,21 @@ class CommunityApplication extends LitElement {
             });
 
             if (response.ok) {
+                window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: 'Você saiu da comunidade com sucesso!', type: 'success' } }));
                 this.selectedCommunityId = null;
                 await this.fetchCommunities();
                 await this.fetchPosts();
             } else {
                 const data = await response.json();
-                alert(data.message || 'Falha ao sair da comunidade.');
+                window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: data.message || 'Falha ao sair da comunidade.', type: 'error' } }));
             }
         } catch (err) {
             console.error('Erro ao sair da comunidade:', err);
-            alert('Erro ao processar requisição.');
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: 'Erro ao processar a requisição.', type: 'error' } }));
         }
     }
 
-    async _handleDeleteCommunity() {
-        const communityId = this.selectedCommunityId;
-        if (!communityId) return;
-
-        if (!confirm('Deseja realmente excluir esta comunidade? Todas as postagens e membros serão removidos permanentemente.')) return;
-
+    async _executeDeleteCommunity(communityId) {
         const token = localStorage.getItem('portal_token');
         try {
             const response = await fetch(`http://localhost:3002/communities/${communityId}`, {
@@ -1351,16 +1366,17 @@ class CommunityApplication extends LitElement {
             });
 
             if (response.ok) {
+                window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: 'Comunidade excluída com sucesso!', type: 'success' } }));
                 this.selectedCommunityId = null;
                 await this.fetchCommunities();
                 await this.fetchPosts();
             } else {
                 const data = await response.json();
-                alert(data.message || 'Falha ao excluir comunidade.');
+                window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: data.message || 'Falha ao excluir comunidade.', type: 'error' } }));
             }
         } catch (err) {
             console.error('Erro ao excluir comunidade:', err);
-            alert('Erro ao processar requisição.');
+            window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: 'Erro ao processar a requisição.', type: 'error' } }));
         }
     }
 
@@ -1853,6 +1869,7 @@ class CommunityApplication extends LitElement {
                     </div>
                 </div>
             ` : ''}
+
         `;
     }
 }

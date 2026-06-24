@@ -37,4 +37,23 @@ export class UserMirrorService {
       throw error;
     }
   }
+
+  async updateUserName(userId: string, name: string) {
+    try {
+      this.logger.log(
+        `Processando atualização de nome para o usuário mirror: ${userId} -> ${name}`,
+      );
+      const user = await this.prisma.userMirror.update({
+        where: { id: userId },
+        data: {
+          name: name,
+        },
+      });
+      this.logger.log(`Nome do usuário mirror atualizado com sucesso: ${user.id}`);
+      return user;
+    } catch (error) {
+      this.logger.error(`Erro ao atualizar nome do usuário mirror no banco:`, error);
+      throw error;
+    }
+  }
 }

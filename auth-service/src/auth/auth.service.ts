@@ -9,6 +9,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, AccountType } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import * as bcrypt from 'bcrypt';
 import type { ChannelWrapper } from 'amqp-connection-manager';
 import { ClientProxy } from '@nestjs/microservices';
@@ -186,6 +187,39 @@ export class AuthService {
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = user;
+    return result;
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: dto.name,
+      },
+    });
+
+    this.logger.log(
+      `Emitindo evento 'user_updated' para a Exchange '${USER_EVENTS_EXCHANGE}'...`,
+    );
+
+    const payload = {
+      pattern: 'user_updated',
+      data: {
+        userId: updatedUser.id,
+        name: updatedUser.name,
+      },
+    };
+
+    await this.messageBroker.publish(
+      USER_EVENTS_EXCHANGE,
+      '',
+      Buffer.from(JSON.stringify(payload)),
+    );
+
+    this.logger.log(`Evento 'user_updated' emitido com sucesso na Exchange!`);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...result } = updatedUser;
     return result;
   }
 }

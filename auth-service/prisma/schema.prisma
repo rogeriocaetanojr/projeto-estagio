@@ -20,6 +20,7 @@ model User {
   id        String     @id @default(uuid())
   email     String     @unique
   password  String
+  name      String?
   settings  Json       @default("{}")
   
   // Relacionamentos 1:1 para tabelas filhas (Herança)

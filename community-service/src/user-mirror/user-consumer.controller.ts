@@ -8,6 +8,11 @@ interface UserRegisteredPayload {
   profileType: string;
 }
 
+interface UserUpdatedPayload {
+  userId: string;
+  name: string;
+}
+
 @Controller()
 export class UserConsumerController {
   private readonly logger = new Logger(UserConsumerController.name);
@@ -44,6 +49,31 @@ export class UserConsumerController {
       // Envia uma rejeição (Nack).
       // O false, false significa: (allUpTo = false, requeue = false).
       // Como requeue é false, o RabbitMQ vai rotear a mensagem para a dead-letter-exchange.
+      channel.nack(originalMsg, false, false);
+    }
+  }
+
+  @EventPattern('user_updated')
+  async handleUserUpdated(
+    @Payload() data: UserUpdatedPayload,
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const originalMsg = context.getMessage();
+
+    try {
+      this.logger.log(
+        `Evento 'user_updated' recebido: ${JSON.stringify(data)}`,
+      );
+
+      await this.userMirrorService.updateUserName(data.userId, data.name);
+
+      channel.ack(originalMsg);
+    } catch (error) {
+      this.logger.error(
+        `Erro ao processar mensagem user_updated. Enviando para DLQ... Motivo: ${error.message}`,
+      );
+
       channel.nack(originalMsg, false, false);
     }
   }

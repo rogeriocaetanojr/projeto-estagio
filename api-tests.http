@@ -117,3 +117,14 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
 
 ### Teste de Falha: Obter perfil sem token (401 Unauthorized)
 GET {{baseUrl}}/auth/me
+
+### Editar Perfil (PATCH /auth/profile)
+# Atualiza o nome do usuário autenticado e dispara o evento 'user_updated'
+PATCH {{baseUrl}}/auth/profile
+Content-Type: {{contentType}}
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+{
+  "name": "Rogério Caetano Júnior"
+}
+

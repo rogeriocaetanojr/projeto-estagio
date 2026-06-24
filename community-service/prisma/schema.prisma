@@ -9,6 +9,7 @@ datasource db {
 model UserMirror {
   id               String            @id
   email            String            @unique
+  name             String?
   profileType      String
   comments         Comment[]
   ownedCommunities Community[]       @relation("CommunityOwner")

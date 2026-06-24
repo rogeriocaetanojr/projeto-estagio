@@ -128,3 +128,13 @@ Authorization: Bearer {{loginRequest.response.body.access_token}}
   "name": "Rogério Caetano Júnior"
 }
 
+### Sair de uma Comunidade (DELETE /communities/:id/leave)
+# Remove a inscrição do usuário logado na comunidade informada no ID da rota
+DELETE http://localhost:3002/communities/SUBSTITUA_PELO_ID_DA_COMUNIDADE/leave
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+
+### Excluir uma Comunidade (DELETE /communities/:id)
+# Exclui a comunidade informada se o usuário logado for o dono real (ownerId)
+DELETE http://localhost:3002/communities/SUBSTITUA_PELO_ID_DA_COMUNIDADE
+Authorization: Bearer {{loginRequest.response.body.access_token}}
+

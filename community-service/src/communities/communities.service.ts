@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { CreateCommunityDto } from './dto/create-community.dto';
 import { UpdateCommunityDto } from './dto/update-community.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -81,8 +81,58 @@ export class CommunitiesService {
     return `This action updates a #${id} community`;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} community`;
+  async remove(id: string, userId: string) {
+    const community = await this.prisma.community.findUnique({
+      where: { id },
+    });
+
+    if (!community) {
+      throw new NotFoundException('Comunidade não encontrada');
+    }
+
+    if (community.ownerId !== userId) {
+      throw new ForbiddenException('Apenas o criador da comunidade pode excluí-la');
+    }
+
+    await this.prisma.community.delete({
+      where: { id },
+    });
+
+    return { message: 'Comunidade excluída com sucesso' };
+  }
+
+  async leave(id: string, userId: string) {
+    const community = await this.prisma.community.findUnique({
+      where: { id },
+    });
+
+    if (!community) {
+      throw new NotFoundException('Comunidade não encontrada');
+    }
+
+    const existingMember = await this.prisma.communityMember.findUnique({
+      where: {
+        userId_communityId: {
+          userId,
+          communityId: id,
+        },
+      },
+    });
+
+    if (!existingMember) {
+      throw new BadRequestException('Você não é membro desta comunidade');
+    }
+
+    await this.prisma.communityMember.delete({
+      where: {
+        userId_communityId: {
+          userId,
+          communityId: id,
+        },
+      },
+    });
+
+    return { message: 'Você saiu da comunidade com sucesso' };
   }
 
   async join(id: string, userId: string, password?: string) {

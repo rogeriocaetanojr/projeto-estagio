@@ -1112,7 +1112,7 @@ class CommunityApplication extends LitElement {
         }
     }
 
-    async handleAddReply(e, postId, parentId) {
+    async handleAddReply(e, postId, parentId, inputId = null) {
         e.preventDefault();
         const user = this.currentUser;
         if (!user) {
@@ -1120,7 +1120,8 @@ class CommunityApplication extends LitElement {
             return;
         }
 
-        const input = this.shadowRoot.querySelector(`#reply-input-${parentId}`);
+        const actualInputId = inputId || parentId;
+        const input = this.shadowRoot.querySelector(`#reply-input-${actualInputId}`);
         const content = input.value.trim();
         if (!content) return;
 
@@ -1587,13 +1588,20 @@ class CommunityApplication extends LitElement {
                                                                                  `}
                                                                              </div>
                                                                              <div style="display: flex; gap: 4px; flex-shrink: 0; align-items: center;">
-                                                                                 <button @click="${() => this.toggleReplyBox(comment.id, reply.author?.email)}" class="post-edit-btn" style="color: #0d3168;" title="Responder">Responder</button>
+                                                                                 <button @click="${() => this.toggleReplyBox(reply.id, reply.author?.email)}" class="post-edit-btn" style="color: #0d3168;" title="Responder">Responder</button>
                                                                                  ${isReplyAuthor && this.editingCommentId !== reply.id ? html`
                                                                                      <button @click="${() => this.startEditComment(reply)}" class="post-edit-btn" title="Editar Resposta">Editar</button>
                                                                                      <button @click="${() => this.handleDeleteComment(post.id, reply.id)}" class="post-delete-btn" title="Excluir Resposta">Excluir</button>
                                                                                  ` : ''}
                                                                              </div>
                                                                          </div>
+                                                                         <!-- Caixa de Resposta para a Resposta (Reply Form) -->
+                                                                         ${this.activeReplyBox === reply.id ? html`
+                                                                             <form @submit="${(e) => this.handleAddReply(e, post.id, comment.id, reply.id)}" style="display: flex; gap: 8px; margin-top: 4px; margin-bottom: 8px;">
+                                                                                 <input type="text" id="reply-input-${reply.id}" placeholder="Escreva uma resposta..." style="flex: 1; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.95em;" required />
+                                                                                 <button type="submit" style="background: #0d3168; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 600;">Responder</button>
+                                                                             </form>
+                                                                         ` : ''}
                                                                      `;
                                                                  })}
                                                              </div>

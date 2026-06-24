@@ -1694,7 +1694,7 @@ class CommunityApplication extends LitElement {
                                         <h3 class="post-title" style="margin-top: 12px; margin-bottom: 8px; color: var(--title-color, #0d3168);">${post.title}</h3>
                                         <p class="post-content" style="color: var(--text-main, #334155); line-height: 1.5; white-space: pre-wrap;">${post.content}</p>
                                         ${post.attachments && post.attachments.length > 0 ? html`
-                                            <div class="post-attachments" style="margin-top: 12px; padding: 10px; background: var(--inner-card-bg, #f8fafc); border-radius: 8px; border: 1px solid var(--inner-card-border, #e2e8f0); display: flex; flex-direction: column; gap: 8px; color: var(--inner-card-text, #475569);">
+                                            <div class="post-attachments" style="margin-top: 12px; padding: 0; background: transparent; border: none; display: flex; flex-direction: column; gap: 8px; color: var(--inner-card-text, #475569);">
                                                 <strong style="font-size: 0.85em; color: var(--inner-card-text, #475569);">Anexos:</strong>
                                                 ${post.attachments.map(att => {
                                                     const isImage = att.fileName.match(/\.(jpg|jpeg|png|gif|webp)$/i);
@@ -1737,7 +1737,7 @@ class CommunityApplication extends LitElement {
 
                                                      return html`
                                                          <!-- Comentário Principal (Root) -->
-                                                         <div style="font-size: 0.85em; margin-bottom: 8px; padding: 10px; background: var(--bg-color, #f8fafc); border-radius: 8px; border: 1px solid var(--border-color, #f1f5f9); display: flex; flex-direction: column; gap: 6px;">
+                                                         <div style="font-size: 0.85em; margin-bottom: 8px; padding: 10px 0; background: transparent; border: none; display: flex; flex-direction: column; gap: 6px;">
                                                              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
                                                                  <div style="flex: 1;">
                                                                      <strong style="color: var(--title-color, #0d3168); display: block; margin-bottom: 2px;">${authorName}</strong>
@@ -1779,7 +1779,7 @@ class CommunityApplication extends LitElement {
                                                                      const isReplyAuthor = reply.authorId === (this.currentUser?.id || this.currentUser?.userId);
 
                                                                      return html`
-                                                                         <div style="font-size: 0.85em; margin-bottom: 6px; padding: 8px; background: var(--bg-color, #f8fafc); border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start; border: 1px solid var(--border-color, #f1f5f9); gap: 8px;">
+                                                                         <div style="font-size: 0.85em; margin-bottom: 6px; padding: 8px 0; background: transparent; border: none; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
                                                                              <div style="flex: 1;">
                                                                                  <strong style="color: var(--title-color, #0d3168); display: block; margin-bottom: 2px;">${replyAuthorName} <span style="font-weight: normal; color: var(--text-muted, #64748b); font-size: 0.9em;">(resposta)</span></strong>
                                                                                  ${this.editingCommentId === reply.id ? html`

@@ -433,6 +433,19 @@
         .header-logo {
             cursor: pointer;
         }
+
+        .host-badge {
+            font-size: 0.65em;
+            color: #1e3a8a;
+            background-color: #dbeafe;
+            border: 1px solid #bfdbfe;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            display: inline-block;
+        }
     </style>
 </head>
 
@@ -510,13 +523,13 @@
                     <h3 class="portal-title-sec">Portal</h3>
                     <div class="portal-nav-section">
                         <button class="portal-nav-item active" id="btn-nav-community">
-                            <span style="font-size: 1.2em; margin-right: 2px;">💬</span> Comunidade
+                            Comunidade
                         </button>
                         <button class="portal-nav-item" id="btn-nav-education">
-                            <span style="font-size: 1.2em; margin-right: 2px;">🧩</span> Jogo de Lógica
+                            Jogo de Lógica
                         </button>
                         <button class="portal-nav-item" id="btn-nav-inventory">
-                            <span style="font-size: 1.2em; margin-right: 2px;">📦</span> Inventário
+                            Inventário
                         </button>
                     </div>
                 </div>
@@ -534,19 +547,15 @@
                         <!-- Feed Geral -->
                         <div class="portal-community-item active" id="item-comm-general">
                             <div class="portal-community-info">
-                                <span class="portal-community-name">🌐 Feed Geral</span>
+                                <span class="portal-community-name">Feed Geral</span>
                                 <span class="portal-community-desc">Todas as publicações</span>
                             </div>
                         </div>
                         
-                        <div class="portal-nav-section-title">As que criei</div>
-                        <div id="sidebar-communities-created" class="portal-widget-list"></div>
+                        <div class="portal-nav-section-title">Minhas comunidades</div>
+                        <div id="sidebar-communities-mine" class="portal-widget-list"></div>
 
-                        <div class="portal-nav-section-title">As que participo</div>
-                        <div id="sidebar-communities-joined" class="portal-widget-list"></div>
-
-                        <div class="portal-nav-section-title">Outras Comunidades</div>
-                        <div id="sidebar-communities-others" class="portal-widget-list"></div>
+                        <div id="sidebar-communities-others" class="portal-widget-list" style="margin-top: 16px;"></div>
                     </div>
                 </div>
             </aside>
@@ -687,11 +696,10 @@
 
         // Renderiza itens de comunidades no menu lateral do shell
         function renderSidebarCommunities(communities, userId) {
-            const createdContainer = document.getElementById('sidebar-communities-created');
-            const joinedContainer = document.getElementById('sidebar-communities-joined');
+            const mineContainer = document.getElementById('sidebar-communities-mine');
             const othersContainer = document.getElementById('sidebar-communities-others');
             
-            if (!createdContainer || !joinedContainer || !othersContainer) return;
+            if (!mineContainer || !othersContainer) return;
             
             const commApp = document.getElementById('community-app');
             const selectedId = commApp ? commApp.selectedCommunityId : null;
@@ -701,33 +709,35 @@
             const joined = communities.filter(c => c.members?.some(m => m.userId === userId) && c.ownerId !== userId);
             const others = communities.filter(c => c.ownerId !== userId && !c.members?.some(m => m.userId === userId));
 
-            const renderItem = (c, isMemberOrOwner) => {
+            const renderItem = (c, isMemberOrOwner, isOwner = false) => {
                 const isActive = selectedId === c.id;
-                const icon = c.isLocked ? '🔒' : '💬';
+                const hostBadge = isOwner ? `<span class="host-badge">Criador</span>` : '';
                 return `
                     <div class="portal-community-item ${isActive ? 'active' : ''}" data-id="${c.id}" data-member="${isMemberOrOwner}">
                         <div class="portal-community-info">
-                            <span class="portal-community-name">${icon} ${c.name}</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="portal-community-name">${c.name}</span>
+                                ${hostBadge}
+                            </div>
                             <span class="portal-community-desc">${c.description || 'Sem descrição'}</span>
                         </div>
                         ${!isMemberOrOwner ? `
                             <button class="portal-community-action-btn" data-id="${c.id}" data-locked="${c.isLocked}">Entrar</button>
-                        ` : `
+                        ` : (isOwner ? '' : `
                             <span style="font-size: 0.72em; color: #10b981; font-weight: 600; padding: 2px 6px; background: #ecfdf5; border-radius: 4px; flex-shrink: 0;">Membro</span>
-                        `}
+                        `)}
                     </div>
                 `;
             };
 
-            // Criadas
-            createdContainer.innerHTML = created.length === 0
-                ? `<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma criada</div>`
-                : created.map(c => renderItem(c, true)).join('');
-
-            // Participando
-            joinedContainer.innerHTML = joined.length === 0
-                ? `<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma participando</div>`
-                : joined.map(c => renderItem(c, true)).join('');
+            // Minhas Comunidades (Criadas + Participando)
+            if (created.length === 0 && joined.length === 0) {
+                mineContainer.innerHTML = `<div style="font-size: 0.8em; color: #94a3b8; padding-left: 8px; font-style: italic;">Nenhuma comunidade</div>`;
+            } else {
+                const htmlCreated = created.map(c => renderItem(c, true, true));
+                const htmlJoined = joined.map(c => renderItem(c, true, false));
+                mineContainer.innerHTML = [...htmlCreated, ...htmlJoined].join('');
+            }
 
             // Outras
             othersContainer.innerHTML = others.length === 0

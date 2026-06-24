@@ -58,7 +58,7 @@ class CommunityApplication extends LitElement {
             gap: 24px;
             max-width: 1120px;
             margin: 0 auto;
-            padding: 24px;
+            padding: 0 24px 24px;
             box-sizing: border-box;
         }
 

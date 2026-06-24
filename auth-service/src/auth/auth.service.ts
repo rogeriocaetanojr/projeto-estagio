@@ -158,12 +158,13 @@ export class AuthService {
     // Mantém a emissão do evento 'user_logged_in'
     this.publishUserLogin({ id: user.id, email: user.email });
 
-    // Retorna { access_token, user: { id, email, profileType } }
+    // Retorna { access_token, user: { id, email, name, profileType } }
     return {
       access_token,
       user: {
         id: user.id,
         email: user.email,
+        name: user.name,
         profileType,
       },
     };

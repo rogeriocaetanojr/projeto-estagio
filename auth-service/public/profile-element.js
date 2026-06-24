@@ -6,7 +6,10 @@ export class ProfileApplication extends LitElement {
     loading: { type: Boolean },
     error: { type: String },
     postsCount: { type: Number },
-    userPosts: { type: Array }
+    userPosts: { type: Array },
+    isEditing: { type: Boolean },
+    editName: { type: String },
+    saving: { type: Boolean }
   };
 
   static styles = css`
@@ -300,14 +303,137 @@ export class ProfileApplication extends LitElement {
       font-weight: 500;
     }
 
-    .error-state {
-      color: #ef4444;
-      max-width: 400px;
-      margin: 40px auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       border: 1px solid #fee2e2;
+    }
+
+    .name-display-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .edit-trigger-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: #00aeef;
+      font-size: 0.8em;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .edit-trigger-btn:hover {
+      background-color: var(--inner-card-bg, #f1f5f9);
+      color: #0d3168;
+    }
+
+    .edit-icon-svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .edit-name-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 6px;
+    }
+
+    .edit-name-input {
+      padding: 6px 10px;
+      border: 1px solid var(--inner-card-border, #cbd5e1);
+      border-radius: 6px;
+      font-size: 0.95em;
+      color: var(--text-main, #1e293b);
+      background-color: var(--card-bg, white);
+      width: 100%;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .edit-name-input:focus {
+      border-color: #00aeef;
+      box-shadow: 0 0 0 2px rgba(0, 174, 239, 0.15);
+    }
+
+    .edit-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .edit-btn-save, .edit-btn-cancel {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .edit-btn-save {
+      background-color: #00aeef;
+      color: white;
+      border: 1px solid #00aeef;
+    }
+
+    .edit-btn-save:hover:not(:disabled) {
+      background-color: #008cc0;
+      border-color: #008cc0;
+    }
+
+    .edit-btn-cancel {
+      background-color: transparent;
+      color: var(--text-muted, #64748b);
+      border: 1px solid var(--inner-card-border, #cbd5e1);
+    }
+
+    .edit-btn-cancel:hover:not(:disabled) {
+      background-color: var(--inner-card-bg, #f1f5f9);
+      color: var(--text-main, #1e293b);
+    }
+
+    .edit-btn-save:disabled, .edit-btn-cancel:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .edit-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-size: 0.9em;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    }
+
+    .edit-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .edit-toast-success {
+      background-color: #10b981;
+    }
+
+    .edit-toast-error {
+      background-color: #ef4444;
     }
   `;
 
@@ -318,6 +444,9 @@ export class ProfileApplication extends LitElement {
     this.error = '';
     this.postsCount = 0;
     this.userPosts = [];
+    this.isEditing = false;
+    this.editName = '';
+    this.saving = false;
   }
 
   connectedCallback() {
@@ -377,14 +506,101 @@ export class ProfileApplication extends LitElement {
     }
   }
 
-  // Extrai iniciais a partir do e-mail
-  _getInitials(email) {
+  // Extrai iniciais a partir do e-mail ou nome
+  _getInitials(email, name) {
+    if (name) {
+      const parts = name.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      return parts[0].substring(0, 2).toUpperCase();
+    }
     if (!email) return 'US';
     const parts = email.split('@')[0].split('.');
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
     return parts[0].substring(0, 2).toUpperCase();
+  }
+
+  _startEdit(currentName) {
+    this.editName = currentName;
+    this.isEditing = true;
+  }
+
+  _cancelEdit() {
+    this.isEditing = false;
+  }
+
+  async _saveProfile() {
+    const trimmedName = this.editName.trim();
+    if (!trimmedName) {
+      this._showToast('O nome não pode estar vazio.', 'error');
+      return;
+    }
+
+    this.saving = true;
+    const token = localStorage.getItem('portal_token');
+
+    try {
+      const response = await fetch('http://localhost:3001/auth/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name: trimmedName })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Erro ao salvar o perfil.');
+      }
+
+      const updatedUser = await response.json();
+
+      try {
+        const portalUser = localStorage.getItem('portal_user');
+        if (portalUser) {
+          const parsed = JSON.parse(portalUser);
+          parsed.name = updatedUser.name;
+          localStorage.setItem('portal_user', JSON.stringify(parsed));
+        }
+      } catch (err) {
+        console.warn('Erro ao atualizar localStorage portal_user:', err);
+      }
+
+      this.profileData = {
+        ...this.profileData,
+        name: updatedUser.name
+      };
+
+      this.isEditing = false;
+      this._showToast('Perfil atualizado com sucesso!', 'success');
+
+      window.dispatchEvent(new CustomEvent('profile-updated', {
+        detail: { name: updatedUser.name },
+        bubbles: true,
+        composed: true
+      }));
+
+    } catch (err) {
+      this._showToast(err.message, 'error');
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  _showToast(message, type = 'success') {
+    const toast = this.shadowRoot.querySelector('.edit-toast');
+    if (!toast) return;
+    
+    toast.textContent = message;
+    toast.className = `edit-toast edit-toast-${type} show`;
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
   }
 
   // Formata o e-mail em um nome de exibição amigável
@@ -448,10 +664,10 @@ export class ProfileApplication extends LitElement {
     }
 
     const u = this.profileData;
+    const displayName = u.name || this._formatDisplayName(u.email);
+    const initials = this._getInitials(u.email, u.name);
     const isStudent = !!u.student || u.profileType?.toLowerCase() === 'student';
     const profileTypeLabel = isStudent ? 'Estudante' : 'Professor';
-    const initials = this._getInitials(u.email);
-    const displayName = this._formatDisplayName(u.email);
 
     return html`
       <div class="profile-container">
@@ -462,8 +678,38 @@ export class ProfileApplication extends LitElement {
             <div class="profile-avatar-wrapper">
               <div class="profile-avatar">${initials}</div>
             </div>
-            <div class="profile-meta-content">
-              <h2 class="profile-name-display">${displayName}</h2>
+            <div class="profile-meta-content" style="width: 100%;">
+              ${this.isEditing
+                ? html`
+                    <div class="edit-name-container">
+                      <input
+                        type="text"
+                        class="edit-name-input"
+                        .value=${this.editName}
+                        @input=${(e) => this.editName = e.target.value}
+                        ?disabled=${this.saving}
+                      />
+                      <div class="edit-actions">
+                        <button class="edit-btn-save" @click=${this._saveProfile} ?disabled=${this.saving}>
+                          ${this.saving ? 'Salvando...' : 'Salvar'}
+                        </button>
+                        <button class="edit-btn-cancel" @click=${this._cancelEdit} ?disabled=${this.saving}>
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  `
+                : html`
+                    <div class="name-display-container">
+                      <h2 class="profile-name-display">${displayName}</h2>
+                      <button class="edit-trigger-btn" @click=${() => this._startEdit(displayName)}>
+                        <svg viewBox="0 0 24 24" class="edit-icon-svg" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        </svg>
+                        Editar
+                      </button>
+                    </div>
+                  `}
               <p class="profile-email-display">${u.email}</p>
               <span class="profile-badge">${profileTypeLabel}</span>
             </div>
@@ -544,6 +790,7 @@ export class ProfileApplication extends LitElement {
           </div>
         </div>
       </div>
+      <div class="edit-toast"></div>
     `;
   }
 }

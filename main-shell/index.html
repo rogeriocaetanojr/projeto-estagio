@@ -689,8 +689,9 @@
         let isLoggedIn = false;
         let activeTab = 'community'; // Aba ativa padrão
 
-        // Função de formatação para exibir o nome amigável a partir do e-mail
-        function formatUserDisplayName(email) {
+        // Função de formatação para exibir o nome amigável a partir do e-mail ou do nome salvo
+        function formatUserDisplayName(email, name) {
+            if (name) return name;
             if (!email) return 'Usuário';
             const namePart = email.split('@')[0];
             const cleanName = namePart.replace(/[0-9]/g, '');
@@ -698,8 +699,15 @@
             return parts.map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
         }
 
-        // Função para obter as iniciais do e-mail
-        function getUserInitials(email) {
+        // Função para obter as iniciais do e-mail ou nome
+        function getUserInitials(email, name) {
+            if (name) {
+                const parts = name.trim().split(/\s+/);
+                if (parts.length >= 2) {
+                    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+                }
+                return parts[0].substring(0, 2).toUpperCase();
+            }
             if (!email) return 'US';
             const parts = email.split('@')[0].split('.');
             if (parts.length >= 2) {
@@ -707,6 +715,26 @@
             }
             return parts[0].substring(0, 2).toUpperCase();
         }
+
+        // Ouvinte global para atualização de perfil instantânea no main-shell
+        window.addEventListener('profile-updated', (e) => {
+            const userNameSpan = document.getElementById('user-name');
+            const avatarInitials = document.getElementById('avatar-initials');
+            if (userNameSpan) {
+                userNameSpan.textContent = e.detail.name;
+            }
+            if (avatarInitials) {
+                const userRaw = localStorage.getItem('portal_user');
+                let email = '';
+                if (userRaw) {
+                    try {
+                        const user = JSON.parse(userRaw);
+                        email = user.email;
+                    } catch (err) {}
+                }
+                avatarInitials.textContent = getUserInitials(email, e.detail.name);
+            }
+        });
 
         // Renderização dos links do header dinamicamente baseado no estado de login
         function renderNavigationLinks(isLogged) {
@@ -912,8 +940,8 @@
                     if (userRaw) {
                         const user = JSON.parse(userRaw);
                         if (user && user.email) {
-                            userNameSpan.textContent = formatUserDisplayName(user.email);
-                            avatarInitials.textContent = getUserInitials(user.email);
+                            userNameSpan.textContent = formatUserDisplayName(user.email, user.name);
+                            avatarInitials.textContent = getUserInitials(user.email, user.name);
                         }
                     }
                 } catch (e) {

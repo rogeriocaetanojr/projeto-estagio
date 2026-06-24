@@ -758,6 +758,14 @@ class CommunityApplication extends LitElement {
         this.loadClickedPosts();
         this.fetchPosts();
         this.fetchCommunities();
+
+        window.addEventListener('profile-updated', (e) => {
+            if (this.currentUser) {
+                this.currentUser.name = e.detail.name;
+                this.requestUpdate();
+            }
+            this.fetchPosts();
+        });
     }
 
     async fetchCommunities() {
@@ -1290,7 +1298,14 @@ class CommunityApplication extends LitElement {
         }
     }
 
-    _getInitials(email) {
+    _getInitials(email, name) {
+        if (name) {
+            const parts = name.trim().split(/\s+/);
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            }
+            return parts[0].substring(0, 2).toUpperCase();
+        }
         if (!email) return 'US';
         const parts = email.split('@')[0].split('.');
         if (parts.length >= 2) {
@@ -1464,7 +1479,7 @@ class CommunityApplication extends LitElement {
                           `
                         : this.posts.map(post => {
                             const authorEmail = post.author ? post.author.email : 'Autor Desconhecido';
-                            const authorInitials = this._getInitials(authorEmail);
+                            const authorInitials = this._getInitials(authorEmail, post.author ? post.author.name : null);
                             const isStudent = post.author ? (post.author.profileType?.toLowerCase() === 'student') : true;
                             const authorRoleLabel = isStudent ? 'Estudante' : 'Professor';
                             
@@ -1484,7 +1499,7 @@ class CommunityApplication extends LitElement {
                                             <div class="post-author-avatar ${isStudent ? 'student-av' : ''}">${authorInitials}</div>
                                             <div class="post-meta">
                                                 <h4 class="post-author-name">
-                                                    ${authorEmail.split('@')[0]}
+                                                    ${post.author && post.author.name ? post.author.name : authorEmail.split('@')[0]}
                                                     <span class="post-author-badge">${authorRoleLabel}</span>
                                                 </h4>
                                                 <div class="post-time">${dateStr}</div>

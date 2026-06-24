@@ -295,7 +295,7 @@ export class ProfileApplication extends LitElement {
       flex: 1;
     }
 
-    .loading-state, .error-state {
+    .loading-state {
       text-align: center;
       padding: 60px;
       color: var(--text-muted, #64748b);
@@ -303,7 +303,16 @@ export class ProfileApplication extends LitElement {
       font-weight: 500;
     }
 
+    .error-state {
+      color: #ef4444;
+      max-width: 400px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       border: 1px solid #fee2e2;
+      text-align: center;
+      padding: 60px;
     }
 
     .name-display-container {

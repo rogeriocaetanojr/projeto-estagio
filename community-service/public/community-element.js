@@ -190,6 +190,23 @@ class CommunityApplication extends LitElement {
             transform: translateY(-1px);
         }
 
+        .danger-btn {
+            background-color: #ef4444;
+            color: #ffffff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .danger-btn:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+        }
+
         .publish-btn.active:disabled {
             background-color: #cbd5e1;
             color: #ffffff;
@@ -1405,6 +1422,8 @@ class CommunityApplication extends LitElement {
         const email = user ? user.email : 'Visitante';
         const initials = user ? this._getInitials(user.email) : 'US';
         const role = user ? (user.profileType?.toLowerCase() === 'professor' ? 'Professor' : 'Estudante') : 'Visitante';
+        const activeCommunity = this.selectedCommunityId ? this.communities.find(c => c.id === this.selectedCommunityId) : null;
+        const isOwner = activeCommunity && activeCommunity.ownerId === (user?.id || user?.userId);
 
         return html`
             <div class="container">
@@ -1445,14 +1464,48 @@ class CommunityApplication extends LitElement {
                                     @change="${this.handleAttachmentChange}"
                                 />
                                 <button type="button" id="clear-attachment-btn" style="display: none; background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.1em; padding: 2px;" @click="${this.clearAttachment}" title="Remover anexo">&times;</button>
+                                
+                                ${this.selectedCommunityId ? html`
+                                    <button 
+                                        type="submit" 
+                                        class="publish-btn active" 
+                                        ?disabled="${!user || this.creatingPost}"
+                                        style="margin-left: 8px; cursor: pointer;"
+                                    >
+                                        ${this.creatingPost ? 'Publicando...' : 'Publicar'}
+                                    </button>
+                                ` : ''}
                             </div>
-                            <button 
-                                type="submit" 
-                                class="publish-btn active" 
-                                ?disabled="${!user || this.creatingPost}"
-                            >
-                                ${this.creatingPost ? 'Publicando...' : 'Publicar'}
-                            </button>
+                            
+                            ${this.selectedCommunityId ? html`
+                                <div>
+                                    ${isOwner ? html`
+                                        <button 
+                                            type="button" 
+                                            class="danger-btn"
+                                            @click="${() => this.handleDeleteCommunity(this.selectedCommunityId)}"
+                                        >
+                                            Excluir Comunidade
+                                        </button>
+                                    ` : html`
+                                        <button 
+                                            type="button" 
+                                            class="danger-btn"
+                                            @click="${() => this.handleLeaveCommunity(this.selectedCommunityId)}"
+                                        >
+                                            Sair da Comunidade
+                                        </button>
+                                    `}
+                                </div>
+                            ` : html`
+                                <button 
+                                    type="submit" 
+                                    class="publish-btn active" 
+                                    ?disabled="${!user || this.creatingPost}"
+                                >
+                                    ${this.creatingPost ? 'Publicando...' : 'Publicar'}
+                                </button>
+                            `}
                         </div>
                     </form>
 

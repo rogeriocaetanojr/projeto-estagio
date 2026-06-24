@@ -1522,11 +1522,11 @@ class CommunityApplication extends LitElement {
                     <span class="community-desc">${c.description || 'Sem descrição'}</span>
                 </div>
                 ${isOwner ? html`
-                    <span style="font-size: 0.65em; color: #1e3a8a; background-color: #dbeafe; border: 1px solid #bfdbfe; padding: 1px 6px; border-radius: 4px; font-weight: 600; flex-shrink: 0; margin-left: auto;">Dono</span>
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 22px; font-size: 0.68em; color: #1e3a8a; background-color: #dbeafe; border: 1px solid #bfdbfe; border-radius: 4px; font-weight: 700; flex-shrink: 0; margin-left: auto; box-sizing: border-box;">Dono</span>
                 ` : !isMemberOrOwner ? html`
-                    <span style="font-size: 0.65em; color: #9a3412; background-color: #fff7ed; border: 1px solid #fed7aa; padding: 1px 6px; border-radius: 4px; font-weight: 600; flex-shrink: 0; margin-left: auto; cursor: pointer;" @click="${(e) => { e.stopPropagation(); this.handleJoinCommunity(c.id, c.isLocked); }}">Entrar</span>
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 22px; font-size: 0.68em; color: #9a3412; background-color: #fff7ed; border: 1px solid #fed7aa; border-radius: 4px; font-weight: 700; flex-shrink: 0; margin-left: auto; cursor: pointer; box-sizing: border-box;" @click="${(e) => { e.stopPropagation(); this.handleJoinCommunity(c.id, c.isLocked); }}">Entrar</span>
                 ` : html`
-                    <span style="font-size: 0.75em; color: #10b981; font-weight: 600; padding: 2px 6px; background: #ecfdf5; border-radius: 4px; flex-shrink: 0; margin-left: auto;">Membro</span>
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 22px; font-size: 0.68em; color: #10b981; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 4px; font-weight: 700; flex-shrink: 0; margin-left: auto; box-sizing: border-box;">Membro</span>
                 `}
             </div>
         `;

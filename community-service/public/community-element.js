@@ -216,7 +216,7 @@ class CommunityApplication extends LitElement {
         }
 
         .post-author-avatar.student-av {
-            background-color: #00aeef;
+            background-color: #0d3168;
         }
 
         .post-meta {
@@ -1479,7 +1479,7 @@ class CommunityApplication extends LitElement {
                                             <textarea @input="${(e) => this.editingPostContent = e.target.value}" style="padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; min-height: 85px; font-family: inherit;" placeholder="Conteúdo...">${this.editingPostContent}</textarea>
                                             <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px;">
                                                 <button @click="${() => this.cancelEditPost()}" style="padding: 6px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; cursor: pointer; font-size: 0.9em;">Cancelar</button>
-                                                <button @click="${() => this.handleSavePost(post.id)}" style="padding: 6px 12px; border: none; border-radius: 6px; background: #00aeef; color: white; cursor: pointer; font-weight: 600; font-size: 0.9em;">Salvar</button>
+                                                <button @click="${() => this.handleSavePost(post.id)}" style="padding: 6px 12px; border: none; border-radius: 6px; background: #0d3168; color: white; cursor: pointer; font-weight: 600; font-size: 0.9em;">Salvar</button>
                                             </div>
                                         </div>
                                     ` : html`
@@ -1538,7 +1538,7 @@ class CommunityApplication extends LitElement {
                                                                              <input type="text" .value="${this.editingCommentContent}" @input="${(e) => this.editingCommentContent = e.target.value}" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; box-sizing: border-box;" />
                                                                              <div style="display: flex; gap: 4px; justify-content: flex-end;">
                                                                                  <button @click="${() => this.cancelEditComment()}" style="padding: 3px 8px; border: 1px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Cancelar</button>
-                                                                                 <button @click="${() => this.handleSaveComment(post.id, comment.id)}" style="padding: 3px 8px; border: none; background: #00aeef; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
+                                                                                 <button @click="${() => this.handleSaveComment(post.id, comment.id)}" style="padding: 3px 8px; border: none; background: #0d3168; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
                                                                              </div>
                                                                          </div>
                                                                      ` : html`
@@ -1546,7 +1546,7 @@ class CommunityApplication extends LitElement {
                                                                      `}
                                                                  </div>
                                                                  <div style="display: flex; gap: 4px; flex-shrink: 0; align-items: center;">
-                                                                     <button @click="${() => this.toggleReplyBox(comment.id)}" class="post-edit-btn" style="color: #00aeef;" title="Responder">Responder</button>
+                                                                     <button @click="${() => this.toggleReplyBox(comment.id)}" class="post-edit-btn" style="color: #0d3168;" title="Responder">Responder</button>
                                                                      ${isCommentAuthor && this.editingCommentId !== comment.id ? html`
                                                                          <button @click="${() => this.startEditComment(comment)}" class="post-edit-btn" title="Editar Comentário">Editar</button>
                                                                          <button @click="${() => this.handleDeleteComment(post.id, comment.id)}" class="post-delete-btn" title="Excluir Comentário">Excluir</button>
@@ -1558,7 +1558,7 @@ class CommunityApplication extends LitElement {
                                                              ${this.activeReplyBox === comment.id ? html`
                                                                  <form @submit="${(e) => this.handleAddReply(e, post.id, comment.id)}" style="display: flex; gap: 8px; margin-top: 6px;">
                                                                      <input type="text" id="reply-input-${comment.id}" placeholder="Escreva uma resposta..." style="flex: 1; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.95em;" required />
-                                                                     <button type="submit" style="background: #00aeef; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 600;">Responder</button>
+                                                                     <button type="submit" style="background: #0d3168; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 600;">Responder</button>
                                                                  </form>
                                                              ` : ''}
                                                          </div>
@@ -1579,7 +1579,7 @@ class CommunityApplication extends LitElement {
                                                                                          <input type="text" .value="${this.editingCommentContent}" @input="${(e) => this.editingCommentContent = e.target.value}" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; width: 100%; box-sizing: border-box;" />
                                                                                          <div style="display: flex; gap: 4px; justify-content: flex-end;">
                                                                                              <button @click="${() => this.cancelEditComment()}" style="padding: 3px 8px; border: 1px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Cancelar</button>
-                                                                                             <button @click="${() => this.handleSaveComment(post.id, reply.id)}" style="padding: 3px 8px; border: none; background: #00aeef; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
+                                                                                             <button @click="${() => this.handleSaveComment(post.id, reply.id)}" style="padding: 3px 8px; border: none; background: #0d3168; color: white; border-radius: 4px; cursor: pointer; font-size: 0.85em; font-weight: 600;">Salvar</button>
                                                                                          </div>
                                                                                      </div>
                                                                                  ` : html`
@@ -1587,7 +1587,7 @@ class CommunityApplication extends LitElement {
                                                                                  `}
                                                                              </div>
                                                                              <div style="display: flex; gap: 4px; flex-shrink: 0; align-items: center;">
-                                                                                 <button @click="${() => this.toggleReplyBox(comment.id, reply.author?.email)}" class="post-edit-btn" style="color: #00aeef;" title="Responder">Responder</button>
+                                                                                 <button @click="${() => this.toggleReplyBox(comment.id, reply.author?.email)}" class="post-edit-btn" style="color: #0d3168;" title="Responder">Responder</button>
                                                                                  ${isReplyAuthor && this.editingCommentId !== reply.id ? html`
                                                                                      <button @click="${() => this.startEditComment(reply)}" class="post-edit-btn" title="Editar Resposta">Editar</button>
                                                                                      <button @click="${() => this.handleDeleteComment(post.id, reply.id)}" class="post-delete-btn" title="Excluir Resposta">Excluir</button>
@@ -1606,7 +1606,7 @@ class CommunityApplication extends LitElement {
 
                                     <form class="comment-form" @submit="${(e) => this.handleAddComment(e, post.id)}" style="display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9;">
                                         <input type="text" id="comment-input-${post.id}" placeholder="Escreva um comentário..." style="flex: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9em; outline: none;" required />
-                                        <button type="submit" style="background: #00aeef; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.95em; font-weight: 600;">Comentar</button>
+                                        <button type="submit" style="background: #0d3168; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.95em; font-weight: 600;">Comentar</button>
                                     </form>
                                 </div>
                             `;

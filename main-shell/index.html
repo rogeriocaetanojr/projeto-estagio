@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UniSenai PR - Engenharia de Software</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* Variáveis de Cores Oficiais UniSenai PR */
         :root {
@@ -360,7 +363,7 @@
         .portal-title-sec {
             font-size: 0.9em;
             font-weight: 700;
-            color: var(--primary-dark);
+            color: var(--title-color, #0d3168);
             text-transform: uppercase;
             letter-spacing: 0.8px;
             border-bottom: 2px solid var(--primary-light);
@@ -724,7 +727,7 @@
         </div>
 
         <nav class="header-nav" id="header-nav">
-            <!-- Gerado Dinamicamente via JavaScript -->
+            <span style="font-family: 'Open Sans', sans-serif; font-size: 1.05em; font-weight: 700; color: var(--title-color, #0d3168); letter-spacing: 0.3px;">Comunidade de Engenharia de Software Senai</span>
         </nav>
 
         <div class="header-action" style="display: flex; align-items: center; gap: 20px;">
@@ -933,7 +936,7 @@
             
             if (isLogged) {
                 // Remove os clicáveis superiores quando logado (eles migram para a lateral esquerda da Comunidade)
-                headerNav.innerHTML = '';
+                headerNav.innerHTML = '<span style="font-family: Open Sans, sans-serif; font-size: 1.05em; font-weight: 700; color: var(--title-color, #0d3168); letter-spacing: 0.3px;">Comunidade de Engenharia de Software Senai</span>';
             } else {
                 headerNav.innerHTML = `
                     <a href="#" class="nav-link-public">Sobre o Curso</a>

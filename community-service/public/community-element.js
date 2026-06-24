@@ -289,6 +289,20 @@ class CommunityApplication extends LitElement {
             background-color: #f1f5f9;
         }
 
+        .post-action-btn.liked {
+            color: #ef4444;
+        }
+
+        .post-action-btn.liked:hover {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .comment-icon {
+            filter: grayscale(100%) opacity(0.7);
+            font-size: 1.1em;
+        }
+
         /* WIDGETS (COLUNA DIREITA) */
         .widgets {
             display: flex;
@@ -880,12 +894,10 @@ class CommunityApplication extends LitElement {
     }
 
     toggleCommentBox(postId) {
-        if (this.activeCommentBox === postId) {
-            this.activeCommentBox = null;
-        } else {
-            this.activeCommentBox = postId;
+        const input = this.shadowRoot.querySelector(`#comment-input-${postId}`);
+        if (input) {
+            input.focus();
         }
-        this.requestUpdate();
     }
 
     async handleAddComment(e, postId) {
@@ -916,7 +928,6 @@ class CommunityApplication extends LitElement {
             if (!response.ok) throw new Error('Falha ao comentar');
             
             input.value = '';
-            this.activeCommentBox = null;
             await this.fetchPosts();
         } catch (err) {
             console.error(err);
@@ -1456,10 +1467,10 @@ class CommunityApplication extends LitElement {
 
                                     <div class="post-actions">
                                         <div class="post-action-btn ${post.likes?.some(l => l.userId === (this.currentUser?.id || this.currentUser?.userId)) ? 'liked' : ''}" @click="${() => this.toggleLike(post.id)}">
-                                            <span>👍</span> ${post.likes?.length || 0} Curtidas
+                                            <span>${post.likes?.some(l => l.userId === (this.currentUser?.id || this.currentUser?.userId)) ? '❤️' : '🤍'}</span> ${post.likes?.length || 0} Curtidas
                                         </div>
                                         <div class="post-action-btn" @click="${() => this.toggleCommentBox(post.id)}">
-                                            <span>💬</span> ${post.comments?.length || 0} Comentários
+                                            <span class="comment-icon">💬</span> ${post.comments?.length || 0} Comentários
                                         </div>
                                     </div>
                                     
@@ -1548,12 +1559,10 @@ class CommunityApplication extends LitElement {
                                         </div>
                                      ` : ''}
 
-                                    ${this.activeCommentBox === post.id ? html`
-                                        <form class="comment-form" @submit="${(e) => this.handleAddComment(e, post.id)}" style="display: flex; gap: 8px; margin-top: 10px;">
-                                            <input type="text" id="comment-input-${post.id}" placeholder="Escreva um comentário..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" required />
-                                            <button type="submit" style="background: #00aeef; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Enviar</button>
-                                        </form>
-                                    ` : ''}
+                                    <form class="comment-form" @submit="${(e) => this.handleAddComment(e, post.id)}" style="display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9;">
+                                        <input type="text" id="comment-input-${post.id}" placeholder="Escreva um comentário..." style="flex: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9em; outline: none;" required />
+                                        <button type="submit" style="background: #00aeef; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.95em; font-weight: 600;">Comentar</button>
+                                    </form>
                                 </div>
                             `;
                         })

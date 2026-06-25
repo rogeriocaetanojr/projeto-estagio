@@ -289,14 +289,17 @@ export class ProfileApplication extends LitElement {
       fill: currentColor;
     }
 
-    .empty-posts-state {
+    .empty-posts-state,
+    .empty-communities-state {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 60px 20px;
-      margin-top: 8px;
+      padding: 40px 20px;
+      min-height: 320px;
+      box-sizing: border-box;
+      width: 100%;
     }
 
     .empty-icon {
@@ -375,14 +378,7 @@ export class ProfileApplication extends LitElement {
       word-break: break-word;
     }
 
-    .empty-communities-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px 20px;
-    }
+    /* Estilos unificados com .empty-posts-state acima */
 
     .loading-state {
       text-align: center;

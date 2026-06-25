@@ -2,6 +2,17 @@
 
 Este repositório contém o projeto de estágio, estruturado em arquitetura de microsserviços orientada a eventos, com autenticação centralizada via JWT e front-end baseado em Micro-Frontends.
 
+## Screenshots
+
+> As imagens abaixo representam o estado atual da interface do portal UniSenai PR.
+
+| Tela | Preview |
+|------|---------|
+| Login / Cadastro | ![Login](docs/screenshots/login.png) |
+| Feed de Comunidades | ![Feed](docs/screenshots/feed.png) |
+| Perfil do Usuário | ![Perfil](docs/screenshots/perfil.png) |
+| Tema Escuro | ![Dark Mode](docs/screenshots/dark-mode.png) |
+
 ## Estrutura do Projeto
 
 A raiz do projeto contém a infraestrutura base (Docker) e as pastas dos microsserviços individuais. Atualmente o ecossistema é composto por:
@@ -98,12 +109,12 @@ O `auth-service` publica o evento `user_registered` na Exchange `user.events` (t
   "data": {
     "id": "uuid-do-usuario",
     "email": "usuario@dominio.com",
-    "profileType": "STUDENT"
+    "profileType": "student"
   }
 }
 ```
 
-> **Atenção:** o campo `profileType` é sempre enviado em **MAIÚSCULAS** (`STUDENT` ou `PROFESSOR`). O contrato está tipado em `auth-service/src/events/contracts.ts`. Os detalhes de implementação para cada módulo estão em `EXTENSIBILIDADE.md` e nos READMEs de `education-service` e `inventory-service`.
+> **Atenção:** o campo `profileType` é sempre enviado em **minúsculas** (`student` ou `professor`). O contrato está tipado em `auth-service/src/events/contracts.ts`. Os detalhes de implementação para cada módulo estão em `EXTENSIBILIDADE.md` e nos READMEs de `education-service` e `inventory-service`.
 
 ## Padrões de Projeto & Arquitetura
 
@@ -111,7 +122,7 @@ Para atender aos requisitos de extensibilidade, modularidade e resiliência exig
 
 - **Pub/Sub (Publish/Subscribe):** Arquitetura orientada a eventos onde o produtor envia mensagens para uma Exchange `fanout` do RabbitMQ sem saber quem as consumirá. O desacoplamento permite plugar novos microsserviços instantaneamente.
 - **Validação Descentralizada de JWT:** A infraestrutura de autenticação baseada em `passport-jwt` (`JwtStrategy` e `JwtAuthGuard`) foi desenhada para ser replicada entre os microsserviços. A validação dos tokens em cada serviço é feita **localmente**, utilizando a chave compartilhada (`JWT_SECRET`) do ambiente, eliminando a necessidade de chamadas síncronas ao `auth-service`.
-- **Contrato de Eventos Tipado:** O evento `user_registered` é centralizado e tipado (`UserRegisteredEvent`) com `profileType` padronizado em MAIÚSCULAS, garantindo um contrato estável e previsível para todos os consumidores.
+- **Contrato de Eventos Tipado:** O evento `user_registered` é centralizado e tipado (`UserRegisteredEvent`) com `profileType` padronizado em minúsculas, garantindo um contrato estável e previsível para todos os consumidores.
 - **Dead Letter Queue (DLQ) e Resiliência:** Prevenção de perda de dados e tolerância a falhas (ex: indisponibilidade do banco). Mensagens que geram falhas catastróficas (NACK com `requeue: false`) são automaticamente desviadas para a fila `user.events.dlx` de quarentena, prevenindo loops infinitos.
 - **Table Mirroring (Espelhamento de Dados):** Cada serviço consumidor salva uma versão leve (espelho) do usuário assim que intercepta o evento assíncrono de criação, garantindo integridade referencial local e alta performance sem precisar consultar o `auth-service` de forma síncrona.
 - **Class Table Inheritance (Herança de Dados):** Modelagem de banco de dados mapeando a entidade base `User` em relacionamento `1:1` com as entidades filhas `Student` e `Professor`, unificando o domínio.

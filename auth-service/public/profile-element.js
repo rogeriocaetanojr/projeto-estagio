@@ -340,7 +340,50 @@ export class ProfileApplication extends LitElement {
     }
 
     .progress-content {
-      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-top: 10px;
+    }
+
+    /* Seção Nível/XP */
+    .xp-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .xp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88em;
+      font-weight: 600;
+    }
+
+    .xp-level {
+      color: var(--title-color, #0d3168);
+    }
+
+    .xp-percent {
+      color: var(--text-muted, #64748b);
+    }
+
+    .progress-bar-bg {
+      background-color: var(--inner-card-bg, #f1f5f9);
+      border-radius: 6px;
+      height: 8px;
+      width: 100%;
+      overflow: hidden;
+      border: 1px solid var(--border-color, #cbd5e1);
+    }
+
+    .progress-bar-fill {
+      background: linear-gradient(90deg, #0d3168 0%, #00aeef 100%);
+      height: 100%;
+      border-radius: 6px;
+      width: 0%;
+      transition: width 0.5s ease-in-out;
     }
 
     .loading-state {
@@ -864,7 +907,16 @@ export class ProfileApplication extends LitElement {
         <div class="card profile-progress-card">
           <h3 class="progress-title">Progresso de ensino</h3>
           <div class="progress-content">
-            <!-- Em branco por enquanto -->
+            <!-- Seção de Nível / XP -->
+            <div class="xp-section">
+              <div class="xp-header">
+                <span class="xp-level">Nível 1 - Desafios de Lógica</span>
+                <span class="xp-percent">0% concluído</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

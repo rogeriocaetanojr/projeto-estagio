@@ -13,9 +13,9 @@ Este repositório contém o projeto de estágio, estruturado em arquitetura de m
 | Detalhes da Comunidade | ![Comunidade](docs/screenshots/comunidade1.png) |
 | Nova Comunidade | ![Nova Comunidade](docs/screenshots/novacomunidade.png) |
 | Perfil do Usuário | ![Perfil](docs/screenshots/perfil.png) |
-| Tema Escuro | ![Dark Mode](docs/screenshots/dark-mode.png) |
 | Gestão de Insumos (Inventário) | ![Inventário](docs/screenshots/inventario.png) |
 | Quiz / Jogo Educativo | ![Jogo](docs/screenshots/jogo.png) |
+| Tema Escuro | ![Dark Mode](docs/screenshots/dark-mode.png) |
 
 ## Estrutura do Projeto
 

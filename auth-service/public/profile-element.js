@@ -200,12 +200,10 @@ export class ProfileApplication extends LitElement {
     }
 
     /* CARD DE HISTÓRICO DE POSTS (COLUNA DO MEIO) */
-    .profile-posts-card {
-      padding: 24px 30px;
+    .profile-posts-container {
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      background: var(--card-bg, white);
+      gap: 16px;
     }
 
     .posts-title {
@@ -215,31 +213,29 @@ export class ProfileApplication extends LitElement {
       margin: 0;
       border-bottom: 2px solid var(--border-color, #f1f5f9);
       padding-bottom: 12px;
+      margin-bottom: 4px;
     }
 
     .posts-list {
       display: flex;
       flex-direction: column;
+      gap: 16px;
     }
 
-    .post-item {
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border-color, #f1f5f9);
-    }
-
-    .post-item:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .post-item:first-child {
-      padding-top: 0;
+    .post-card-item {
+      background: var(--card-bg, white);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color, rgba(226, 232, 240, 0.8));
+      padding: 16px 20px;
+      box-sizing: border-box;
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     }
 
     .post-meta {
       font-size: 0.85em;
       color: var(--text-muted, #94a3b8);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       font-weight: 500;
     }
 
@@ -248,6 +244,30 @@ export class ProfileApplication extends LitElement {
       color: var(--text-main, #334155);
       line-height: 1.5;
       word-break: break-word;
+    }
+
+    .post-engagement {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-color, rgba(241, 245, 249, 0.8));
+      color: var(--text-muted, #94a3b8);
+      font-size: 0.82em;
+      font-weight: 600;
+      align-items: center;
+    }
+
+    .engagement-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .engagement-icon {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
     }
 
     .empty-posts-state {
@@ -733,26 +753,43 @@ export class ProfileApplication extends LitElement {
         </div>
 
         <!-- Coluna do Meio: Histórico de Posts -->
-        <div class="card profile-posts-card">
+        <div class="profile-posts-container">
           <h3 class="posts-title">Minhas postagens</h3>
           
           <div class="posts-list">
             ${this.userPosts.length === 0
               ? html`
-                  <div class="empty-posts-state">
-                    <svg viewBox="0 0 24 24" class="empty-icon" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM4 16V4h16v12H5.17L4 17.17V16zm5-7h6v2H9V9zm0 3h6v2H9v-2z" />
-                    </svg>
-                    <h4 class="empty-message">Você ainda não fez nenhuma publicação.</h4>
-                    <p class="empty-submessage">Vá até a Comunidade e compartilhe algo com seus colegas!</p>
+                  <div class="card post-card-item" style="display: flex; justify-content: center; align-items: center; width: 100%;">
+                    <div class="empty-posts-state">
+                      <svg viewBox="0 0 24 24" class="empty-icon" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM4 16V4h16v12H5.17L4 17.17V16zm5-7h6v2H9V9zm0 3h6v2H9v-2z" />
+                      </svg>
+                      <h4 class="empty-message">Você ainda não fez nenhuma publicação.</h4>
+                      <p class="empty-submessage">Vá até a Comunidade e compartilhe algo com seus colegas!</p>
+                    </div>
                   </div>
                 `
               : this.userPosts.map(post => html`
-                  <div class="post-item">
+                  <div class="card post-card-item">
                     <div class="post-meta">
                       ${this._formatRelativeTime(post.createdAt)} • ${post.category || 'Geral'}
                     </div>
                     <div class="post-content">${post.content}</div>
+                    
+                    <div class="post-engagement">
+                      <div class="engagement-item" title="${post.likes?.length || 0} curtidas">
+                        <svg class="engagement-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                        <span>${post.likes?.length || 0} Curtidas</span>
+                      </div>
+                      <div class="engagement-item" title="${post.comments?.length || 0} comentários">
+                        <svg class="engagement-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                        </svg>
+                        <span>${post.comments?.length || 0} Comentários</span>
+                      </div>
+                    </div>
                   </div>
                 `)}
           </div>

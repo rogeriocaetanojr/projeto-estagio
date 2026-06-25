@@ -229,7 +229,14 @@ export class ProfileApplication extends LitElement {
       border: 1px solid var(--border-color, rgba(226, 232, 240, 0.8));
       padding: 16px 20px;
       box-sizing: border-box;
-      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+
+    .post-card-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      border-color: var(--primary-light, #00aeef);
     }
 
     .post-meta {
@@ -643,6 +650,23 @@ export class ProfileApplication extends LitElement {
     }));
   }
 
+  _navigateToPost(postId) {
+    // 1. Fecha o perfil (o que faz o shell abrir a aba da comunidade)
+    window.dispatchEvent(new CustomEvent('close-profile', {
+      bubbles: true,
+      composed: true
+    }));
+    
+    // 2. Dispara o evento de scroll para focar e destacar o post no feed principal
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('scroll-to-post', {
+        detail: { postId },
+        bubbles: true,
+        composed: true
+      }));
+    }, 100);
+  }
+
   render() {
     if (this.loading) {
       return html`<div class="loading-state">Carregando dados de perfil...</div>`;
@@ -770,7 +794,7 @@ export class ProfileApplication extends LitElement {
                   </div>
                 `
               : this.userPosts.map(post => html`
-                  <div class="card post-card-item">
+                  <div class="card post-card-item" @click=${() => this._navigateToPost(post.id)}>
                     <div class="post-meta">
                       ${this._formatRelativeTime(post.createdAt)} • ${post.category || 'Geral'}
                     </div>

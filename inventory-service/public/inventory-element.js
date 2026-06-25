@@ -40,23 +40,27 @@ class InventoryApplication extends LitElement {
             margin: 0;
         }
 
-        .integration-badge {
-            display: inline-block;
-            background: #fffbeb;
-            color: #b45309;
-            border: 1px solid #fde68a;
-            padding: 4px 12px;
+        .portal-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72em;
+            font-weight: 600;
+            padding: 2px 8px;
             border-radius: 12px;
-            font-size: 0.75em;
-            font-weight: 700;
+            background-color: var(--border-color, #e2e8f0);
+            color: var(--text-muted, #64748b);
+            transition: background-color 0.3s ease, color 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
+            border: none;
+            box-sizing: border-box;
+            vertical-align: middle;
         }
 
-        :host-context(.dark-theme) .integration-badge {
-            background: rgba(180, 83, 9, 0.2);
-            color: #fde68a;
-            border-color: rgba(180, 83, 9, 0.5);
+        :host-context(.dark-theme) .portal-badge {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
         }
 
         .item-card {
@@ -100,7 +104,7 @@ class InventoryApplication extends LitElement {
             <div class="inventory-container">
                 <div class="inventory-header">
                     <h2 class="inventory-title">Módulo de Inventário — Controle de Ativos</h2>
-                    <span class="integration-badge">Em Integração</span>
+                    <span class="portal-badge">Em Integração</span>
                 </div>
                 
                 <div class="items-list">

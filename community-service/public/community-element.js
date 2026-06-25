@@ -260,17 +260,40 @@ class CommunityApplication extends LitElement {
             transition: color 0.3s ease;
         }
 
-        .post-author-badge {
-            font-size: 0.75em;
+        .portal-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72em;
             font-weight: 600;
-            color: var(--text-muted, #64748b);
-            background-color: var(--bg-color, #f1f5f9);
             padding: 2px 8px;
             border-radius: 12px;
-            margin-left: 6px;
-            vertical-align: middle;
+            background-color: var(--border-color, #e2e8f0);
+            color: var(--text-muted, #64748b);
+            transition: background-color 0.3s ease, color 0.3s ease;
             text-transform: uppercase;
-            transition: color 0.3s ease, background-color 0.3s ease;
+            letter-spacing: 0.3px;
+            border: none;
+            box-sizing: border-box;
+            vertical-align: middle;
+        }
+
+        :host-context(.dark-theme) .portal-badge {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+        }
+
+        .portal-badge.interactive {
+            cursor: pointer;
+        }
+
+        .portal-badge.interactive:hover {
+            background-color: var(--item-hover, #f1f5f9);
+            color: var(--title-color, #00aeef);
+        }
+
+        .post-author-name .portal-badge {
+            margin-left: 6px;
         }
 
         .post-time {
@@ -1522,11 +1545,11 @@ class CommunityApplication extends LitElement {
                     <span class="community-desc">${c.description || 'Sem descrição'}</span>
                 </div>
                 ${isOwner ? html`
-                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 22px; font-size: 0.68em; color: #1e3a8a; background-color: #dbeafe; border: 1px solid #bfdbfe; border-radius: 4px; font-weight: 700; flex-shrink: 0; margin-left: auto; box-sizing: border-box;">Dono</span>
+                    <span class="portal-badge">Dono</span>
                 ` : !isMemberOrOwner ? html`
-                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 22px; font-size: 0.68em; color: #9a3412; background-color: #fff7ed; border: 1px solid #fed7aa; border-radius: 4px; font-weight: 700; flex-shrink: 0; margin-left: auto; cursor: pointer; box-sizing: border-box;" @click="${(e) => { e.stopPropagation(); this.handleJoinCommunity(c.id, c.isLocked); }}">Entrar</span>
+                    <span class="portal-badge interactive" @click="${(e) => { e.stopPropagation(); this.handleJoinCommunity(c.id, c.isLocked); }}">Entrar</span>
                 ` : html`
-                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 22px; font-size: 0.68em; color: #10b981; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 4px; font-weight: 700; flex-shrink: 0; margin-left: auto; box-sizing: border-box;">Membro</span>
+                    <span class="portal-badge">Membro</span>
                 `}
             </div>
         `;
@@ -1668,7 +1691,7 @@ class CommunityApplication extends LitElement {
                                             <div class="post-meta">
                                                 <h4 class="post-author-name">
                                                     ${post.author && post.author.name ? post.author.name : authorEmail.split('@')[0]}
-                                                    <span class="post-author-badge">${authorRoleLabel}</span>
+                                                    <span class="portal-badge">${authorRoleLabel}</span>
                                                 </h4>
                                                 <div class="post-time">${dateStr}</div>
                                             </div>

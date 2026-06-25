@@ -129,17 +129,27 @@ export class ProfileApplication extends LitElement {
       word-break: break-all;
     }
 
-    .profile-badge {
-      display: inline-block;
-      background: var(--inner-card-bg, #f1f5f9);
-      color: var(--title-color, #0d3168);
-      padding: 2px 10px;
-      border-radius: 12px;
+    .portal-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       font-size: 0.72em;
-      font-weight: 700;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background-color: var(--border-color, #e2e8f0);
+      color: var(--text-muted, #64748b);
+      transition: background-color 0.3s ease, color 0.3s ease;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
-      border: 1px solid var(--inner-card-border, #e2e8f0);
+      letter-spacing: 0.3px;
+      border: none;
+      box-sizing: border-box;
+      vertical-align: middle;
+    }
+
+    :host-context(.dark-theme) .portal-badge {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
     }
 
     /* CARD DE DADOS ACADÊMICOS (INFERIOR) */
@@ -677,7 +687,7 @@ export class ProfileApplication extends LitElement {
                     </div>
                   `}
               <p class="profile-email-display">${u.email}</p>
-              <span class="profile-badge">${profileTypeLabel}</span>
+              <span class="portal-badge">${profileTypeLabel}</span>
             </div>
           </div>
 

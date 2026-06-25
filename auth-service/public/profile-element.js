@@ -7,6 +7,7 @@ export class ProfileApplication extends LitElement {
     error: { type: String },
     postsCount: { type: Number },
     userPosts: { type: Array },
+    createdCommunities: { type: Array },
     isEditing: { type: Boolean },
     editName: { type: String },
     saving: { type: Boolean }
@@ -320,70 +321,67 @@ export class ProfileApplication extends LitElement {
       line-height: 1.5;
     }
 
-    /* CARD DE PROGRESSO DE ENSINO (COLUNA DIREITA) */
-    .profile-progress-card {
-      padding: 20px;
+    /* CARD DE COMUNIDADES CRIADAS (COLUNA DIREITA) */
+    .profile-communities-container {
       display: flex;
       flex-direction: column;
       gap: 16px;
-      background: var(--card-bg, white);
-      min-height: 300px;
     }
 
-    .progress-title {
-      font-size: 1.1em;
+    .communities-title {
+      font-size: 1.25em;
       font-weight: 700;
       color: var(--title-color, #0d3168);
       margin: 0;
       border-bottom: 2px solid var(--border-color, #f1f5f9);
-      padding-bottom: 8px;
+      padding-bottom: 12px;
+      margin-bottom: 4px;
     }
 
-    .progress-content {
+    .communities-list {
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      margin-top: 10px;
+      gap: 16px;
     }
 
-    /* Seção Nível/XP */
-    .xp-section {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .community-card-item {
+      background: var(--card-bg, white);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border-color, rgba(226, 232, 240, 0.8));
+      padding: 16px 20px;
+      box-sizing: border-box;
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
     }
 
-    .xp-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.88em;
-      font-weight: 600;
+    .community-card-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      border-color: var(--primary-light, #00aeef);
     }
 
-    .xp-level {
+    .community-card-name {
+      font-size: 1em;
+      font-weight: 700;
       color: var(--title-color, #0d3168);
+      margin: 0 0 6px 0;
     }
 
-    .xp-percent {
+    .community-card-desc {
+      font-size: 0.88em;
       color: var(--text-muted, #64748b);
+      line-height: 1.4;
+      word-break: break-word;
     }
 
-    .progress-bar-bg {
-      background-color: var(--inner-card-bg, #f1f5f9);
-      border-radius: 6px;
-      height: 8px;
-      width: 100%;
-      overflow: hidden;
-      border: 1px solid var(--border-color, #cbd5e1);
-    }
-
-    .progress-bar-fill {
-      background: linear-gradient(90deg, #0d3168 0%, #00aeef 100%);
-      height: 100%;
-      border-radius: 6px;
-      width: 0%;
-      transition: width 0.5s ease-in-out;
+    .empty-communities-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
     }
 
     .loading-state {
@@ -513,6 +511,7 @@ export class ProfileApplication extends LitElement {
     this.error = '';
     this.postsCount = 0;
     this.userPosts = [];
+    this.createdCommunities = [];
     this.isEditing = false;
     this.editName = '';
     this.saving = false;
@@ -566,6 +565,24 @@ export class ProfileApplication extends LitElement {
         console.warn('Erro ao obter contagem de posts do usuário:', postErr);
         this.userPosts = [];
         this.postsCount = 0;
+      }
+
+      // 3. Busca e filtra comunidades criadas por este usuário
+      try {
+        const commsResponse = await fetch('http://localhost:3002/communities', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (commsResponse.ok) {
+          const comms = await commsResponse.json();
+          this.createdCommunities = comms
+            .filter(comm => comm.ownerId === this.profileData.id)
+            .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        }
+      } catch (commErr) {
+        console.warn('Erro ao obter comunidades do usuário:', commErr);
+        this.createdCommunities = [];
       }
 
     } catch (err) {
@@ -718,6 +735,31 @@ export class ProfileApplication extends LitElement {
         bubbles: true,
         composed: true
       }));
+    }, 100);
+  }
+
+  _navigateToCommunity(communityId) {
+    // 1. Fecha o perfil (o que ativa a aba da comunidade no shell)
+    window.dispatchEvent(new CustomEvent('close-profile', {
+      bubbles: true,
+      composed: true
+    }));
+    
+    // 2. Busca o elemento do MFE de comunidade e ativa a comunidade selecionada
+    setTimeout(() => {
+      const commApp = document.getElementById('community-app');
+      if (commApp && typeof commApp.selectCommunity === 'function') {
+        commApp.selectCommunity(communityId);
+      }
+      
+      // Sincroniza o item ativo na barra lateral do shell
+      document.querySelectorAll('.portal-community-item').forEach(item => {
+        if (item.getAttribute('data-id') === String(communityId)) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
     }, 100);
   }
 
@@ -903,20 +945,29 @@ export class ProfileApplication extends LitElement {
           </div>
         </div>
 
-        <!-- Coluna da Direita: Progresso de Ensino -->
-        <div class="card profile-progress-card">
-          <h3 class="progress-title">Progresso de ensino</h3>
-          <div class="progress-content">
-            <!-- Seção de Nível / XP -->
-            <div class="xp-section">
-              <div class="xp-header">
-                <span class="xp-level">Nível 1 - Desafios de Lógica</span>
-                <span class="xp-percent">0% concluído</span>
-              </div>
-              <div class="progress-bar-bg">
-                <div class="progress-bar-fill"></div>
-              </div>
-            </div>
+        <!-- Coluna da Direita: Comunidades Criadas -->
+        <div class="profile-communities-container">
+          <h3 class="communities-title">Comunidades criadas</h3>
+          
+          <div class="communities-list">
+            ${!this.createdCommunities || this.createdCommunities.length === 0
+              ? html`
+                  <div class="card community-card-item" style="display: flex; justify-content: center; align-items: center; width: 100%; cursor: default;">
+                    <div class="empty-communities-state">
+                      <svg viewBox="0 0 24 24" class="empty-icon" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                      </svg>
+                      <h4 class="empty-message" style="font-size: 0.95em; margin-top: 8px;">Nenhuma comunidade criada.</h4>
+                      <p class="empty-submessage" style="font-size: 0.82em;">Compartilhe conhecimento criando seu próprio grupo!</p>
+                    </div>
+                  </div>
+                `
+              : this.createdCommunities.map(comm => html`
+                  <div class="card community-card-item" @click=${() => this._navigateToCommunity(comm.id)}>
+                    <h4 class="community-card-name">${comm.name}</h4>
+                    <p class="community-card-desc">${comm.description || 'Sem descrição disponível.'}</p>
+                  </div>
+                `)}
           </div>
         </div>
       </div>

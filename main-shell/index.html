@@ -1164,6 +1164,9 @@
                 // Limpa o localStorage
                 localStorage.removeItem('portal_token');
                 localStorage.removeItem('portal_user');
+
+                // Dispara evento global de logout para atualizar os Micro-Frontends
+                window.dispatchEvent(new CustomEvent('auth-logout'));
             }
         }
 

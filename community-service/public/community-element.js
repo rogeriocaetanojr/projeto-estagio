@@ -22,7 +22,8 @@ class CommunityApplication extends LitElement {
         newCommunityPassword: { type: String },
         communityPasswordPromptId: { type: String },
         communityPasswordInput: { type: String },
-        clickedPosts: { type: Array }
+        clickedPosts: { type: Array },
+        currentUser: { type: Object }
     };
 
     static styles = css`
@@ -815,21 +816,39 @@ class CommunityApplication extends LitElement {
         this.communityPasswordPromptId = null;
         this.communityPasswordInput = '';
         this.clickedPosts = [];
+        this.currentUser = this._loadUserFromStorage();
     }
 
     connectedCallback() {
         super.connectedCallback();
         this.loadClickedPosts();
+        
+        // Carrega o usuário atual do storage no carregamento inicial
+        this.currentUser = this._loadUserFromStorage();
         this.fetchPosts();
         this.fetchCommunities();
 
-        window.addEventListener('profile-updated', (e) => {
+        this._profileUpdatedListener = (e) => {
             if (this.currentUser) {
-                this.currentUser.name = e.detail.name;
-                this.requestUpdate();
+                // Atualiza localmente o nome do usuário reativo
+                this.currentUser = {
+                    ...this.currentUser,
+                    name: e.detail.name
+                };
             }
             this.fetchPosts();
-        });
+        };
+        window.addEventListener('profile-updated', this._profileUpdatedListener);
+
+        this._authSuccessListener = () => {
+            this.currentUser = this._loadUserFromStorage();
+        };
+        window.addEventListener('auth-success', this._authSuccessListener);
+
+        this._authLogoutListener = () => {
+            this.currentUser = null;
+        };
+        window.addEventListener('auth-logout', this._authLogoutListener);
 
         this._scrollToPostListener = (e) => {
             this.scrollToPost(e.detail.postId);
@@ -838,8 +857,11 @@ class CommunityApplication extends LitElement {
     }
 
     disconnectedCallback() {
-        super.disconnectedCallback();
+        window.removeEventListener('profile-updated', this._profileUpdatedListener);
+        window.removeEventListener('auth-success', this._authSuccessListener);
+        window.removeEventListener('auth-logout', this._authLogoutListener);
         window.removeEventListener('scroll-to-post', this._scrollToPostListener);
+        super.disconnectedCallback();
     }
 
     async fetchCommunities() {
@@ -1437,12 +1459,23 @@ class CommunityApplication extends LitElement {
         }
     }
 
-    get currentUser() {
+    _loadUserFromStorage() {
         try {
             const userRaw = localStorage.getItem('portal_user');
             return userRaw ? JSON.parse(userRaw) : null;
         } catch (e) {
             return null;
+        }
+    }
+
+    willUpdate(changedProperties) {
+        if (changedProperties.has('currentUser')) {
+            // Se o usuário mudou (login / logout / troca de conta),
+            // limpa o feed e força a busca atualizada de posts e comunidades
+            this.posts = [];
+            this.communities = [];
+            this.fetchPosts();
+            this.fetchCommunities();
         }
     }
 

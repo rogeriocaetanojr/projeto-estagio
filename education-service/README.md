@@ -51,7 +51,7 @@ O contrato de comunicação segue o padrão de envelopamento do framework NestJS
   "data": {
     "id": "uuid-identificador-do-usuario",
     "email": "usuario@dominio.com",
-    "profileType": "STUDENT"
+    "profileType": "student"
   }
 }
 ```
@@ -59,7 +59,7 @@ O contrato de comunicação segue o padrão de envelopamento do framework NestJS
 ### Detalhes dos Campos (Objeto `data`):
 * `id` (String / UUID): Identificador único do usuário gerado pelo serviço de autenticação.
 * `email` (String): Endereço de e-mail do usuário.
-* `profileType` (String): Tipo de perfil do usuário. Valores possíveis: `STUDENT` ou `PROFESSOR`.
+* `profileType` (String): Tipo de perfil do usuário. Valores possíveis: `student` ou `professor` (sempre em minúsculas).
 
 ---
 

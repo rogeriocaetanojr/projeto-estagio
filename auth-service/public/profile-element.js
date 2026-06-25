@@ -189,14 +189,25 @@ export class ProfileApplication extends LitElement {
       color: var(--text-muted, #64748b);
       text-transform: uppercase;
       letter-spacing: 0.6px;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .info-label-icon {
+      width: 13px;
+      height: 13px;
+      fill: var(--primary-light, #00aeef);
+      flex-shrink: 0;
     }
 
     .info-value {
       font-size: 1em;
       color: var(--text-main, #1e293b);
       font-weight: 600;
+      padding-left: 19px;
     }
 
     /* CARD DE HISTÓRICO DE POSTS (COLUNA DO MEIO) */
@@ -741,35 +752,65 @@ export class ProfileApplication extends LitElement {
             
             <div class="details-grid" style="margin-top: 14px;">
               <div class="info-group">
-                <div class="info-label">E-mail de Login</div>
+                <div class="info-label">
+                  <svg class="info-label-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                  </svg>
+                  <span>E-mail de Login</span>
+                </div>
                 <div class="info-value">${u.email}</div>
               </div>
 
               ${isStudent
                 ? html`
                     <div class="info-group">
-                      <div class="info-label">Registro Acadêmico (RA)</div>
+                      <div class="info-label">
+                        <svg class="info-label-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm6 12H6v-1.07c0-2 4-3.13 6-3.13s6 1.13 6 3.13V18z"/>
+                        </svg>
+                        <span>Registro Acadêmico (RA)</span>
+                      </div>
                       <div class="info-value">${u.student.ra}</div>
                     </div>
                     <div class="info-group">
-                      <div class="info-label">Período Letivo</div>
+                      <div class="info-label">
+                        <svg class="info-label-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+                        </svg>
+                        <span>Período Letivo</span>
+                      </div>
                       <div class="info-value">${u.student.periodo}º Período</div>
                     </div>
                   `
                 : html`
                     <div class="info-group">
-                      <div class="info-label">Matrícula Funcional</div>
+                      <div class="info-label">
+                        <svg class="info-label-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm6 12H6v-1.07c0-2 4-3.13 6-3.13s6 1.13 6 3.13V18z"/>
+                        </svg>
+                        <span>Matrícula Funcional</span>
+                      </div>
                       <div class="info-value">${u.professor.matricula}</div>
                     </div>
                     <div class="info-group">
-                      <div class="info-label">Titulação Acadêmica</div>
+                      <div class="info-label">
+                        <svg class="info-label-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5.18 13.04l-2.42 1.32c1.78 3.61 5.48 6.14 9.74 6.14s7.96-2.53 9.74-6.14l-2.42-1.32C18.24 16.08 15.34 18 12 18s-6.24-1.92-7.82-4.96z"/>
+                        </svg>
+                        <span>Titulação Acadêmica</span>
+                      </div>
                       <div class="info-value">${u.professor.titulacao}</div>
                     </div>
                   `}
 
               <!-- Campo de Estatísticas formatado igual aos demais -->
               <div class="info-group">
-                <div class="info-label">Posts publicados</div>
+                <div class="info-label">
+                  <svg class="info-label-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                  </svg>
+                  <span>Posts publicados</span>
+                </div>
                 <div class="info-value">${this.postsCount}</div>
               </div>
             </div>
